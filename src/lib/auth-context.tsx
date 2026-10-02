@@ -19,7 +19,7 @@ interface AuthContextType {
   loading: boolean;
   isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithGoogle: (info?: { email?: string; name?: string; avatarUrl?: string }) => Promise<{ error: string | null }>;
   signUp: (
     email: string,
     password: string,
@@ -149,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   }
 
-  async function signInWithGoogle() {
+  async function signInWithGoogle(info?: { email?: string; name?: string; avatarUrl?: string }) {
     if (isSupabaseConfigured) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -159,23 +159,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       return { error: error?.message ?? null };
     }
-    // Local / Client session fallback when live backend is pending
+
+    const email = info?.email?.trim() || "creator@gmail.com";
+    const name = info?.name?.trim() || "Google Creator";
+    const username = (email.split("@")[0] || "google_creator").toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const avatarUrl =
+      info?.avatarUrl ||
+      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=4285f4`;
+
     const googleUser = {
       id: "google_user_" + Math.random().toString(36).substring(2, 9),
-      email: "creator@gmail.com",
+      email,
       app_metadata: {},
-      user_metadata: { full_name: "Google Creator" },
+      user_metadata: { full_name: name, avatar_url: avatarUrl },
       aud: "authenticated",
       created_at: new Date().toISOString(),
     } as any;
-    setUser(googleUser);
-    setProfile({
+
+    const newProfile: Profile = {
       ...DEMO_PROFILE,
       id: googleUser.id,
-      display_name: "Google Creator",
-      username: "google_creator",
-      avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-    });
+      display_name: name,
+      username,
+      avatar_url: avatarUrl,
+    };
+
+    setUser(googleUser);
+    setProfile(newProfile);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("riff_active_user", JSON.stringify(newProfile));
+      } catch {}
+    }
     return { error: null };
   }
 

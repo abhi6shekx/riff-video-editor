@@ -39,6 +39,9 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
     ],
+    scripts: [
+      { src: "https://accounts.google.com/gsi/client", async: true, defer: true },
+    ],
   }),
   component: () => (
     <html lang="en" className="antialiased" suppressHydrationWarning>
