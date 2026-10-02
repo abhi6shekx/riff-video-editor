@@ -41,3 +41,4 @@ Thumbs.db
 .grok/*.log
 .grok/preview.pid
 .grok/preview.log
+.vercel
