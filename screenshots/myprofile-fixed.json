@@ -1,0 +1,36 @@
+{
+  "url": "http://localhost:8080",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 2588,
+      "bodyTextHash": "421b70bbeef00bacaaec6ff0828bbffcc80d39e0a82fc90566af0e7a24d98b46",
+      "bodyTextPrefix": "RIFF Home Create Messages 2 Notifications 2 Profile Settings Adm",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/myprofile-fixed.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 2475,
+      "bodyTextHash": "17b85d3890a9f179bcae9962e6735abbe53756697289a87a230a5dda8c05f59e",
+      "bodyTextPrefix": "RIFF For You Following3 Create All Featured Reels 😂 Relatable \ud83d",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/myprofile-fixed-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/myprofile-fixed.json"
+}

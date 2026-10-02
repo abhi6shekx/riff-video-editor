@@ -1,0 +1,40 @@
+{
+  "url": "http://127.0.0.1:8080",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 500,
+      "title": "",
+      "hasCanvas": false,
+      "bodyTextLen": 53,
+      "bodyTextHash": "38e85ee15263f3fd151705f50b701bfd657fa6efc99294f49fe3c5fe5e8013ad",
+      "bodyTextPrefix": "{\"status\":500,\"unhandled\":true,\"message\":\"HTTPError\"}",
+      "horizontalOverflow": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/test-mobile.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 500,
+      "title": "",
+      "hasCanvas": false,
+      "bodyTextLen": 53,
+      "bodyTextHash": "38e85ee15263f3fd151705f50b701bfd657fa6efc99294f49fe3c5fe5e8013ad",
+      "bodyTextPrefix": "{\"status\":500,\"unhandled\":true,\"message\":\"HTTPError\"}",
+      "horizontalOverflow": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/test-mobile-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/test-mobile.json"
+}

@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/reels",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "9:16 Creator Reels · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 369,
+      "bodyTextHash": "6fa605e8d0f59b1ee2cf81ea67c898f643e1e7a8065f6ed5abd9f9b6d611e639",
+      "bodyTextPrefix": "RIFF Home Create Messages 2 Notifications 2 Profile Settings Adm",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reels-test.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "9:16 Creator Reels · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 275,
+      "bodyTextHash": "15a38ed0be32467051c6ec5e466a488f1b52997a17a904469cdec53f25e143aa",
+      "bodyTextPrefix": "RIFF Reel 1 / 4 1V3 MATCH POINT TEAMMATE: HOLD ON MOM CALLING 🎮",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reels-test-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reels-test.json"
+}

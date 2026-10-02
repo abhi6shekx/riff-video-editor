@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/create",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Create on RIFF · Post or Reel",
+      "hasCanvas": false,
+      "bodyTextLen": 471,
+      "bodyTextHash": "1d547140f2626ce2c1549a92483c2e8837e5e51a51f1ed733c761d6cb5030376",
+      "bodyTextPrefix": "RIFF Home Reels Create Messages 2 Notifications 2 Profile Settin",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/create-page-unified.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Create on RIFF · Post or Reel",
+      "hasCanvas": false,
+      "bodyTextLen": 318,
+      "bodyTextHash": "fb157741a0799639e99cdcb626800ba29a3a10155efcc25373c7f6bf804c9df7",
+      "bodyTextPrefix": "RIFF 3 ← Back Create on RIFF What are you creating today? + Crea",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/create-page-unified-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/create-page-unified.json"
+}

@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/chat/c-rahul",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Direct Chat · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 763,
+      "bodyTextHash": "1356f82d026d81b9a2d4424db6a3185efb0dddd8d2404767f1bcabd80ce04de7",
+      "bodyTextPrefix": "RIFF SOCIAL Feed Create Post / Reel Messages 1 Alerts 2 Profile ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/chat-thread.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Direct Chat · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 209,
+      "bodyTextHash": "873fdf817105a33f2d4a65c3d6faa5da8ebc7a79478f80235cd3395f578fe772",
+      "bodyTextPrefix": "Rahul Sharma @rahul • Online View Profile Hey! Loved that Monday",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/chat-thread-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/chat-thread.json"
+}

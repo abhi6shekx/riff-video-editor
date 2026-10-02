@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8080/admin",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Admin Console · Riff",
+      "hasCanvas": false,
+      "bodyTextLen": 669,
+      "bodyTextHash": "e5b9f0574bd9af86cf08cb25d346a6692ad2c5b9c680d9d321f4ebddafd83076",
+      "bodyTextPrefix": "Riff SPECKIT Feed Briefs Hubs Studio Chat Alerts You WALLET ₹1,2",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/admin-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Admin Console · Riff",
+      "hasCanvas": false,
+      "bodyTextLen": 583,
+      "bodyTextHash": "8a3cf09fb34cdcd81b063d97346b1dc474560e9eb4b488e3e4c8ec90070b7cec",
+      "bodyTextPrefix": "ADMIN PORTAL Platform Governance & Treasury Speckit Admin Consol",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/admin-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND NOTE: no custom public/og.jpg — the platform will serve the og.grok.me placeholder. Custom cards are the default for games of every kind (DOM board/word games included), whimsical apps, creative tools, and brand-forward pages — only plain utilities (converters, CRUD trackers, admin dashboards) keep the placeholder. If this app is not a plain utility, finish the brand-asset pass per /workspace/.grok/skills/og/SKILL.md."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/admin-preview.json"
+}

@@ -1,0 +1,39 @@
+{
+  "url": "http://127.0.0.1:8080/studio",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RIFF Studio · CapCut-Style Reel Editor",
+      "hasCanvas": true,
+      "bodyTextLen": 1379,
+      "bodyTextHash": "0d880bddd02036749b36e1c92189e6a615f2e682c23f7ac4ecc5aa545b593f0a",
+      "bodyTextPrefix": "RIFF SOCIAL Feed Create Post / Reel Messages 2 Alerts 2 Profile ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/studio-final.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RIFF Studio · CapCut-Style Reel Editor",
+      "hasCanvas": true,
+      "bodyTextLen": 1143,
+      "bodyTextHash": "47a571df4390bdbd661d6b1dd4a4f88c7607cda92e2fb750f19699d5dba5f66c",
+      "bodyTextPrefix": "RIFF SOCIAL RIFF Studio CAPCUT SUITE Mobile-first creator editor",
+      "horizontalOverflow": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/studio-final-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND WARNING: this looks like a game/canvas app but src/lib/og/site.json is missing \"type\": \"x:game\". X uses og:type=x:game to present the unfurl as a game card — set it in /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/src/lib/og/site.json per /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/.grok/skills/og/SKILL.md. Do not invent x:type or overload twitter:card as the game signal.",
+    "BRAND WARNING: this looks like a game/canvas app but /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/public/x-banner.jpg is missing. Games need a 50:11 X feed card (1200×264 JPEG) at public/x-banner.jpg — open /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/.grok/skills/og/SKILL.md and finish the brand-asset pass."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/studio-final.json"
+}

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production builds & artifacts
+.vercel/
+.output/
+dist/
+build/
+.tanstack/
+*.zip
+
+# Environment & Secrets (NEVER commit secrets!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+.env.preview
+.env.production
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Grok internal runtime files (preserve config and references)
+.grok/*.pid
+.grok/*.log
+.grok/preview.pid
+.grok/preview.log

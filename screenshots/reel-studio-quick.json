@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/reel-studio",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Create Reel · Video Studio",
+      "hasCanvas": false,
+      "bodyTextLen": 4,
+      "bodyTextHash": "a40ff3d5900fb7698b8c865041347cb49eccedc8f93945f89629ad104aaecce4",
+      "bodyTextPrefix": "RIFF",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-quick.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Create Reel · Video Studio",
+      "hasCanvas": false,
+      "bodyTextLen": 480,
+      "bodyTextHash": "5592a9ce2dd900e073ff79b84c755494e7c98080184d6da772def91f90b18204",
+      "bodyTextPrefix": "← RIFF Studio Engine 🎬 Studio 🎛️ Tools 🎬 Export ＋ Media ✨ Sam",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-quick-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-quick.json"
+}

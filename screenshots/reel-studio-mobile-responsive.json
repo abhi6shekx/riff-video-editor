@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/reel-studio",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 633,
+      "bodyTextHash": "b0f19eb529201aecb2ee1c4b4451e597300afaab56318b7dc0796293bdf522b5",
+      "bodyTextPrefix": "← RIFF Studio ⟲ Undo ⟳ Redo 📁 Drafts Save Draft 🎬 Export & Pub",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-mobile-responsive.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 223,
+      "bodyTextHash": "11e5d5094cb83fcf8b82fb33f0cbf8ee18a1faac7ea0ac02728ecbf2d595f41e",
+      "bodyTextPrefix": "← RIFF Studio 🎛️ Tools 🎬 Export ＋ Media T Text ♫ Audio 🖼️ PIP",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-mobile-responsive-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-mobile-responsive.json"
+}

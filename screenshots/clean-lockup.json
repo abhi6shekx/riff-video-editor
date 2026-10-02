@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 2632,
+      "bodyTextHash": "9d7e6d12903bb8ebf595c857efc44f3fc1cc1f9a952ec2abb1aaa2dd3f3d1787",
+      "bodyTextPrefix": "RIFF Feed Create Post / Reel Messages 2 Alerts 2 Profile Admin R",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/clean-lockup.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 2434,
+      "bodyTextHash": "f6257c7412d5b1da0ab31aca5617345525dabd1ef40ec31f549f61931a917374",
+      "bodyTextPrefix": "RIFF For You Following3 Create All Featured Reels 😂 Relatable \ud83d",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/clean-lockup-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/clean-lockup.json"
+}

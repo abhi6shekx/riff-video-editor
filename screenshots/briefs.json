@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/briefs",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Campaigns & Briefs · Riff",
+      "hasCanvas": false,
+      "bodyTextLen": 718,
+      "bodyTextHash": "085b7be553ea733fad381f58d9c48a409d87a9fe6c8c72b17f2638ab95b32f9d",
+      "bodyTextPrefix": "RIFF SOCIAL Feed Create Post / Reel Messages 2 Alerts 2 Profile ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/briefs.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Campaigns & Briefs · Riff",
+      "hasCanvas": false,
+      "bodyTextLen": 537,
+      "bodyTextHash": "648575e19e91724122fd37149486f9abb15e017eb7c85f21bcb748938c720c84",
+      "bodyTextPrefix": "RIFF SOCIAL MONETIZE Speckit Engine Brand Briefs Get paid per ap",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/briefs-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/briefs.json"
+}

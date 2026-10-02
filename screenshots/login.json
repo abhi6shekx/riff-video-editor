@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/login",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Sign In · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 456,
+      "bodyTextHash": "f8b03b5e89dfd8686f7494daa4affae7a02ad725ff2fa35b71f9bf1a252f7d1f",
+      "bodyTextPrefix": "RIFF SOCIAL Feed Create Post / Reel Messages 2 Alerts 2 Profile ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/login.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Sign In · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 234,
+      "bodyTextHash": "a0864a83be9bb1f5eaa69b2aabc49d119764a6a8055916799361a48ce06eed97",
+      "bodyTextPrefix": "RIFF SOCIAL Sign in to access your creator wallet and feed Supab",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/login-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/login.json"
+}

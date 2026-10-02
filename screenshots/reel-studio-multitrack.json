@@ -1,0 +1,39 @@
+{
+  "url": "http://127.0.0.1:8080/reel-studio?mode=multitrack",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Create Reel · Video Studio",
+      "hasCanvas": true,
+      "bodyTextLen": 1000,
+      "bodyTextHash": "9d9f4f8ff1c83a8940710cbc5c52876e054994f1e706c22b2825da756bee298a",
+      "bodyTextPrefix": "⚡ Quick Mode ⌘Z ⇧⌘Z 9:16 Meme Mode Challenges Export Media Audio",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-multitrack.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Create Reel · Video Studio",
+      "hasCanvas": true,
+      "bodyTextLen": 400,
+      "bodyTextHash": "2c2ddec8ae1f956de243d7b18afcec445d7ccb0bce9866e8a9b63201637ae021",
+      "bodyTextPrefix": "⚡ Quick Mode 9:16 Export 00:00.00 / 00:12.00 Split 200% Add Medi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-multitrack-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND WARNING: this looks like a game/canvas app but src/lib/og/site.json is missing \"type\": \"x:game\". X uses og:type=x:game to present the unfurl as a game card — set it in /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/src/lib/og/site.json per /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/.grok/skills/og/SKILL.md. Do not invent x:type or overload twitter:card as the game signal.",
+    "BRAND WARNING: this looks like a game/canvas app but /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/public/x-banner.jpg is missing. Games need a 50:11 X feed card (1200×264 JPEG) at public/x-banner.jpg — open /Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/.grok/skills/og/SKILL.md and finish the brand-asset pass."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/reel-studio-multitrack.json"
+}

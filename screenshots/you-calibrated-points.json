@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/you",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Profile & Points Wallet · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 461,
+      "bodyTextHash": "f53bae45381129df2b9595e23f792b76a6503cfd6b71bdd19a58eb1877c3aa16",
+      "bodyTextPrefix": "RIFF Home Reels Create Video Editor Messages 2 Notifications 2 P",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/you-calibrated-points.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Profile & Points Wallet · RIFF",
+      "hasCanvas": false,
+      "bodyTextLen": 295,
+      "bodyTextHash": "233d9725f7a181c16f88abfe1f74d56dbb23b301764a9307b52cb7683d0bd720",
+      "bodyTextPrefix": "RIFF 3 ⚡ You CREATOR @you Edit Profile @you_on_riff Memes, tech ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/you-calibrated-points-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/you-calibrated-points.json"
+}

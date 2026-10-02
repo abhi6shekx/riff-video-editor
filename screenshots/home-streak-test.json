@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 1462,
+      "bodyTextHash": "88fd1752e30a73d8cd433b631eee96cb2bf6c61217aa289680c35da57a739cbe",
+      "bodyTextPrefix": "RIFF Home Reels Create Video Editor Messages 2 Notifications 2 P",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/home-streak-test.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "RIFF · Social First Creator Feed",
+      "hasCanvas": false,
+      "bodyTextLen": 1274,
+      "bodyTextHash": "13c2d7b8ffaa0fd0fa454deeefe27785ec06d9c4e64eff8de6854b28b02e6f33",
+      "bodyTextPrefix": "RIFF 3 3d Claim For You Following3 Create All Featured 😂 Relata",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/home-streak-test-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/Users/abhishekgawade/Downloads/XyXHP2eXGH6opzF5-grok-workspace/screenshots/home-streak-test.json"
+}
