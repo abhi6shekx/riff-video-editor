@@ -21,6 +21,8 @@ function ChatLayoutPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isThreadActive = pathname.startsWith("/chat/") && pathname !== "/chat";
 
+  const people = useRiff((s) => s.people);
+
   const filteredChats = chats.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -28,9 +30,19 @@ function ChatLayoutPage() {
       c.lastMessage.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const searchResultsPeople = search.trim()
+    ? people.filter(
+        (p) =>
+          p.id !== "you" &&
+          (p.name.toLowerCase().includes(search.toLowerCase()) ||
+            p.handle.toLowerCase().includes(search.toLowerCase())) &&
+          !chats.some((c) => c.id === `c-${p.id}` || c.memberIds?.includes(p.id)),
+      )
+    : [];
+
   const ConversationListContent = (
     <div className="flex h-full flex-col">
-      <div className="p-4 pb-3 border-b border-white/5 shrink-0">
+      <div className="p-4 pb-3 border-b border-border shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="font-display text-lg font-black tracking-tight text-fg">Direct Messages</span>
@@ -48,57 +60,49 @@ function ChatLayoutPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted" />
           <Input
-            placeholder="Search creators..."
+            placeholder="Search creators by name or @handle..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-8 pl-8 text-xs bg-raised/50 border-white/10 rounded-xl"
+            className="h-8 pl-8 text-xs bg-raised/50 border-border rounded-xl"
           />
-        </div>
-
-        {/* Active Online Creators Horizontal Reel */}
-        <div className="mt-3">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-muted mb-2">
-            Online Creators
-          </p>
-          <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
-            {PEOPLE.filter((p) => p.id !== "you").map((person) => {
-              const active = pathname === `/chat/c-${person.id}`;
-              return (
-                <Link
-                  key={person.id}
-                  to="/chat/$id"
-                  params={{ id: `c-${person.id}` }}
-                  className="flex flex-col items-center gap-1 shrink-0 group"
-                >
-                  <div className="relative">
-                    <PersonMark mark={person.mark} size="sm" />
-                    <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-400 border border-black" />
-                  </div>
-                  <span
-                    className={cn(
-                      "text-[9px] truncate max-w-[50px] transition-colors",
-                      active ? "text-accent font-bold" : "text-muted group-hover:text-fg",
-                    )}
-                  >
-                    {person.name.split(" ")[0]}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
         </div>
       </div>
 
       {/* Conversation Items */}
-      <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-        {filteredChats.length === 0 ? (
+      <div className="flex-1 overflow-y-auto divide-y divide-border/40">
+        {searchResultsPeople.length > 0 && (
+          <div className="p-2 bg-accent/5 border-b border-border">
+            <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-accent">
+              Start new chat
+            </p>
+            {searchResultsPeople.map((person) => (
+              <Link
+                key={person.id}
+                to="/chat/$id"
+                params={{ id: `c-${person.id}` }}
+                className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-raised transition-colors"
+              >
+                <PersonMark mark={person.mark} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-fg truncate">{person.name}</p>
+                  <p className="text-[10px] text-muted truncate">@{person.handle}</p>
+                </div>
+                <span className="text-[10px] text-accent font-bold px-2 py-0.5 rounded-md bg-accent/10">
+                  Message
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {filteredChats.length === 0 && searchResultsPeople.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center text-muted h-64">
             <div className="size-12 rounded-2xl bg-raised flex items-center justify-center text-muted mb-3 border border-border">
               <MessageSquare className="size-5 opacity-50 text-accent" />
             </div>
             <p className="text-xs font-bold text-fg">No messages yet</p>
-            <p className="text-[11px] text-muted mt-1 max-w-[200px]">
-              Tap any creator above to send a direct message or share a reel edit!
+            <p className="text-[11px] text-muted mt-1 max-w-[220px]">
+              Search a creator by name or @handle above to start a conversation.
             </p>
           </div>
         ) : (
