@@ -24,7 +24,7 @@ import { RiffNavbarLockup } from "@/components/riff-navbar-lockup";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, isPlatformOwnerEmail } from "@/lib/auth-context";
 import { useRiff } from "@/lib/store";
 import { playSound } from "@/lib/sounds";
 import { fireConfetti } from "@/lib/confetti";
@@ -69,11 +69,13 @@ function ProfileOnboardingPage() {
   const riffProfile = useRiff((s) => s.profile);
   const setRiffProfile = useRiff((s) => s.setProfile);
 
+  const isOwner = user?.email ? isPlatformOwnerEmail(user.email) : false;
+
   // Initialize fields with existing user data or Google metadata
   const initialName =
-    riffProfile?.name ||
-    authProfile?.display_name ||
     user?.user_metadata?.full_name ||
+    authProfile?.display_name ||
+    (isOwner ? riffProfile?.name : "") ||
     "";
 
   const initialEmail = user?.email || "";
@@ -84,15 +86,20 @@ function ProfileOnboardingPage() {
   const initialAvatar =
     authProfile?.avatar_url ||
     user?.user_metadata?.avatar_url ||
-    riffProfile?.avatarUrl ||
+    (isOwner ? riffProfile?.avatarUrl : undefined) ||
     DEFAULT_AVATARS[0];
 
-  const [name, setName] = useState(initialName || "Creator");
-  const [handle, setHandle] = useState(riffProfile?.handle || suggestedHandle || "creator");
-  const [bio, setBio] = useState(riffProfile?.bio || "Creating awesome videos & reels on RIFF 🎬");
-  const [instagramHandle, setInstagramHandle] = useState(riffProfile?.instagramHandle || "");
+  const [name, setName] = useState(initialName || "");
+  const [handle, setHandle] = useState(
+    (isOwner ? riffProfile?.handle : undefined) || suggestedHandle || ""
+  );
+  const [bio, setBio] = useState(
+    (isOwner ? riffProfile?.bio : undefined) || "Creating awesome videos & reels on RIFF 🎬"
+  );
+  const [instagramHandle, setInstagramHandle] = useState(
+    isOwner ? (riffProfile?.instagramHandle || "") : (authProfile?.instagram_handle || "")
+  );
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
-  const [selectedRole, setSelectedRole] = useState<"creator" | "brand" | "viewer">("creator");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["reels", "memes"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -136,7 +143,7 @@ function ProfileOnboardingPage() {
     const finalName = name.trim() || "RIFF Creator";
     const finalHandle = handle.trim() || "creator";
     const finalBio = bio.trim() || "Creating viral content on RIFF";
-    const finalRole = selectedRole === "brand" ? "brand" : "creator";
+    const finalRole = isOwner ? "owner" : "creator";
     const finalInstagram = instagramHandle.trim().replace(/^@/, "");
 
     try {
@@ -280,7 +287,7 @@ function ProfileOnboardingPage() {
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Abhishek Gawade"
+                  placeholder="e.g. Your Name"
                   className="pl-10"
                   maxLength={30}
                 />
@@ -311,46 +318,6 @@ function ProfileOnboardingPage() {
               <p className="text-[10px] text-muted mt-1">
                 Letters, numbers, and underscores only.
               </p>
-            </div>
-          </div>
-
-          {/* 3. Role / Account Type */}
-          <div>
-            <label className="block text-xs font-bold text-fg mb-2">
-              Select Your Role on RIFF
-            </label>
-            <div className="grid grid-cols-3 gap-2.5">
-              {[
-                { id: "creator", label: "Creator", icon: Clapperboard, desc: "Reels & memes" },
-                { id: "brand", label: "Brand", icon: ShieldCheck, desc: "Briefs & sponsor" },
-                { id: "viewer", label: "Viewer", icon: Flame, desc: "Watch & explore" },
-              ].map((roleOption) => {
-                const isSelected = selectedRole === roleOption.id;
-                const Icon = roleOption.icon;
-                return (
-                  <button
-                    key={roleOption.id}
-                    type="button"
-                    onClick={() => {
-                      playSound("pop");
-                      setSelectedRole(roleOption.id as any);
-                    }}
-                    className={cn(
-                      "p-3 rounded-2xl border text-left transition-all flex flex-col gap-1.5 cursor-pointer",
-                      isSelected
-                        ? "border-accent bg-accent/10 shadow-sm"
-                        : "border-border bg-raised/50 hover:bg-raised"
-                    )}
-                  >
-                    <div className="flex items-center justify-between">
-                      <Icon className={cn("size-4", isSelected ? "text-accent" : "text-muted")} />
-                      {isSelected && <CheckCircle2 className="size-3.5 text-accent" />}
-                    </div>
-                    <span className="text-xs font-bold text-fg">{roleOption.label}</span>
-                    <span className="text-[10px] text-muted leading-tight">{roleOption.desc}</span>
-                  </button>
-                );
-              })}
             </div>
           </div>
 
