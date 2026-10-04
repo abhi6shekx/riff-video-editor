@@ -2144,9 +2144,9 @@ export const useRiff = create<RiffState>()(
       },
 
       // Points & Wallet (Private to logged-in user)
-      pointsWallet: 70,
+      pointsWallet: 0,
       pointsTransactions: INITIAL_POINTS_TXS,
-      creatorPopularity: 87400,
+      creatorPopularity: 0,
 
       // Streaks & Daily Login Rewards
       streak: DEFAULT_STREAK,
@@ -2537,9 +2537,28 @@ export const useRiff = create<RiffState>()(
           createdAt: Date.now(),
         };
         const updatedMessages = [...get().messages, msg];
-        const updatedChats = get().chats.map((c) =>
-          c.id === chatId ? { ...c, lastMessage: text.trim(), lastAt: Date.now(), unread: 0 } : c,
-        );
+        const existingChat = get().chats.find((c) => c.id === chatId);
+        let updatedChats = get().chats;
+        if (existingChat) {
+          updatedChats = get().chats.map((c) =>
+            c.id === chatId ? { ...c, lastMessage: text.trim(), lastAt: Date.now(), unread: 0 } : c,
+          );
+        } else {
+          const personId = chatId.startsWith("c-") ? chatId.replace("c-", "") : chatId;
+          const person = get().people.find((p) => p.id === personId || p.handle === personId);
+          const newChat: Chat = {
+            id: chatId,
+            kind: "dm",
+            name: person ? person.name : "Creator",
+            subtitle: person ? `@${person.handle}` : "@creator",
+            mark: (person?.mark || "kabir") as any,
+            memberIds: [YOU_ID, personId],
+            lastMessage: text.trim(),
+            lastAt: Date.now(),
+            unread: 0,
+          };
+          updatedChats = [newChat, ...get().chats];
+        }
         set({ messages: updatedMessages, chats: updatedChats });
       },
       sendMemeMessage: (chatId, mediaUrl) => {
@@ -2552,9 +2571,28 @@ export const useRiff = create<RiffState>()(
           createdAt: Date.now(),
         };
         const updatedMessages = [...get().messages, msg];
-        const updatedChats = get().chats.map((c) =>
-          c.id === chatId ? { ...c, lastMessage: "Sent a meme 🖼️", lastAt: Date.now(), unread: 0 } : c,
-        );
+        const existingChat = get().chats.find((c) => c.id === chatId);
+        let updatedChats = get().chats;
+        if (existingChat) {
+          updatedChats = get().chats.map((c) =>
+            c.id === chatId ? { ...c, lastMessage: "Sent a meme 🖼️", lastAt: Date.now(), unread: 0 } : c,
+          );
+        } else {
+          const personId = chatId.startsWith("c-") ? chatId.replace("c-", "") : chatId;
+          const person = get().people.find((p) => p.id === personId || p.handle === personId);
+          const newChat: Chat = {
+            id: chatId,
+            kind: "dm",
+            name: person ? person.name : "Creator",
+            subtitle: person ? `@${person.handle}` : "@creator",
+            mark: (person?.mark || "kabir") as any,
+            memberIds: [YOU_ID, personId],
+            lastMessage: "Sent a meme 🖼️",
+            lastAt: Date.now(),
+            unread: 0,
+          };
+          updatedChats = [newChat, ...get().chats];
+        }
         set({ messages: updatedMessages, chats: updatedChats });
       },
       markChatRead: (chatId) => {
@@ -2649,7 +2687,7 @@ export const useRiff = create<RiffState>()(
     }),
     {
       name: "riff-v2-social",
-      version: 8,
+      version: 9,
       migrate: (persistedState: any) => {
         if (!persistedState || typeof persistedState !== "object") return persistedState;
         // Elevate Abhishek Gawade / default user to Owner
@@ -2669,10 +2707,10 @@ export const useRiff = create<RiffState>()(
           existingProfile.instagramHandle = existingProfile.instagramHandle || "abhishek_on_riff";
         }
 
-        // Normalize inflated wallet points (e.g. 2840 or 2990) down to realistic creator points (~70 pts)
-        let normalizedWallet = typeof persistedState.pointsWallet === "number" ? persistedState.pointsWallet : 70;
-        if (normalizedWallet > 200) {
-          normalizedWallet = 70;
+        // Clean wallet points down to real zero for new/reset accounts
+        let normalizedWallet = typeof persistedState.pointsWallet === "number" ? persistedState.pointsWallet : 0;
+        if (normalizedWallet === 70 || normalizedWallet === 120 || normalizedWallet > 200) {
+          normalizedWallet = 0;
         }
 
         // Strip out any obsolete dummy seed posts (post_1 ... post_8, sub_1 ... sub_3, etc.)
@@ -2680,6 +2718,30 @@ export const useRiff = create<RiffState>()(
         const cleanedPosts = Array.isArray(persistedState.posts)
           ? persistedState.posts.filter((p: any) => p && !DUMMY_PREFIXES.some((prefix) => p.id?.startsWith(prefix)))
           : [];
+
+        // Purge dummy mock chats & messages
+        const DUMMY_CHAT_IDS = ["c-rahul", "c-aanya", "c-kabir", "c-priya"];
+        const cleanedChats = Array.isArray(persistedState.chats)
+          ? persistedState.chats.filter((c: any) => c && !DUMMY_CHAT_IDS.includes(c.id))
+          : [];
+        const cleanedMessages = Array.isArray(persistedState.messages)
+          ? persistedState.messages.filter((m: any) => m && !DUMMY_CHAT_IDS.includes(m.chatId))
+          : [];
+        const cleanedNotifications = Array.isArray(persistedState.notifications)
+          ? persistedState.notifications.filter((n: any) => n && n.id !== "notif_welcome")
+          : [];
+
+        // Purge dummy 3-day fake streak
+        const isDummyStreak =
+          persistedState.streak?.totalDaysClaimed === 3 ||
+          persistedState.streak?.currentStreak === 3;
+        const cleanedStreak = isDummyStreak ? DEFAULT_STREAK : (persistedState.streak || DEFAULT_STREAK);
+
+        // Purge dummy popularity
+        const isDummyPopularity =
+          persistedState.creatorPopularity === 87400 ||
+          persistedState.creatorPopularity === 99400;
+        const cleanedPopularity = isDummyPopularity ? 0 : (persistedState.creatorPopularity || 0);
 
         return {
           ...persistedState,
@@ -2704,13 +2766,13 @@ export const useRiff = create<RiffState>()(
             ? persistedState.comments.filter((c: any) => c && !DUMMY_PREFIXES.some((prefix) => c.postId?.startsWith(prefix)))
             : [],
           userInterestProfile: persistedState.userInterestProfile && typeof persistedState.userInterestProfile === "object" ? persistedState.userInterestProfile : {},
-          chats: Array.isArray(persistedState.chats) ? persistedState.chats : CHATS,
-          messages: Array.isArray(persistedState.messages) ? persistedState.messages : MESSAGES,
+          chats: cleanedChats,
+          messages: cleanedMessages,
+          notifications: cleanedNotifications,
           platformControls: persistedState.platformControls || DEFAULT_PLATFORM_CONTROLS,
           withdrawals: Array.isArray(persistedState.withdrawals) && persistedState.withdrawals.length > 0 ? persistedState.withdrawals : INITIAL_WITHDRAWALS,
-          streak: persistedState.streak && typeof persistedState.streak === "object"
-            ? { ...DEFAULT_STREAK, ...persistedState.streak }
-            : DEFAULT_STREAK,
+          streak: cleanedStreak,
+          creatorPopularity: cleanedPopularity,
         };
       },
       partialize: (s) => ({

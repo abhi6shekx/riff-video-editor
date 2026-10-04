@@ -91,67 +91,79 @@ function ChatLayoutPage() {
 
       {/* Conversation Items */}
       <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-        {filteredChats.map((c) => {
-          const hasUnread = (c.unread || 0) > 0;
-          const active = pathname === `/chat/${c.id}`;
-          const minutesAgo = Math.max(1, Math.round((Date.now() - c.lastAt) / 60000));
-          const timeLabel =
-            minutesAgo < 60
-              ? `${minutesAgo}m`
-              : minutesAgo < 1440
-                ? `${Math.floor(minutesAgo / 60)}h`
-                : `${Math.floor(minutesAgo / 1440)}d`;
+        {filteredChats.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 text-center text-muted h-64">
+            <div className="size-12 rounded-2xl bg-raised flex items-center justify-center text-muted mb-3 border border-border">
+              <MessageSquare className="size-5 opacity-50 text-accent" />
+            </div>
+            <p className="text-xs font-bold text-fg">No messages yet</p>
+            <p className="text-[11px] text-muted mt-1 max-w-[200px]">
+              Tap any creator above to send a direct message or share a reel edit!
+            </p>
+          </div>
+        ) : (
+          filteredChats.map((c) => {
+            const hasUnread = (c.unread || 0) > 0;
+            const active = pathname === `/chat/${c.id}`;
+            const minutesAgo = Math.max(1, Math.round((Date.now() - c.lastAt) / 60000));
+            const timeLabel =
+              minutesAgo < 60
+                ? `${minutesAgo}m`
+                : minutesAgo < 1440
+                  ? `${Math.floor(minutesAgo / 60)}h`
+                  : `${Math.floor(minutesAgo / 1440)}d`;
 
-          return (
-            <Link
-              key={c.id}
-              to="/chat/$id"
-              params={{ id: c.id }}
-              onClick={() => markChatRead(c.id)}
-              className={cn(
-                "flex items-center gap-3 p-3.5 transition-colors text-left",
-                active
-                  ? "bg-accent/10 border-l-2 border-l-accent"
-                  : hasUnread
-                    ? "bg-white/[0.03] hover:bg-raised/60"
-                    : "hover:bg-raised/40",
-              )}
-            >
-              <div className="relative shrink-0">
-                <PersonMark mark={c.mark as any} size="sm" />
-                <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-400 border border-black" />
-              </div>
+            return (
+              <Link
+                key={c.id}
+                to="/chat/$id"
+                params={{ id: c.id }}
+                onClick={() => markChatRead(c.id)}
+                className={cn(
+                  "flex items-center gap-3 p-3.5 transition-colors text-left",
+                  active
+                    ? "bg-accent/10 border-l-2 border-l-accent"
+                    : hasUnread
+                      ? "bg-white/[0.03] hover:bg-raised/60"
+                      : "hover:bg-raised/40",
+                )}
+              >
+                <div className="relative shrink-0">
+                  <PersonMark mark={c.mark as any} size="sm" />
+                  <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-400 border border-black" />
+                </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p
+                      className={cn(
+                        "text-xs truncate",
+                        active ? "font-black text-accent" : hasUnread ? "font-bold text-fg" : "font-semibold text-fg/90",
+                      )}
+                    >
+                      {c.name}
+                    </p>
+                    <span className="text-[9px] text-muted font-mono">{timeLabel}</span>
+                  </div>
                   <p
                     className={cn(
-                      "text-xs truncate",
-                      active ? "font-black text-accent" : hasUnread ? "font-bold text-fg" : "font-semibold text-fg/90",
+                      "mt-0.5 truncate text-[11px]",
+                      hasUnread ? "font-bold text-fg" : "text-muted",
                     )}
                   >
-                    {c.name}
+                    {c.lastMessage}
                   </p>
-                  <span className="text-[9px] text-muted font-mono">{timeLabel}</span>
                 </div>
-                <p
-                  className={cn(
-                    "mt-0.5 truncate text-[11px]",
-                    hasUnread ? "font-bold text-fg" : "text-muted",
-                  )}
-                >
-                  {c.lastMessage}
-                </p>
-              </div>
 
-              {hasUnread && (
-                <span className="flex size-4 items-center justify-center rounded-full bg-accent text-[9px] font-black text-black shrink-0">
-                  {c.unread}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+                {hasUnread && (
+                  <span className="flex size-4 items-center justify-center rounded-full bg-accent text-[9px] font-black text-black shrink-0">
+                    {c.unread}
+                  </span>
+                )}
+              </Link>
+            );
+          })
+        )}
       </div>
     </div>
   );

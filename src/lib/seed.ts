@@ -462,19 +462,7 @@ export const INITIAL_REMOVED_SUBMISSIONS: Post[] = [
 
 export const INITIAL_COMMENTS: Comment[] = [];
 
-export const INITIAL_POINTS_TXS: PointsTransaction[] = [
-  {
-    id: "tx_welcome",
-    userId: YOU_ID,
-    amount: 50,
-    type: "bonus",
-    categoryName: "Welcome Bonus",
-    categoryIcon: "🎁",
-    postTitle: "Starter Creator Bonus",
-    contentType: "post",
-    timestamp: ago(1, 0),
-  },
-];
+export const INITIAL_POINTS_TXS: PointsTransaction[] = [];
 
 export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
@@ -574,17 +562,7 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   },
 ];
 
-export const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: "notif_welcome",
-    userId: YOU_ID,
-    type: "points_earned",
-    title: "Welcome to RIFF! 🚀",
-    message: "Create viral memes, edit multi-track reels, and earn daily rewards.",
-    createdAt: ago(0, 10),
-    isRead: false,
-  },
-];
+export const INITIAL_NOTIFICATIONS: Notification[] = [];
 
 // Backwards compatibility data exports for legacy components
 export const HUBS: Hub[] = [
@@ -703,100 +681,11 @@ export const COMMENTS: Comment[] = INITIAL_COMMENTS;
 
 export const BRIEFS: Brief[] = [];
 
-export const CHATS: Chat[] = [
-  {
-    id: "c-rahul",
-    kind: "dm",
-    name: "Rahul Sharma",
-    subtitle: "@rahul",
-    mark: "kabir",
-    memberIds: [YOU_ID, "rahul"],
-    lastMessage: "Bro did you see the clutch reel in Gaming? 🔥",
-    lastAt: ago(0, 10),
-    unread: 1,
-  },
-  {
-    id: "c-aanya",
-    kind: "dm",
-    name: "Aanya Rao",
-    subtitle: "@aanya.riff",
-    mark: "aanya",
-    memberIds: [YOU_ID, "aanya"],
-    lastMessage: "Your tech meme got approved! Loved the caption haha.",
-    lastAt: ago(0, 18),
-    unread: 1,
-  },
-  {
-    id: "c-kabir",
-    kind: "dm",
-    name: "Kabir Lane",
-    subtitle: "@kabir.lane",
-    mark: "kabir",
-    memberIds: [YOU_ID, "kabir"],
-    lastMessage: "That last-ball reel is doing crazy numbers.",
-    lastAt: ago(4, 10),
-    unread: 0,
-  },
-  {
-    id: "c-priya",
-    kind: "dm",
-    name: "Priya Malik",
-    subtitle: "@priya.loop",
-    mark: "priya",
-    memberIds: [YOU_ID, "priya"],
-    lastMessage: "Sent you the audio stem for the next reel edit.",
-    lastAt: ago(12, 0),
-    unread: 0,
-  },
-];
+export const CHATS: Chat[] = [];
 
-export const MESSAGES: Message[] = [
-  {
-    id: "msg_r1",
-    chatId: "c-rahul",
-    authorId: "rahul",
-    kind: "text",
-    text: "Hey! Loved that Monday sync meme 😂",
-    createdAt: ago(1, 0),
-  },
-  {
-    id: "msg_r2",
-    chatId: "c-rahul",
-    authorId: YOU_ID,
-    kind: "text",
-    text: "Haha thanks bro, literally happened during our 9am standup",
-    createdAt: ago(0, 45),
-  },
-  {
-    id: "msg_r3",
-    chatId: "c-rahul",
-    authorId: "rahul",
-    kind: "text",
-    text: "Bro did you see the clutch reel in Gaming? 🔥",
-    createdAt: ago(0, 10),
-  },
-  {
-    id: "msg1",
-    chatId: "c-aanya",
-    authorId: "aanya",
-    kind: "text",
-    text: "Your tech meme got approved! Loved the caption haha.",
-    createdAt: ago(0, 18),
-  },
-  {
-    id: "msg2",
-    chatId: "c-kabir",
-    authorId: "kabir",
-    kind: "text",
-    text: "That last-ball reel is doing crazy numbers.",
-    createdAt: ago(4, 10),
-  },
-];
+export const MESSAGES: Message[] = [];
 
-export const STARTER_TX: Tx[] = [
-  { id: "tx1", label: "Tech Meme Approval", amount: 20, at: ago(2, 30) },
-  { id: "tx2", label: "Gaming Reel Approval", amount: 15, at: ago(26, 0) },
-];
+export const STARTER_TX: Tx[] = [];
 
 export const BATTLE: Battle = {
   id: "bt1",

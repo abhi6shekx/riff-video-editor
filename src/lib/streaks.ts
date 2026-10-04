@@ -30,10 +30,10 @@ export type StreakData = {
 };
 
 export const DEFAULT_STREAK: StreakData = {
-  currentStreak: 3,
-  bestStreak: 5,
+  currentStreak: 0,
+  bestStreak: 0,
   lastClaimDate: null,
-  totalDaysClaimed: 3,
+  totalDaysClaimed: 0,
 };
 
 export function getLocalDateString(d = new Date()): string {
