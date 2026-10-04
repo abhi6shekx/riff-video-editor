@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { RiffNavbarLockup } from "@/components/riff-navbar-lockup";
 import { useAuth } from "@/lib/auth-context";
 import { playSound } from "@/lib/sounds";
@@ -92,22 +92,6 @@ function LoginPage() {
           </svg>
           <span>{googleLoading ? "Connecting..." : "Continue with Google"}</span>
         </button>
-
-        {/* Feature Highlights */}
-        <div className="space-y-2.5 pt-2 border-t border-border">
-          <div className="flex items-center gap-2.5 text-xs text-muted">
-            <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
-            <span>CapCut-style multi-track video timeline</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-xs text-muted">
-            <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
-            <span>9:16 vertical reels & viral meme maker</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-xs text-muted">
-            <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
-            <span>Creator points, streaks & daily rewards</span>
-          </div>
-        </div>
 
         {/* Security / Privacy notice */}
         <p className="text-[10px] text-muted text-center leading-relaxed">
