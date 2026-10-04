@@ -63,6 +63,7 @@ type Profile = {
   name: string;
   handle: string;
   bio: string;
+  avatarUrl?: string;
   instagramHandle?: string;
   role?: Person["role"];
   followers?: number;

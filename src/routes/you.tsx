@@ -292,6 +292,17 @@ function ProfilePage() {
                   </Link>
                 )}
 
+                <Link to="/onboarding">
+                  <Button
+                    size="sm"
+                    variant="subtle"
+                    className="rounded-xl border border-accent/30 bg-accent/10 hover:bg-accent/20 text-xs font-bold gap-1.5 text-accent"
+                  >
+                    <Sparkles className="size-3" />
+                    <span>Profile Setup</span>
+                  </Button>
+                </Link>
+
                 <Button
                   size="sm"
                   variant="subtle"

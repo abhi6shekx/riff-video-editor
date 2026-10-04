@@ -65,8 +65,18 @@ function LoginPage() {
                   toast.error(`Google Sign-In failed: ${error}`);
                 } else {
                   playSound("cheer");
-                  toast.success(`Welcome back, ${payload.name || payload.email}!`);
-                  void navigate({ to: "/" });
+                  const isProfileCompleted =
+                    typeof window !== "undefined" &&
+                    (localStorage.getItem(`riff_profile_done_${payload.email}`) === "true" ||
+                      localStorage.getItem("riff_profile_done") === "true");
+
+                  if (!isProfileCompleted) {
+                    toast.success(`Google verified! Let's set up your creator profile.`);
+                    void navigate({ to: "/onboarding" });
+                  } else {
+                    toast.success(`Welcome back, ${payload.name || payload.email}!`);
+                    void navigate({ to: "/" });
+                  }
                 }
               } else {
                 setGoogleLoading(false);

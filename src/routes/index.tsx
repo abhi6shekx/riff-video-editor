@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
+  ArrowRight,
   Brain,
   Check,
   Clapperboard,
@@ -43,11 +44,18 @@ function HomePage() {
   const mutedCategoryIds = useRiff((s) => s.mutedCategoryIds) || [];
   const mutedCreatorHandles = useRiff((s) => s.mutedCreatorHandles) || [];
   const adjustInterest = useRiff((s) => s.adjustInterest);
+  const profile = useRiff((s) => s.profile);
 
   const [mainTab, setMainTab] = useState<MainTab>("for-you");
   const [filter, setFilter] = useState<ContentFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAiInspector, setShowAiInspector] = useState(false);
+  const [profilePromptDismissed, setProfilePromptDismissed] = useState(false);
+
+  const isProfileDone =
+    typeof window !== "undefined"
+      ? localStorage.getItem("riff_profile_done") === "true"
+      : true;
 
   // AI Feed Ranking Algorithm: POSTS ONLY (Reels live in /reels)
   const rankedFeed = useMemo(() => {
@@ -185,6 +193,40 @@ function HomePage() {
 
       {/* 2. Main Feed Content Wrapper */}
       <div className="mx-auto w-full max-w-[760px] px-4 py-6 space-y-4">
+        {/* Profile Creation Prompt Banner if profile is not completed */}
+        {!isProfileDone && !profilePromptDismissed && (
+          <div className="rounded-2xl border border-accent/40 bg-accent/10 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0">
+                <Sparkles className="size-5 text-accent" />
+              </div>
+              <div className="text-center sm:text-left">
+                <p className="text-xs font-bold text-fg">Complete Your Creator Profile</p>
+                <p className="text-[11px] text-muted">
+                  Choose your handle (@{profile?.handle || "creator"}), profile picture, and content niches.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                to="/onboarding"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent text-accent-fg text-xs font-bold shadow hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Set Up Profile</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setProfilePromptDismissed(true)}
+                className="p-1.5 text-muted hover:text-fg rounded-lg cursor-pointer"
+                title="Dismiss banner"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top Feed Switcher: For You vs Following */}
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
           <div className="flex items-center gap-6">

@@ -177,10 +177,11 @@ export function AppFrame({
 
   const isThread = pathname.startsWith("/chat/");
   const isLogin = pathname === "/login";
+  const isOnboarding = pathname === "/onboarding";
   const isReelStudio = pathname === "/reel-studio";
   const isVideoEditor = pathname === "/editor";
 
-  const hideNavigation = isThread || isLogin || isReelStudio || isVideoEditor;
+  const hideNavigation = isThread || isLogin || isOnboarding || isReelStudio || isVideoEditor;
 
   const [showIntro, setShowIntro] = useState(false);
 

@@ -20,6 +20,7 @@ import { Route as EditorRouteImport } from './routes/editor'
 import { Route as HubsRouteImport } from './routes/hubs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as ReelStudioRouteImport } from './routes/reel-studio'
 import { Route as ReelsRouteImport } from './routes/reels'
@@ -86,6 +87,11 @@ const LoginRoute = LoginRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRoute = OwnerRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/hubs': typeof HubsRouteWithChildren
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/reel-studio': typeof ReelStudioRoute
   '/reels': typeof ReelsRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/hubs': typeof HubsRouteWithChildren
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/reel-studio': typeof ReelStudioRoute
   '/reels': typeof ReelsRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/hubs': typeof HubsRouteWithChildren
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/reel-studio': typeof ReelStudioRoute
   '/reels': typeof ReelsRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/hubs'
     | '/login'
     | '/notifications'
+    | '/onboarding'
     | '/owner'
     | '/reel-studio'
     | '/reels'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/hubs'
     | '/login'
     | '/notifications'
+    | '/onboarding'
     | '/owner'
     | '/reel-studio'
     | '/reels'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/hubs'
     | '/login'
     | '/notifications'
+    | '/onboarding'
     | '/owner'
     | '/reel-studio'
     | '/reels'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   HubsRoute: typeof HubsRouteWithChildren
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
+  OnboardingRoute: typeof OnboardingRoute
   OwnerRoute: typeof OwnerRoute
   ReelStudioRoute: typeof ReelStudioRoute
   ReelsRoute: typeof ReelsRoute
@@ -403,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner': {
@@ -535,6 +555,7 @@ const rootRouteChildren: RootRouteChildren = {
   HubsRoute: HubsRouteWithChildren,
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
+  OnboardingRoute: OnboardingRoute,
   OwnerRoute: OwnerRoute,
   ReelStudioRoute: ReelStudioRoute,
   ReelsRoute: ReelsRoute,
