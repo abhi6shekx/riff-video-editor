@@ -80,6 +80,7 @@ function ProfilePage() {
   const pointsTransactions = useRiff((s) => s.pointsTransactions);
   const creatorPopularity = useRiff((s) => s.creatorPopularity);
   const withdrawals = useRiff((s) => s.withdrawals) || [];
+  const followingUserIds = useRiff((s) => s.followingUserIds) || [];
   const requestWithdrawal = useRiff((s) => s.requestWithdrawal);
   const platformControls = useRiff((s) => s.platformControls) || {
     emergencyWalletFreeze: false,
@@ -391,13 +392,13 @@ function ProfilePage() {
               </div>
               <div className="p-2 rounded-2xl bg-raised/40 border border-white/5">
                 <p className="font-display text-base font-black text-fg">
-                  {formatNumber(profile.followers || 12480)}
+                  {formatNumber(profile.followers || 0)}
                 </p>
                 <p className="text-[10px] text-muted">Followers</p>
               </div>
               <div className="p-2 rounded-2xl bg-raised/40 border border-white/5">
                 <p className="font-display text-base font-black text-fg">
-                  {formatNumber(profile.following || 482)}
+                  {formatNumber(followingUserIds.length)}
                 </p>
                 <p className="text-[10px] text-muted">Following</p>
               </div>

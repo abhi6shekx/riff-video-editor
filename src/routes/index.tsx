@@ -254,11 +254,6 @@ function HomePage() {
               )}
             >
               Following
-              {followingUserIds.length > 0 && (
-                <span className="ml-1.5 text-[10px] rounded-full bg-raised px-1.5 py-0.2 font-mono text-muted">
-                  {followingUserIds.length}
-                </span>
-              )}
             </button>
           </div>
 

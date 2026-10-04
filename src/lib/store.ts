@@ -405,8 +405,8 @@ export const useRiff = create<RiffState>()(
         bio: "Platform Owner & Founder · RIFF Studio. Building the future of viral media.",
         instagramHandle: "abhishek_on_riff",
         role: "owner",
-        followers: 12480,
-        following: 482,
+        followers: 0,
+        following: 0,
         creatorPopularity: 99400,
         riffPoints: 2840,
         warningsCount: 0,
@@ -1340,7 +1340,7 @@ export const useRiff = create<RiffState>()(
       reports: INITIAL_REPORTS,
       likedPostIds: [],
       savedPostIds: [],
-      followingUserIds: ["rahul", "aanya", "kabir"],
+      followingUserIds: [],
       mutedCategoryIds: [],
       mutedCreatorHandles: [],
       demotedPostIds: [],
@@ -2759,7 +2759,9 @@ export const useRiff = create<RiffState>()(
           savedPostIds: Array.isArray(persistedState.savedPostIds)
             ? persistedState.savedPostIds.filter((id: string) => !DUMMY_PREFIXES.some((prefix) => id?.startsWith(prefix)))
             : [],
-          followingUserIds: Array.isArray(persistedState.followingUserIds) ? persistedState.followingUserIds : [],
+          followingUserIds: Array.isArray(persistedState.followingUserIds)
+            ? persistedState.followingUserIds.filter((id: string) => !["rahul", "aanya", "kabir"].includes(id))
+            : [],
           mutedCategoryIds: Array.isArray(persistedState.mutedCategoryIds) ? persistedState.mutedCategoryIds : [],
           mutedCreatorHandles: Array.isArray(persistedState.mutedCreatorHandles) ? persistedState.mutedCreatorHandles : [],
           demotedPostIds: Array.isArray(persistedState.demotedPostIds) ? persistedState.demotedPostIds : [],
