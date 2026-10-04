@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
+  AlertCircle,
   Check,
   CheckCircle2,
   Sparkles,
@@ -63,11 +64,29 @@ const BIO_TEMPLATES = [
   "🎵 Music producer & sound designer on RIFF",
 ];
 
+const RESERVED_HANDLES = new Set([
+  "admin",
+  "owner",
+  "riff",
+  "riffapp",
+  "support",
+  "moderator",
+  "mod",
+  "root",
+  "help",
+  "api",
+  "system",
+  "official",
+  "null",
+  "undefined",
+]);
+
 function ProfileOnboardingPage() {
   const navigate = useNavigate();
   const { user, profile: authProfile, updateProfile } = useAuth();
   const riffProfile = useRiff((s) => s.profile);
   const setRiffProfile = useRiff((s) => s.setProfile);
+  const people = useRiff((s) => s.people) || [];
 
   const isOwner = user?.email ? isPlatformOwnerEmail(user.email) : false;
 
@@ -103,6 +122,44 @@ function ProfileOnboardingPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["reels", "memes"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Live handle uniqueness and validity check
+  const handleStatus = useMemo(() => {
+    const normalized = handle.trim().toLowerCase();
+    if (!normalized) return { valid: false, message: "Handle is required" };
+    if (normalized.length < 3) return { valid: false, message: "Minimum 3 characters" };
+    if (normalized.length > 20) return { valid: false, message: "Maximum 20 characters" };
+    if (!/^[a-z0-9_]+$/.test(normalized)) {
+      return { valid: false, message: "Letters, numbers, and _ only" };
+    }
+    if (RESERVED_HANDLES.has(normalized)) {
+      return { valid: false, message: `@${normalized} is reserved` };
+    }
+    if (normalized === "abhishek" && !isOwner) {
+      return { valid: false, message: `@abhishek is reserved for platform owner` };
+    }
+
+    // Check existing registered creators in store
+    const isTaken = people.some(
+      (p) => p.handle.toLowerCase() === normalized && p.id !== user?.id
+    );
+    if (isTaken && !isOwner) {
+      return { valid: false, message: `@${normalized} is already taken` };
+    }
+
+    // Check localStorage registered handles
+    if (typeof window !== "undefined") {
+      try {
+        const stored = JSON.parse(localStorage.getItem("riff_registered_handles") || "{}");
+        const currentOwner = stored[normalized];
+        if (currentOwner && currentOwner !== user?.email && currentOwner !== user?.id) {
+          return { valid: false, message: `@${normalized} is already taken` };
+        }
+      } catch {}
+    }
+
+    return { valid: true, message: "Available" };
+  }, [handle, isOwner, people, user]);
+
   useEffect(() => {
     if (user?.user_metadata?.full_name && !name) {
       setName(user.user_metadata.full_name);
@@ -131,8 +188,8 @@ function ProfileOnboardingPage() {
         toast.error("Please enter your display name.");
         return;
       }
-      if (!handle.trim() || handle.length < 3) {
-        toast.error("Username handle must be at least 3 characters.");
+      if (!handleStatus.valid) {
+        toast.error(handleStatus.message || "Username handle must be unique and valid.");
         return;
       }
     }
@@ -188,6 +245,12 @@ function ProfileOnboardingPage() {
               role: finalRole,
             })
           );
+        } catch {}
+
+        try {
+          const registered = JSON.parse(localStorage.getItem("riff_registered_handles") || "{}");
+          registered[finalHandle.toLowerCase()] = user?.email || user?.id || finalHandle;
+          localStorage.setItem("riff_registered_handles", JSON.stringify(registered));
         } catch {}
       }
 
@@ -298,9 +361,15 @@ function ProfileOnboardingPage() {
               <label className="block text-xs font-bold text-fg mb-1.5 flex items-center justify-between">
                 <span>Username Handle <span className="text-accent">*</span></span>
                 {handle.length >= 3 && (
-                  <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-0.5">
-                    <Check className="size-3" /> Available
-                  </span>
+                  handleStatus.valid ? (
+                    <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <Check className="size-3" /> @{handle} is available
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-rose-400 font-semibold flex items-center gap-1">
+                      <AlertCircle className="size-3" /> {handleStatus.message}
+                    </span>
+                  )
                 )}
               </label>
               <div className="relative">
@@ -311,12 +380,16 @@ function ProfileOnboardingPage() {
                   value={handle}
                   onChange={(e) => handleHandleChange(e.target.value)}
                   placeholder="handle"
-                  className="pl-8 font-mono text-sm"
+                  className={cn(
+                    "pl-8 font-mono text-sm transition-colors",
+                    handle.length >= 3 && !handleStatus.valid && "border-rose-500/60 focus:border-rose-500 text-rose-300",
+                    handle.length >= 3 && handleStatus.valid && "border-emerald-500/40 focus:border-emerald-500"
+                  )}
                   maxLength={20}
                 />
               </div>
               <p className="text-[10px] text-muted mt-1">
-                Letters, numbers, and underscores only.
+                Unique identifier across RIFF. Letters, numbers, and underscores only.
               </p>
             </div>
           </div>
@@ -411,8 +484,8 @@ function ProfileOnboardingPage() {
             <Button
               type="button"
               onClick={() => handleCompleteProfile(false)}
-              disabled={isSubmitting}
-              className="w-full sm:flex-1 py-3 h-12 text-sm font-bold bg-accent text-accent-fg hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 rounded-2xl shadow-lg cursor-pointer"
+              disabled={isSubmitting || !handleStatus.valid}
+              className="w-full sm:flex-1 py-3 h-12 text-sm font-bold bg-accent text-accent-fg hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 rounded-2xl shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles className="size-4" />
               <span>{isSubmitting ? "Saving Profile..." : "Create Profile & Enter RIFF"}</span>
