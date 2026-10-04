@@ -4,6 +4,7 @@ import {
   AlertOctagon,
   AlertTriangle,
   ArrowUpRight,
+  BarChart3,
   Bookmark,
   Check,
   CheckCircle2,
@@ -36,6 +37,7 @@ import {
 import { PersonMark } from "@/components/person-mark";
 import { DailyRewardModal } from "@/components/daily-reward-modal";
 import { StreakButton } from "@/components/streak-button";
+import { CreatorAnalytics } from "@/components/creator-analytics";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -53,7 +55,7 @@ export const Route = createFileRoute("/you")({
   head: () => ({ meta: [{ title: "Profile & Points Wallet · RIFF" }] }),
 });
 
-type ProfileTab = "posts" | "reels" | "saved" | "wallet";
+type ProfileTab = "posts" | "reels" | "saved" | "analytics" | "wallet";
 
 function ProfilePage() {
   const rawProfile = useRiff((s) => s.profile);
@@ -248,13 +250,13 @@ function ProfilePage() {
                   <span
                     className={cn(
                       "rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase border tracking-wider",
-                      role === "owner" && "bg-purple-500/20 border-purple-500/40 text-purple-300",
+                      role === "owner" && "bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)]",
                       role === "super_admin" && "bg-amber-500/20 border-amber-500/40 text-amber-300",
                       role === "admin" && "bg-sky-500/20 border-sky-500/40 text-sky-300",
                       role === "creator" && "bg-accent/15 border-accent/30 text-accent",
                     )}
                   >
-                    {role.replace("_", " ")}
+                    {role === "owner" ? "👑 Owner Root" : role.replace("_", " ")}
                   </span>
                   {warnings > 0 && (
                     <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9px] font-mono font-black text-amber-300">
@@ -266,6 +268,18 @@ function ProfilePage() {
               </div>
 
               <div className="flex items-center justify-center gap-2 flex-wrap">
+                {role === "owner" && (
+                  <Link to="/owner">
+                    <Button
+                      size="sm"
+                      className="rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black font-black text-xs gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+                    >
+                      <Crown className="size-3.5 fill-black" />
+                      <span>Owner Controls</span>
+                    </Button>
+                  </Link>
+                )}
+
                 {isAdminRole && (
                   <Link to="/admin">
                     <Button
@@ -431,6 +445,20 @@ function ProfilePage() {
         >
           <Bookmark className="size-4" />
           <span>Saved ({savedPosts.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("analytics")}
+          className={cn(
+            "flex items-center gap-1.5 pb-2 transition-all relative",
+            activeTab === "analytics"
+              ? "text-[#d4ff00] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#d4ff00]"
+              : "hover:text-fg",
+          )}
+        >
+          <BarChart3 className="size-4" />
+          <span>Analytics</span>
         </button>
 
         <button
@@ -625,6 +653,18 @@ function ProfilePage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Creator Analytics Dashboard */}
+        {activeTab === "analytics" && (
+          <CreatorAnalytics
+            posts={myPosts}
+            categories={categories}
+            pointsTransactions={pointsTransactions}
+            creatorPopularity={creatorPopularity}
+            pointsWallet={pointsWallet}
+            followersCount={profile.followers || 12480}
+          />
         )}
 
         {/* 4. Creator RIFF Points Wallet */}
@@ -1274,7 +1314,19 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-end border-t border-white/10">
+            <div className="pt-2 flex items-center justify-between border-t border-white/10">
+              <Button
+                size="sm"
+                variant="subtle"
+                onClick={() => {
+                  setShowPopularityModal(false);
+                  setActiveTab("analytics");
+                }}
+                className="rounded-xl border border-white/10 text-xs text-fg flex items-center gap-1.5"
+              >
+                <BarChart3 className="size-3.5 text-[#d4ff00]" />
+                <span>View Full Analytics</span>
+              </Button>
               <Button
                 size="sm"
                 onClick={() => setShowPopularityModal(false)}

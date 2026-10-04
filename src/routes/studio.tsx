@@ -22,6 +22,7 @@ import { CanvasPreview } from "@/components/studio/CanvasPreview";
 import { MultiTrackTimeline } from "@/components/studio/MultiTrackTimeline";
 import { StudioPanels } from "@/components/studio/StudioPanels";
 import { ExportModal } from "@/components/studio/ExportModal";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -328,6 +329,9 @@ function StudioPage() {
               <span className="hidden md:inline">AI Auto-Edit</span>
             </button>
           )}
+
+          {/* Theme Switcher */}
+          <ThemeSwitcher variant="compact" />
 
           {/* Export Reel Button */}
           {editorMode === "reel" && (

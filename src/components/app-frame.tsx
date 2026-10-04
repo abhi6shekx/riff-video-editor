@@ -12,13 +12,16 @@ import {
   Plus,
   Settings,
   Shield,
+  Palette,
   Sliders,
   UserRound,
 } from "lucide-react";
 
+import { IntroExperience } from "@/components/intro-experience";
 import { PersonMark } from "@/components/person-mark";
 import { RiffNavbarLockup } from "@/components/riff-navbar-lockup";
 import { StreakButton } from "@/components/streak-button";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth-context";
 import { useRiff } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -179,6 +182,24 @@ export function AppFrame({
 
   const hideNavigation = isThread || isLogin || isReelStudio || isVideoEditor;
 
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceIntro = urlParams.get("intro") === "1";
+    const hasSeen = localStorage.getItem("riff_intro_seen_v1") === "true";
+
+    if (forceIntro || !hasSeen) {
+      setShowIntro(true);
+    }
+
+    const handleOpenIntro = () => setShowIntro(true);
+    window.addEventListener("riff:open-intro", handleOpenIntro);
+    return () => window.removeEventListener("riff:open-intro", handleOpenIntro);
+  }, []);
+
   useEffect(() => {
     const persistApi = (
       useRiff as typeof useRiff & {
@@ -278,7 +299,13 @@ export function AppFrame({
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#080808] text-white">
+    <div className="min-h-screen w-full bg-bg text-fg">
+      {/* ONBOARDING INTRO EXPERIENCE */}
+      <IntroExperience
+        isOpen={showIntro && pathname !== "/login"}
+        onClose={() => setShowIntro(false)}
+      />
+
       {/* MAINTENANCE MODE BANNER FOR STAFF */}
       {isMaintenance && isAdmin && (
         <div className="bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-xs text-amber-200 flex items-center justify-between z-50">
@@ -302,7 +329,7 @@ export function AppFrame({
       {/* ================================================= */}
 
       {!hideNavigation && (
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[230px] flex-col border-r border-white/[0.08] bg-[#090909] md:flex">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[230px] flex-col border-r border-border bg-surface md:flex">
           {/* BRAND */}
 
           <div className="px-6 pb-5 pt-7">
@@ -417,18 +444,32 @@ export function AppFrame({
             )}
           </nav>
 
-          {/* CREATOR SUMMARY */}
+          {/* THEME TOGGLE IN SIDEBAR */}
+          <div className="px-4 py-2.5 flex items-center justify-between border-t border-border">
+            <span className="text-xs font-semibold text-muted flex items-center gap-2">
+              <Palette className="size-3.5 text-accent" />
+              <span>Theme</span>
+            </span>
+            <ThemeSwitcher variant="compact" />
+          </div>
 
-          <div className="border-t border-white/[0.07] p-4">
+          {/* CREATOR SUMMARY */}
+          <div className="border-t border-border p-4">
             <StreakButton variant="full" className="mb-3" />
 
-            <div className="rounded-2xl border border-white/[0.07] bg-[#101010] p-4">
+            <div className="rounded-2xl border border-border bg-raised p-4">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/30">
-                  Creator (You)
+                <p className={cn(
+                  "text-[10px] font-bold uppercase tracking-[0.14em]",
+                  isOwner ? "text-amber-400/90 font-black flex items-center gap-1" : "text-muted"
+                )}>
+                  {isOwner ? "👑 Platform Owner" : "Creator (You)"}
                 </p>
-                <span className="flex items-center gap-1 text-[9px] font-bold text-[#d4ff00]/80" title="Wallet balance is strictly private to your account">
-                  <Lock className="size-2.5" /> Private
+                <span className={cn(
+                  "flex items-center gap-1 text-[9px] font-bold",
+                  isOwner ? "text-amber-400/80" : "text-accent"
+                )} title="Account status">
+                  <Lock className="size-2.5" /> {isOwner ? "ROOT" : "Private"}
                 </span>
               </div>
 
@@ -438,19 +479,19 @@ export function AppFrame({
                     {pointsWallet.toLocaleString()}
                   </p>
 
-                  <p className="text-[10px] text-white/35">
+                  <p className="text-[10px] text-muted">
                     RIFF Points
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-lg font-black text-white">
+                  <p className="text-lg font-black text-fg">
                     {Math.round(
                       creatorPopularity,
                     ).toLocaleString()}
                   </p>
 
-                  <p className="text-[10px] text-white/35">
+                  <p className="text-[10px] text-muted">
                     Popularity
                   </p>
                 </div>
@@ -459,7 +500,7 @@ export function AppFrame({
 
             <Link
               to="/you"
-              className="mt-3 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-white/[0.05]"
+              className="mt-3 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-raised"
             >
               <PersonMark
                 mark="you"
@@ -467,11 +508,11 @@ export function AppFrame({
               />
 
               <div className="min-w-0">
-                <p className="truncate text-xs font-bold">
+                <p className="truncate text-xs font-bold text-fg">
                   {safeProfile.name}
                 </p>
 
-                <p className="truncate text-[10px] text-white/35">
+                <p className="truncate text-[10px] text-muted">
                   @{safeProfile.handle}
                 </p>
               </div>
@@ -485,17 +526,28 @@ export function AppFrame({
       {/* ================================================= */}
 
       {!hideNavigation && (
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/[0.08] bg-[#080808]/95 px-4 backdrop-blur-xl md:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface/95 px-4 backdrop-blur-xl md:hidden">
           <Link to="/">
             <RiffNavbarLockup size={31} />
           </Link>
 
           <div className="flex items-center gap-2">
+            <ThemeSwitcher variant="compact" />
             <StreakButton variant="compact" />
+
+            {isOwner && (
+              <Link
+                to="/owner"
+                title="Owner Controls"
+                className="flex size-9 items-center justify-center rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 hover:bg-amber-500/25 active:scale-95 transition-all"
+              >
+                <Crown className="size-4" />
+              </Link>
+            )}
 
             <Link
               to="/notifications"
-              className="relative flex size-9 items-center justify-center rounded-full text-white/60 hover:bg-white/[0.06] hover:text-white"
+              className="relative flex size-9 items-center justify-center rounded-full text-muted hover:bg-raised hover:text-fg"
             >
               <Bell className="size-[19px]" />
 
@@ -527,7 +579,7 @@ export function AppFrame({
       {/* ================================================= */}
 
       {!hideNavigation && (
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#080808]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
           <div className="mx-auto grid h-[66px] max-w-md grid-cols-5 items-center px-2">
             {MOBILE_NAV.map((item) => {
               const Icon = item.icon;

@@ -199,7 +199,7 @@ export function Timeline({
         {!clips.length && (
           <div className="flex h-full w-full items-center justify-center gap-2 text-xs text-white/40">
             <span>🎞️</span>
-            <span>No clips added yet. Use <strong>+ Media</strong> or <strong>✨ Samples</strong> on the left!</span>
+            <span>No clips added yet. Use <strong>+ Media</strong> or <strong>✨ Templates</strong> on the left!</span>
           </div>
         )}
       </div>

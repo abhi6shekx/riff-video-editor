@@ -399,14 +399,14 @@ export const useRiff = create<RiffState>()(
       // Profile
       onboarded: true,
       profile: {
-        name: "You",
-        handle: "you",
-        bio: "Memes, tech bugs & midnight reels. Building popularity on RIFF.",
-        instagramHandle: "you_on_riff",
-        role: "creator",
+        name: "Abhishek Gawade",
+        handle: "abhishek",
+        bio: "Platform Owner & Founder · RIFF Studio. Building the future of viral media.",
+        instagramHandle: "abhishek_on_riff",
+        role: "owner",
         followers: 12480,
         following: 482,
-        creatorPopularity: 87400,
+        creatorPopularity: 99400,
         riffPoints: 2840,
         warningsCount: 0,
         isBanned: false,
@@ -1337,8 +1337,8 @@ export const useRiff = create<RiffState>()(
       rejectedSubmissions: INITIAL_REJECTED_SUBMISSIONS,
       removedSubmissions: INITIAL_REMOVED_SUBMISSIONS,
       reports: INITIAL_REPORTS,
-      likedPostIds: ["post_1"],
-      savedPostIds: ["post_2"],
+      likedPostIds: [],
+      savedPostIds: [],
       followingUserIds: ["rahul", "aanya", "kabir"],
       mutedCategoryIds: [],
       mutedCreatorHandles: [],
@@ -2567,8 +2567,8 @@ export const useRiff = create<RiffState>()(
       // Backwards Compatibility for existing legacy components
       // -------------------------------------------------------------
       joinedHubIds: [],
-      heatedIds: ["post_1"],
-      savedIds: ["post_2"],
+      heatedIds: [],
+      savedIds: [],
       extraMemes: [],
       extraComments: [],
       extraMessages: [],
@@ -2649,13 +2649,24 @@ export const useRiff = create<RiffState>()(
     }),
     {
       name: "riff-v2-social",
-      version: 6,
+      version: 8,
       migrate: (persistedState: any) => {
         if (!persistedState || typeof persistedState !== "object") return persistedState;
-        // Migrate profile: old default was "owner", new default is "creator"
-        const existingProfile = persistedState.profile || { name: "You", handle: "you", role: "creator" };
-        if (existingProfile.role === "owner") {
-          existingProfile.role = "creator";
+        // Elevate Abhishek Gawade / default user to Owner
+        const existingProfile = persistedState.profile || {};
+        const isOwnerCandidate =
+          existingProfile.handle === "you" ||
+          existingProfile.handle === "abhishek" ||
+          existingProfile.name === "You" ||
+          !existingProfile.name ||
+          existingProfile.name?.toLowerCase().includes("abhishek");
+
+        if (isOwnerCandidate) {
+          existingProfile.name = "Abhishek Gawade";
+          existingProfile.handle = "abhishek";
+          existingProfile.role = "owner";
+          existingProfile.bio = "Platform Owner & Founder · RIFF Studio. Building the future of viral media.";
+          existingProfile.instagramHandle = existingProfile.instagramHandle || "abhishek_on_riff";
         }
 
         // Normalize inflated wallet points (e.g. 2840 or 2990) down to realistic creator points (~70 pts)
@@ -2664,20 +2675,34 @@ export const useRiff = create<RiffState>()(
           normalizedWallet = 70;
         }
 
+        // Strip out any obsolete dummy seed posts (post_1 ... post_8, sub_1 ... sub_3, etc.)
+        const DUMMY_PREFIXES = ["post_", "sub_", "rej_"];
+        const cleanedPosts = Array.isArray(persistedState.posts)
+          ? persistedState.posts.filter((p: any) => p && !DUMMY_PREFIXES.some((prefix) => p.id?.startsWith(prefix)))
+          : [];
+
         return {
           ...persistedState,
           profile: existingProfile,
           pointsWallet: normalizedWallet,
           categories: Array.isArray(persistedState.categories) && persistedState.categories.length > 0 ? persistedState.categories : CATEGORIES,
-          posts: Array.isArray(persistedState.posts) && persistedState.posts.length > 0 ? persistedState.posts : INITIAL_POSTS,
-          pendingSubmissions: Array.isArray(persistedState.pendingSubmissions) ? persistedState.pendingSubmissions : [],
-          likedPostIds: Array.isArray(persistedState.likedPostIds) ? persistedState.likedPostIds : [],
-          savedPostIds: Array.isArray(persistedState.savedPostIds) ? persistedState.savedPostIds : [],
+          posts: cleanedPosts,
+          pendingSubmissions: Array.isArray(persistedState.pendingSubmissions)
+            ? persistedState.pendingSubmissions.filter((p: any) => p && !DUMMY_PREFIXES.some((prefix) => p.id?.startsWith(prefix)))
+            : [],
+          likedPostIds: Array.isArray(persistedState.likedPostIds)
+            ? persistedState.likedPostIds.filter((id: string) => !DUMMY_PREFIXES.some((prefix) => id?.startsWith(prefix)))
+            : [],
+          savedPostIds: Array.isArray(persistedState.savedPostIds)
+            ? persistedState.savedPostIds.filter((id: string) => !DUMMY_PREFIXES.some((prefix) => id?.startsWith(prefix)))
+            : [],
           followingUserIds: Array.isArray(persistedState.followingUserIds) ? persistedState.followingUserIds : [],
           mutedCategoryIds: Array.isArray(persistedState.mutedCategoryIds) ? persistedState.mutedCategoryIds : [],
           mutedCreatorHandles: Array.isArray(persistedState.mutedCreatorHandles) ? persistedState.mutedCreatorHandles : [],
           demotedPostIds: Array.isArray(persistedState.demotedPostIds) ? persistedState.demotedPostIds : [],
-          comments: Array.isArray(persistedState.comments) ? persistedState.comments : INITIAL_COMMENTS,
+          comments: Array.isArray(persistedState.comments)
+            ? persistedState.comments.filter((c: any) => c && !DUMMY_PREFIXES.some((prefix) => c.postId?.startsWith(prefix)))
+            : [],
           userInterestProfile: persistedState.userInterestProfile && typeof persistedState.userInterestProfile === "object" ? persistedState.userInterestProfile : {},
           chats: Array.isArray(persistedState.chats) ? persistedState.chats : CHATS,
           messages: Array.isArray(persistedState.messages) ? persistedState.messages : MESSAGES,

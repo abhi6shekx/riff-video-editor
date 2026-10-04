@@ -349,15 +349,36 @@ function HomePage() {
       {/* 5. Feed Stream */}
       <div className="space-y-6">
         {rankedFeed.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-surface/50 p-12 text-center">
-            <span className="text-4xl">👀</span>
-            <h3 className="font-display text-base font-bold text-fg mt-3">No posts found</h3>
-            <p className="text-xs text-muted mt-1 max-w-sm mx-auto">
-              {mainTab === "following"
+          <div className="rounded-3xl border border-white/10 bg-[#0d0d12]/70 p-12 text-center flex flex-col items-center justify-center">
+            <div className="size-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl mb-3">
+              ✨
+            </div>
+            <h3 className="font-display text-lg font-bold text-fg">
+              {posts.length === 0 ? "Feed is Clean & Ready" : "No posts found"}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 max-w-sm mx-auto leading-relaxed">
+              {posts.length === 0
+                ? "All sample posts have been cleared. Be the first creator to drop a fresh meme, thought, or vertical reel on RIFF!"
+                : mainTab === "following"
                 ? "You haven't followed any creators yet. Switch to 'For You' or follow creators from the feed."
-                : "No content matching this category or search query yet."}
+                : "No content matching this category or search query."}
             </p>
-            {mainTab === "following" ? (
+            {posts.length === 0 ? (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  to="/create"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-black shadow-lg shadow-accent/20 hover:opacity-90 transition-all"
+                >
+                  <Plus className="size-3.5" /> Create Post / Meme
+                </Link>
+                <Link
+                  to="/reel-studio"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-fg hover:bg-white/10 transition-all"
+                >
+                  <Clapperboard className="size-3.5" /> Reel Studio
+                </Link>
+              </div>
+            ) : mainTab === "following" ? (
               <Button
                 size="sm"
                 onClick={() => setMainTab("for-you")}

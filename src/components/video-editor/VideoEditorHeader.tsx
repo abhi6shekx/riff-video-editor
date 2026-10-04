@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useStudio } from "@/lib/studio/store";
 import type { AspectRatio } from "@/lib/studio/types";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { cn } from "@/lib/utils";
 
 interface VideoEditorHeaderProps {
@@ -184,6 +185,8 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
           <Sparkles className="size-3 text-purple-400" />
           <span>Challenges</span>
         </Link>
+
+        <ThemeSwitcher variant="compact" />
 
         <button
           type="button"

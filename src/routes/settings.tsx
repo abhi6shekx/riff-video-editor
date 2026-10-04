@@ -10,12 +10,15 @@ import {
   LogOut,
   MessageCircle,
   MessageSquare,
+  Palette,
   Shield,
   ShieldCheck,
+  Sparkles,
   User,
   Volume2,
 } from "lucide-react";
 import { PersonMark } from "@/components/person-mark";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
@@ -176,6 +179,27 @@ function SettingsPage() {
         </section>
 
         {/* ================================================= */}
+        {/* APPEARANCE & THEME */}
+        {/* ================================================= */}
+        <section className="rounded-3xl border border-white/10 bg-[#0f0f14] p-5 shadow-xl">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Palette className="size-4 text-cyan-400" />
+              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                Appearance & Theme
+              </h2>
+            </div>
+            <span className="text-[10px] text-white/40 font-medium">5 Theme Presets</span>
+          </div>
+
+          <p className="text-xs text-white/50 mb-4 leading-relaxed">
+            Personalize your workspace aesthetic. Switch between crisp light, midnight black, cyberpunk, warm sunset, and slate studio.
+          </p>
+
+          <ThemeSwitcher variant="full" />
+        </section>
+
+        {/* ================================================= */}
         {/* 2. NOTIFICATIONS */}
         {/* ================================================= */}
         <section className="rounded-3xl border border-white/10 bg-[#0f0f14] p-5 shadow-xl">
@@ -333,7 +357,40 @@ function SettingsPage() {
         </section>
 
         {/* ================================================= */}
-        {/* 4. SIGN OUT */}
+        {/* 4. APP EXPERIENCE */}
+        {/* ================================================= */}
+        <section className="rounded-3xl border border-white/10 bg-[#0f0f14] p-5 shadow-xl">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="size-4 text-[#d4ff00]" />
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+              App Experience
+            </h2>
+          </div>
+
+          <div className="flex items-center justify-between py-2 text-xs">
+            <div>
+              <p className="font-semibold text-white">Welcome Intro Animation</p>
+              <p className="text-[11px] text-white/40 leading-snug">
+                Replay the interactive RIFF onboarding showcase &amp; features tour
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("riff:open-intro"));
+                }
+              }}
+              className="rounded-xl border border-[#d4ff00]/40 bg-[#d4ff00]/10 hover:bg-[#d4ff00]/20 px-3.5 py-2 text-xs font-bold text-[#d4ff00] transition flex items-center gap-1.5 shrink-0"
+            >
+              <Sparkles className="size-3.5" />
+              Replay Intro
+            </button>
+          </div>
+        </section>
+
+        {/* ================================================= */}
+        {/* 5. SIGN OUT */}
         {/* ================================================= */}
         <section className="rounded-3xl border border-white/10 bg-[#0f0f14] p-5 shadow-xl">
           <div className="flex items-center justify-between">

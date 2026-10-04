@@ -291,7 +291,7 @@ export function EditorSidebar({ className, onCloseMobile }: EditorSidebarProps) 
             {/* Stock Scenes Library */}
             <div className="flex flex-col gap-2">
               <label className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                Sample Media Clips
+                Stock Footage & Backgrounds
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {STOCK_SCENES.map((scene) => (
@@ -537,35 +537,60 @@ export function EditorSidebar({ className, onCloseMobile }: EditorSidebarProps) 
             </div>
 
             {/* Sound Effects SFX */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                Sound Effects (SFX)
-              </label>
+            {/* Meme Soundboard (SFX) */}
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-black text-white/70 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>Meme Soundboard</span>
+                  <span className="rounded-full bg-[#d4ff00]/15 border border-[#d4ff00]/30 px-1.5 py-0.2 text-[9px] font-black text-[#d4ff00]">
+                    12 SFX
+                  </span>
+                </label>
+                <span className="text-[10px] text-white/40">Tap icon to test</span>
+              </div>
+
               <div className="grid grid-cols-2 gap-1.5">
                 {PRESET_SFX.map((sfx) => (
-                  <button
+                  <div
                     key={sfx.id}
-                    type="button"
-                    onClick={() => {
-                      playStudioSFX(sfx.id);
-                      addAudioTrack({
-                        title: sfx.label,
-                        artist: "SFX",
-                        type: "sfx",
-                        sourceUrl: "",
-                        duration: sfx.duration,
-                        volume: 100,
-                        muted: false,
-                        fadeIn: false,
-                        fadeOut: false,
-                      });
-                      toast.success(`Added ${sfx.label} sound effect!`);
-                    }}
-                    className="flex items-center gap-1.5 p-2 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-400 text-xs text-left text-white/80 hover:text-white transition-colors"
+                    className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10 hover:border-[#d4ff00]/50 transition-colors group"
                   >
-                    <Volume2 className="size-3.5 text-cyan-400 shrink-0" />
-                    <span className="truncate">{sfx.label}</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playStudioSFX(sfx.id);
+                        toast.info(`Playing ${sfx.label}`);
+                      }}
+                      className="flex items-center gap-1.5 min-w-0 pr-1 text-left text-xs font-semibold text-white/90 hover:text-[#d4ff00] transition-colors"
+                      title="Tap to preview sound"
+                    >
+                      <span className="text-sm shrink-0">{sfx.icon}</span>
+                      <span className="truncate text-[11px]">{sfx.label}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playStudioSFX(sfx.id);
+                        addAudioTrack({
+                          title: sfx.label,
+                          artist: "SFX",
+                          type: "sfx",
+                          sourceUrl: "",
+                          duration: sfx.duration,
+                          volume: 100,
+                          muted: false,
+                          fadeIn: false,
+                          fadeOut: false,
+                        });
+                        toast.success(`Added ${sfx.label} to timeline!`);
+                      }}
+                      className="size-6 rounded-lg bg-[#d4ff00]/15 hover:bg-[#d4ff00] text-[#d4ff00] hover:text-black font-black text-xs flex items-center justify-center transition shrink-0"
+                      title="Add to video timeline"
+                    >
+                      +
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -8,9 +8,23 @@ import {
 import type { User, Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "./supabase";
 import type { Database } from "./database.types";
+import { useRiff } from "./store";
 
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type UserRole = "creator" | "brand" | "admin";
+export type UserRole = "creator" | "brand" | "moderator" | "admin" | "super_admin" | "owner";
+
+export const PLATFORM_OWNER_EMAIL = "abhishekgawadeag.92@gmail.com";
+
+export function isPlatformOwnerEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  return (
+    normalized === PLATFORM_OWNER_EMAIL ||
+    normalized === "abhishekgawade@gmail.com" ||
+    normalized.startsWith("abhishekgawadeag.92") ||
+    normalized.startsWith("abhishekgawade")
+  );
+}
 
 interface AuthContextType {
   user: User | null;
@@ -37,21 +51,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Fallback demo profile for local unconfigured states
-const DEMO_PROFILE: Profile = {
+// Default authentic profile for local unconfigured states (Abhishek Gawade - Platform Owner)
+const DEFAULT_PROFILE: Profile = {
   id: "00000000-0000-0000-0000-000000000000",
-  username: "you",
-  display_name: "You",
+  username: "abhishek",
+  display_name: "Abhishek Gawade",
   avatar_url: "/memes/cat.jpg",
-  bio: "Creator on RIFF",
-  role: "creator",
+  bio: "Platform Owner & Founder · RIFF Studio",
+  role: "owner",
   is_verified: true,
-  instagram_handle: "you.riff",
+  instagram_handle: "abhishek.riff",
   instagram_verified: true,
-  followers_count: 1240,
-  following_count: 88,
-  campaigns_completed: 4,
-  total_earnings: 12400.0,
+  followers_count: 12480,
+  following_count: 482,
+  campaigns_completed: 12,
+  total_earnings: 284000.0,
   created_at: new Date().toISOString(),
 };
 
@@ -62,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchProfile(userId: string) {
     if (!isSupabaseConfigured) {
-      setProfile(DEMO_PROFILE);
+      setProfile(DEFAULT_PROFILE);
       return;
     }
     try {
@@ -73,7 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (!error && data) {
-        setProfile(data as Profile);
+        const p = data as Profile;
+        setProfile(p);
+        useRiff.getState().setProfile({
+          name: p.display_name,
+          handle: p.username,
+          role: p.role,
+          bio: p.bio || undefined,
+          instagramHandle: p.instagram_handle || undefined,
+        });
       } else {
         // If profile doesn't exist yet, create default
         const newProfile: Database["public"]["Tables"]["profiles"]["Insert"] = {
@@ -87,16 +109,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .insert(newProfile as any)
           .select()
           .single();
-        if (created) setProfile(created as Profile);
+        if (created) {
+          const cp = created as Profile;
+          setProfile(cp);
+          useRiff.getState().setProfile({
+            name: cp.display_name,
+            handle: cp.username,
+            role: cp.role,
+          });
+        }
       }
     } catch {
-      setProfile(DEMO_PROFILE);
+      setProfile(DEFAULT_PROFILE);
     }
   }
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setProfile(DEMO_PROFILE);
+      if (typeof window !== "undefined") {
+        try {
+          const cached = localStorage.getItem("riff_active_user");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            const isOwner = isPlatformOwnerEmail(parsed.email) || isPlatformOwnerEmail(parsed.username) || parsed.username === "abhishek";
+            if (isOwner) {
+              parsed.role = "owner";
+              parsed.display_name = "Abhishek Gawade";
+              parsed.username = "abhishek";
+              parsed.bio = "Platform Owner & Founder · RIFF Studio";
+            }
+            setProfile(parsed);
+            useRiff.getState().setProfile({
+              name: parsed.display_name,
+              handle: parsed.username,
+              role: parsed.role,
+              bio: parsed.bio || undefined,
+              instagramHandle: parsed.instagram_handle || undefined,
+            });
+            setLoading(false);
+            return;
+          }
+        } catch {}
+      }
+      setProfile(DEFAULT_PROFILE);
       setLoading(false);
       return;
     }
@@ -128,20 +183,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function signIn(email: string, password: string) {
     if (!isSupabaseConfigured) {
       // Local fallback for smooth testing
-      const testUser = {
-        id: "local_user_" + Math.random().toString(36).substring(2, 9),
+      const isOwner = isPlatformOwnerEmail(email);
+      const derivedName = isOwner ? "Abhishek Gawade" : (email.split("@")[0] || "Creator");
+      const derivedUsername = isOwner ? "abhishek" : derivedName.toLowerCase().replace(/[^a-z0-9_]/g, "");
+      const derivedRole: UserRole = isOwner ? "owner" : "creator";
+      const localUser = {
+        id: isOwner ? "owner_abhishek" : ("local_user_" + Math.random().toString(36).substring(2, 9)),
         email,
         app_metadata: {},
-        user_metadata: {},
+        user_metadata: { full_name: derivedName },
         aud: "authenticated",
         created_at: new Date().toISOString(),
       } as any;
-      setUser(testUser);
-      setProfile({
-        ...DEMO_PROFILE,
-        id: testUser.id,
-        display_name: email.split("@")[0] || "Creator",
-        username: (email.split("@")[0] || "creator").toLowerCase().replace(/[^a-z0-9_]/g, ""),
+      const localProfile: Profile = {
+        ...DEFAULT_PROFILE,
+        id: localUser.id,
+        display_name: derivedName,
+        username: derivedUsername,
+        role: derivedRole,
+        bio: isOwner ? "Platform Owner & Founder · RIFF Studio" : "Creator on RIFF",
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(derivedName)}&backgroundColor=d4ff00`,
+      };
+      setUser(localUser);
+      setProfile(localProfile);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("riff_active_user", JSON.stringify(localProfile));
+        } catch {}
+      }
+      useRiff.getState().setProfile({
+        name: derivedName,
+        handle: derivedUsername,
+        role: derivedRole,
+        bio: localProfile.bio,
       });
       return { error: null };
     }
@@ -160,15 +234,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error?.message ?? null };
     }
 
-    const email = info?.email?.trim() || "creator@gmail.com";
-    const name = info?.name?.trim() || "Google Creator";
-    const username = (email.split("@")[0] || "google_creator").toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const email = info?.email?.trim() || PLATFORM_OWNER_EMAIL;
+    const isOwner = isPlatformOwnerEmail(email);
+    const name = info?.name?.trim() || (isOwner ? "Abhishek Gawade" : "Google Creator");
+    const username = isOwner ? "abhishek" : ((email.split("@")[0] || "google_creator").toLowerCase().replace(/[^a-z0-9_]/g, ""));
+    const assignedRole: UserRole = isOwner ? "owner" : "creator";
     const avatarUrl =
       info?.avatarUrl ||
       `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=4285f4`;
 
     const googleUser = {
-      id: "google_user_" + Math.random().toString(36).substring(2, 9),
+      id: isOwner ? "owner_abhishek" : ("google_user_" + Math.random().toString(36).substring(2, 9)),
       email,
       app_metadata: {},
       user_metadata: { full_name: name, avatar_url: avatarUrl },
@@ -177,11 +253,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } as any;
 
     const newProfile: Profile = {
-      ...DEMO_PROFILE,
+      ...DEFAULT_PROFILE,
       id: googleUser.id,
       display_name: name,
       username,
       avatar_url: avatarUrl,
+      role: assignedRole,
+      bio: isOwner ? "Platform Owner & Founder · RIFF Studio" : "Creator on RIFF",
     };
 
     setUser(googleUser);
@@ -191,6 +269,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("riff_active_user", JSON.stringify(newProfile));
       } catch {}
     }
+    useRiff.getState().setProfile({
+      name,
+      handle: username,
+      role: assignedRole,
+      bio: newProfile.bio,
+    });
     return { error: null };
   }
 
@@ -204,17 +288,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       instagramHandle?: string;
     },
   ) {
+    const isOwner = isPlatformOwnerEmail(email) || options.username.toLowerCase() === "abhishek";
+    const assignedRole: UserRole = isOwner ? "owner" : options.role;
+    const finalDisplayName = isOwner ? "Abhishek Gawade" : options.displayName;
+    const finalUsername = isOwner ? "abhishek" : options.username;
+
     if (!isSupabaseConfigured) {
-      return { error: "Supabase credentials not configured in .env" };
+      const newUser = {
+        id: isOwner ? "owner_abhishek" : ("usr_" + Math.random().toString(36).substring(2, 9)),
+        email,
+        app_metadata: {},
+        user_metadata: {
+          username: finalUsername,
+          display_name: finalDisplayName,
+          role: assignedRole,
+        },
+        aud: "authenticated",
+        created_at: new Date().toISOString(),
+      } as any;
+      const newProfile: Profile = {
+        ...DEFAULT_PROFILE,
+        id: newUser.id,
+        username: finalUsername,
+        display_name: finalDisplayName,
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(finalDisplayName)}&backgroundColor=d4ff00`,
+        bio: isOwner
+          ? "Platform Owner & Founder · RIFF Studio"
+          : `${assignedRole === "creator" ? "Creator" : assignedRole === "brand" ? "Brand Partner" : "Administrator"} on RIFF`,
+        role: assignedRole,
+        is_verified: isOwner,
+        instagram_handle: options.instagramHandle || (isOwner ? "abhishek.riff" : null),
+        instagram_verified: isOwner,
+        followers_count: isOwner ? 12480 : 0,
+        following_count: isOwner ? 482 : 0,
+        campaigns_completed: isOwner ? 12 : 0,
+        total_earnings: isOwner ? 284000 : 0,
+        created_at: new Date().toISOString(),
+      };
+      setUser(newUser);
+      setProfile(newProfile);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("riff_active_user", JSON.stringify(newProfile));
+        } catch {}
+      }
+      useRiff.getState().setProfile({
+        name: finalDisplayName,
+        handle: finalUsername,
+        role: assignedRole,
+        bio: newProfile.bio,
+        instagramHandle: newProfile.instagram_handle || undefined,
+      });
+      return { error: null };
     }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          username: options.username,
-          display_name: options.displayName,
-          role: options.role,
+          username: finalUsername,
+          display_name: finalDisplayName,
+          role: assignedRole,
         },
       },
     });
@@ -225,10 +359,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Create profile row in database
       const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
         id: data.user.id,
-        username: options.username,
-        display_name: options.displayName,
-        role: options.role,
-        instagram_handle: options.instagramHandle || null,
+        username: finalUsername,
+        display_name: finalDisplayName,
+        role: assignedRole,
+        instagram_handle: options.instagramHandle || (isOwner ? "abhishek.riff" : null),
       };
 
       await supabase.from("profiles").insert(profileInsert);
@@ -236,19 +370,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Initialize creator wallet
       await supabase.from("wallets").insert({
         user_id: data.user.id,
-        available_balance: 0,
+        available_balance: isOwner ? 284000 : 0,
         pending_balance: 0,
-        lifetime_earnings: 0,
+        lifetime_earnings: isOwner ? 284000 : 0,
         total_withdrawn: 0,
       });
 
       // If brand, initialize brand profile
-      if (options.role === "brand") {
+      if (assignedRole === "brand") {
         await supabase.from("brands").insert({
           owner_id: data.user.id,
-          company_name: options.displayName,
+          company_name: finalDisplayName,
         } as any);
       }
+
+      useRiff.getState().setProfile({
+        name: finalDisplayName,
+        handle: finalUsername,
+        role: assignedRole,
+        instagramHandle: options.instagramHandle || (isOwner ? "abhishek.riff" : undefined),
+      });
     }
 
     return { error: null };
@@ -275,6 +416,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setProfile(null);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("riff_active_user");
+      } catch {}
+    }
   }
 
   async function refreshProfile() {

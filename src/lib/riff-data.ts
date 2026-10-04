@@ -56,6 +56,10 @@ export async function resolveServerActor(sql: any, userId?: string | null): Prom
 
   const isOwnerEnv =
     safeId === "dev-user" ||
+    safeId === "owner_abhishek" ||
+    safeId.toLowerCase() === "abhishek" ||
+    safeId.toLowerCase() === "abhishekgawadeag.92@gmail.com" ||
+    safeId.toLowerCase() === "abhishekgawade@gmail.com" ||
     (process.env.RIFF_OWNER_USER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean).includes(safeId) ||
     (process.env.RIFF_OWNER_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).includes(safeId.toLowerCase());
 

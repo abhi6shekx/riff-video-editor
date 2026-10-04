@@ -292,6 +292,57 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
     }
   }
 
+  if (safeReels.length === 0 || !activeReel) {
+    return (
+      <div className="relative flex h-full w-full items-center justify-center bg-[#050507] overflow-hidden p-4">
+        <div className="relative flex h-full max-h-[860px] w-full max-w-[420px] aspect-[9/16] flex-col items-center justify-center overflow-hidden rounded-none sm:rounded-3xl border-0 sm:border border-white/10 bg-[#0d0d12] p-8 text-center shadow-2xl">
+          <div className="absolute top-4 left-4 z-10">
+            {onClose ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex size-9 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md hover:bg-black/80 hover:text-white transition-colors"
+                title="Back"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+            ) : (
+              <Link
+                to="/"
+                className="flex size-9 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md hover:bg-black/80 hover:text-white transition-colors"
+                title="Back to Feed"
+              >
+                <ChevronLeft className="size-5" />
+              </Link>
+            )}
+          </div>
+
+          <div className="size-20 rounded-full bg-[#d4ff00]/10 border border-[#d4ff00]/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
+            🎬
+          </div>
+          <h2 className="font-display text-xl font-extrabold text-white">No Reels Published Yet</h2>
+          <p className="text-xs text-white/50 mt-2 max-w-xs leading-relaxed">
+            The reels stream is clean. Be the first creator to record or export a 9:16 vertical reel!
+          </p>
+          <div className="mt-6 flex flex-col gap-2.5 w-full max-w-xs">
+            <Link
+              to="/reel-studio"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#d4ff00] py-3 text-xs font-black text-black shadow-lg shadow-[#d4ff00]/20 hover:opacity-90 transition-all"
+            >
+              <Zap className="size-4" /> Open Reel Studio
+            </Link>
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 transition-all"
+            >
+              Back to Feed
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="relative flex h-full w-full items-center justify-center bg-[#050507] overflow-hidden select-none"

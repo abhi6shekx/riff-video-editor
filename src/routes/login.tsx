@@ -31,7 +31,7 @@ function LoginPage() {
   // Google Account Chooser Modal state
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [googleNameInput, setGoogleNameInput] = useState("Abhishek Gawade");
-  const [googleEmailInput, setGoogleEmailInput] = useState("abhishekgawade@gmail.com");
+  const [googleEmailInput, setGoogleEmailInput] = useState("abhishekgawadeag.92@gmail.com");
 
   function openGoogleAuth() {
     playSound("pop");
@@ -56,18 +56,6 @@ function LoginPage() {
     }
   }
 
-  async function handleQuickDemo(demoRole: "creator" | "brand") {
-    setLoading(true);
-    playSound("pop");
-    try {
-      await signIn(demoRole === "creator" ? "creator@riff.app" : "brand@nova.com", "demo123");
-      playSound("cheer");
-      toast.success(`Logged in as demo ${demoRole}!`);
-      void navigate({ to: "/" });
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -279,26 +267,6 @@ function LoginPage() {
           </Button>
         </form>
 
-        {/* Quick Demo Access */}
-        <div className="pt-2 border-t border-border flex flex-col gap-2">
-          <p className="text-[11px] text-center text-muted font-medium">Quick 1-Tap Demo Access</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo("creator")}
-              className="py-2 px-3 rounded-xl border border-border bg-raised hover:bg-raised/80 text-[11px] font-semibold text-fg transition-colors"
-            >
-              Demo Creator 🎬
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo("brand")}
-              className="py-2 px-3 rounded-xl border border-border bg-raised hover:bg-raised/80 text-[11px] font-semibold text-fg transition-colors"
-            >
-              Demo Brand 🏢
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Google Account Chooser Dialog */}

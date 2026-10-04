@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
+import { useRiff } from "@/lib/store";
 import { Timeline, type TimelineClip } from "./Timeline";
 import { AudioPanel, type AudioTrack } from "./AudioPanel";
 import { TextPanel, type TextLayer } from "./TextPanel";
@@ -48,11 +49,18 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const historyRef = useRef(new HistoryManager());
 
+  const riffProfile = useRiff((s) => s.profile);
   const currentUser = useCurrentUser();
   const username =
-    currentUser?.displayName?.replace(/\s+/g, "").toLowerCase() ??
-    currentUser?.primaryEmail?.split("@")[0] ??
-    "riff.creator";
+    (riffProfile?.handle && riffProfile.handle !== "you" ? riffProfile.handle : null) ??
+    (currentUser?.displayName && currentUser.displayName !== "Dev User" && currentUser.displayName !== "Creator"
+      ? currentUser.displayName.replace(/\s+/g, "").toLowerCase()
+      : null) ??
+    (currentUser?.primaryEmail && !currentUser.primaryEmail.includes("example.com")
+      ? currentUser.primaryEmail.split("@")[0]
+      : null) ??
+    riffProfile?.handle ??
+    "creator";
 
   // Project state
   const [projectId] = useState(() => safeRandomUUID());
@@ -392,7 +400,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
     pushHistory();
   }
 
-  // Load built-in sample demo media
+  // Load starter template media
   async function loadSampleMedia() {
     const id1 = safeRandomUUID();
     const id2 = safeRandomUUID();
@@ -843,7 +851,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
 
             <ToolButton
               icon="✨"
-              label="Samples"
+              label="Templates"
               onClick={loadSampleMedia}
             />
 
@@ -1043,7 +1051,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                       onClick={loadSampleMedia}
                       className="rounded-full bg-white/10 text-white font-bold px-4 py-1.5 text-xs hover:bg-white/20 transition"
                     >
-                      ✨ Load Samples
+                      ✨ Starter Template
                     </button>
                   </div>
                 </div>

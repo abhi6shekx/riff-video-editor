@@ -16,7 +16,7 @@ export interface Database {
           display_name: string;
           avatar_url: string | null;
           bio: string;
-          role: "creator" | "brand" | "admin";
+          role: "creator" | "brand" | "moderator" | "admin" | "super_admin" | "owner";
           is_verified: boolean;
           instagram_handle: string | null;
           instagram_verified: boolean;
@@ -32,7 +32,7 @@ export interface Database {
           display_name: string;
           avatar_url?: string | null;
           bio?: string;
-          role?: "creator" | "brand" | "admin";
+          role?: "creator" | "brand" | "moderator" | "admin" | "super_admin" | "owner";
           is_verified?: boolean;
           instagram_handle?: string | null;
           instagram_verified?: boolean;
