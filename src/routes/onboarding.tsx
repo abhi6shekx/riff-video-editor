@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   AlertCircle,
   Check,
   CheckCircle2,
   Sparkles,
   Camera,
+  Upload,
   AtSign,
   User,
   Instagram,
@@ -121,6 +122,39 @@ function ProfileOnboardingPage() {
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["reels", "memes"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file (PNG, JPG, WEBP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file size should be less than 5MB.");
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAvatarUrl(reader.result);
+        playSound("pop");
+        toast.success("Profile photo updated!");
+      }
+      setIsUploadingPhoto(false);
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read image file.");
+      setIsUploadingPhoto(false);
+    };
+    reader.readAsDataURL(file);
+  }
 
   // Live handle uniqueness and validity check
   const handleStatus = useMemo(() => {
@@ -300,22 +334,46 @@ function ProfileOnboardingPage() {
         <div className="rounded-3xl border border-border bg-surface p-6 md:p-8 shadow-2xl space-y-7">
           {/* 1. Avatar Selection */}
           <div className="flex flex-col items-center sm:flex-row sm:items-start gap-5 pb-6 border-b border-border/60">
-            <div className="relative group shrink-0">
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoUpload}
+              accept="image/*"
+              className="hidden"
+            />
+
+            <div
+              className="relative group shrink-0 cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+              title="Click to upload custom profile picture"
+            >
               <img
                 src={avatarUrl}
                 alt="Avatar preview"
-                className="size-24 rounded-full border-2 border-accent object-cover shadow-lg bg-raised"
+                className="size-24 rounded-full border-2 border-accent object-cover shadow-lg bg-raised group-hover:opacity-85 transition-opacity"
                 onError={() => setAvatarUrl(DEFAULT_AVATARS[0])}
               />
-              <div className="absolute -bottom-1 -right-1 size-7 rounded-full bg-accent text-accent-fg flex items-center justify-center shadow-md">
+              <div className="absolute -bottom-1 -right-1 size-7 rounded-full bg-accent text-accent-fg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Camera className="size-3.5" />
               </div>
             </div>
 
             <div className="flex-1 space-y-2 text-center sm:text-left">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted">Avatar & Profile Photo</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted">Avatar & Profile Photo</p>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full border border-accent/40 bg-accent/10 hover:bg-accent/20 active:scale-95 text-accent text-xs font-semibold cursor-pointer transition-all"
+                >
+                  <Upload className="size-3" />
+                  <span>{isUploadingPhoto ? "Loading..." : "Upload Photo"}</span>
+                </button>
+              </div>
               <p className="text-xs text-muted">
-                Choose an avatar or paste an image URL. By default, your Google profile picture is selected.
+                Upload your own photo from device, or choose from creator avatar presets below.
               </p>
               {/* Avatar quick presets */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
@@ -328,9 +386,10 @@ function ProfileOnboardingPage() {
                       setAvatarUrl(url);
                     }}
                     className={cn(
-                      "size-8 rounded-full overflow-hidden border transition-transform hover:scale-110",
+                      "size-8 rounded-full overflow-hidden border transition-transform hover:scale-110 cursor-pointer",
                       avatarUrl === url ? "border-accent ring-2 ring-accent/30" : "border-border"
                     )}
+                    title={`Select Avatar ${i + 1}`}
                   >
                     <img src={url} alt={`Preset ${i}`} className="size-full object-cover" />
                   </button>

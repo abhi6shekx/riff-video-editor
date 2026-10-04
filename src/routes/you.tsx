@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   AlertOctagon,
   AlertTriangle,
   ArrowUpRight,
   BarChart3,
   Bookmark,
+  Camera,
   Check,
   CheckCircle2,
   Clock,
@@ -27,6 +28,7 @@ import {
   Sparkles,
   TrendingUp,
   Trophy,
+  Upload,
   UserCheck,
   UserPlus,
   Wallet,
@@ -109,6 +111,33 @@ function ProfilePage() {
   const [handle, setHandle] = useState(profile.handle);
   const [bio, setBio] = useState(profile.bio);
   const [instagram, setInstagram] = useState(profile.instagramHandle || "");
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl || "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file size should be less than 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAvatarUrl(reader.result);
+        playSound("pop");
+        toast.success("Profile photo preview updated!");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 
   function handleClaimDailyReward() {
     const res = claimDailyReward();
@@ -220,6 +249,7 @@ function ProfilePage() {
       name: name.trim(),
       handle: cleanHandle,
       bio: bio.trim(),
+      avatarUrl: avatarUrl || undefined,
       instagramHandle: instagram.replace("@", "").trim(),
     });
 
@@ -234,7 +264,15 @@ function ProfilePage() {
       <header className="rounded-3xl border border-white/10 bg-surface/90 p-6 shadow-xl backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative">
-            <PersonMark mark="you" size="lg" />
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="size-14 sm:size-16 rounded-full border-2 border-accent object-cover shadow-lg bg-raised"
+              />
+            ) : (
+              <PersonMark mark="you" size="lg" />
+            )}
             <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-accent text-[10px] text-black font-black shadow-md">
               ⚡
             </span>
@@ -994,6 +1032,42 @@ function ProfilePage() {
               >
                 <X className="size-4" />
               </button>
+            </div>
+
+            {/* Avatar / PFP Section */}
+            <div className="flex items-center gap-4 p-3 rounded-2xl bg-raised/50 border border-white/5">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handlePhotoUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <div
+                className="relative size-14 rounded-full overflow-hidden border-2 border-accent cursor-pointer shrink-0 group"
+                onClick={() => fileInputRef.current?.click()}
+                title="Click to upload new profile photo"
+              >
+                <img
+                  src={avatarUrl || profile.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || 'You')}&backgroundColor=d4ff00`}
+                  alt="Avatar"
+                  className="size-full object-cover group-hover:opacity-80 transition-opacity"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="size-4 text-white" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-fg">Profile Photo</p>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mt-1 text-[11px] font-semibold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Upload className="size-3" />
+                  <span>Upload custom PFP</span>
+                </button>
+              </div>
             </div>
 
             <div>

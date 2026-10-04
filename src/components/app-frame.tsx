@@ -503,10 +503,18 @@ export function AppFrame({
               to="/you"
               className="mt-3 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-raised"
             >
-              <PersonMark
-                mark="you"
-                size="sm"
-              />
+              {safeProfile.avatarUrl ? (
+                <img
+                  src={safeProfile.avatarUrl}
+                  alt={safeProfile.name}
+                  className="size-8 rounded-full border border-accent/40 object-cover shrink-0"
+                />
+              ) : (
+                <PersonMark
+                  mark="you"
+                  size="sm"
+                />
+              )}
 
               <div className="min-w-0">
                 <p className="truncate text-xs font-bold text-fg">
