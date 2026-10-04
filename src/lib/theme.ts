@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ThemeId = "dark" | "light" | "cyberpunk" | "sunset" | "slate";
+export type ThemeId = "dark" | "light";
 
 export interface ThemeConfig {
   id: ThemeId;
@@ -15,48 +15,21 @@ export interface ThemeConfig {
 export const THEMES: readonly ThemeConfig[] = [
   {
     id: "dark",
-    label: "Midnight Black",
-    desc: "Default pro dark obsidian",
+    label: "Dark Mode",
+    desc: "Pro obsidian dark theme",
     icon: "🌙",
     primaryColor: "#00f0ff",
     bgColor: "#08090d",
-    badge: "Pro Dark",
+    badge: "Dark",
   },
   {
     id: "light",
-    label: "Studio Clean Light",
-    desc: "Crisp white minimalist look",
+    label: "Light Mode",
+    desc: "Clean crisp light theme",
     icon: "☀️",
     primaryColor: "#0284c7",
     bgColor: "#f8fafc",
-    badge: "Pure Light",
-  },
-  {
-    id: "cyberpunk",
-    label: "Neon Cyberpunk",
-    desc: "Synthwave violet & magenta",
-    icon: "⚡",
-    primaryColor: "#d946ef",
-    bgColor: "#0c0714",
-    badge: "Vibrant",
-  },
-  {
-    id: "sunset",
-    label: "Warm Sunset",
-    desc: "Espresso & amber gold glow",
-    icon: "🌅",
-    primaryColor: "#f59e0b",
-    bgColor: "#120e0c",
-    badge: "Warm",
-  },
-  {
-    id: "slate",
-    label: "Pro Slate Navy",
-    desc: "Modern deep blue-gray studio",
-    icon: "🌌",
-    primaryColor: "#38bdf8",
-    bgColor: "#0f172a",
-    badge: "Studio",
+    badge: "Light",
   },
 ] as const;
 
@@ -65,9 +38,9 @@ const THEME_STORAGE_KEY = "riff_active_theme";
 function getInitialTheme(): ThemeId {
   if (typeof window === "undefined") return "dark";
   try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null;
-    if (saved && THEMES.some((t) => t.id === saved)) {
-      return saved;
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "light") {
+      return "light";
     }
   } catch {}
   return "dark";
@@ -76,8 +49,9 @@ function getInitialTheme(): ThemeId {
 export function applyThemeToDom(theme: ThemeId) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  root.setAttribute("data-theme", theme);
-  if (theme === "light") {
+  const targetTheme: ThemeId = theme === "light" ? "light" : "dark";
+  root.setAttribute("data-theme", targetTheme);
+  if (targetTheme === "light") {
     root.classList.remove("dark");
     root.classList.add("light");
   } else {
@@ -95,19 +69,18 @@ interface ThemeState {
 export const useTheme = create<ThemeState>((set, get) => ({
   theme: typeof window !== "undefined" ? getInitialTheme() : "dark",
   setTheme: (theme: ThemeId) => {
-    applyThemeToDom(theme);
+    const targetTheme: ThemeId = theme === "light" ? "light" : "dark";
+    applyThemeToDom(targetTheme);
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(THEME_STORAGE_KEY, theme);
+        localStorage.setItem(THEME_STORAGE_KEY, targetTheme);
       } catch {}
     }
-    set({ theme });
+    set({ theme: targetTheme });
   },
   cycleTheme: () => {
     const current = get().theme;
-    const currentIndex = THEMES.findIndex((t) => t.id === current);
-    const nextIndex = (currentIndex + 1) % THEMES.length;
-    const nextTheme = THEMES[nextIndex].id;
+    const nextTheme: ThemeId = current === "dark" ? "light" : "dark";
     get().setTheme(nextTheme);
   },
 }));

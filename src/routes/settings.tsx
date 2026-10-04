@@ -189,11 +189,11 @@ function SettingsPage() {
                 Appearance & Theme
               </h2>
             </div>
-            <span className="text-[10px] text-white/40 font-medium">5 Theme Presets</span>
+            <span className="text-[10px] text-white/40 font-medium">Dark & Light Mode</span>
           </div>
 
           <p className="text-xs text-white/50 mb-4 leading-relaxed">
-            Personalize your workspace aesthetic. Switch between crisp light, midnight black, cyberpunk, warm sunset, and slate studio.
+            Personalize your workspace aesthetic. Switch between crisp light mode and midnight dark mode.
           </p>
 
           <ThemeSwitcher variant="full" />
