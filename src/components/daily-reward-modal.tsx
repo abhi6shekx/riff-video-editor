@@ -88,9 +88,12 @@ export function DailyRewardModal({ isOpen, onClose }: DailyRewardModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+    >
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#0d0d0d] shadow-[0_0_50px_rgba(255,100,0,0.15)] text-white p-6 sm:p-7 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#0d0d0d] shadow-[0_0_50px_rgba(255,100,0,0.15)] text-white p-6 sm:p-7 max-h-[90vh] overflow-y-auto cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow ambient background */}
@@ -99,7 +102,7 @@ export function DailyRewardModal({ isOpen, onClose }: DailyRewardModalProps) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+          className="absolute top-4 right-4 z-20 size-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all cursor-pointer shadow-md"
           aria-label="Close modal"
         >
           <X className="size-5" />
@@ -234,25 +237,36 @@ export function DailyRewardModal({ isOpen, onClose }: DailyRewardModalProps) {
               </span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 text-left">
-                <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                  <Check className="size-5 stroke-[2.5]" />
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 text-left">
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+                    <Check className="size-5 stroke-[2.5]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Today&apos;s Reward Claimed!</p>
+                    <p className="text-[11px] text-white/40">Streak is safe. Next reward unlocks at midnight.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-white">Today&apos;s Reward Claimed!</p>
-                  <p className="text-[11px] text-white/40">Streak is safe. Next reward unlocks at midnight.</p>
+
+                <div className="flex items-center gap-1.5 rounded-xl bg-black/50 border border-white/10 px-3 py-1.5 text-xs font-mono text-amber-400 font-bold shrink-0">
+                  <Clock className="size-3.5 text-white/40" />
+                  <span>
+                    {String(countdown.hours).padStart(2, "0")}:
+                    {String(countdown.minutes).padStart(2, "0")}:
+                    {String(countdown.seconds).padStart(2, "0")}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 rounded-xl bg-black/50 border border-white/10 px-3 py-1.5 text-xs font-mono text-amber-400 font-bold shrink-0">
-                <Clock className="size-3.5 text-white/40" />
-                <span>
-                  {String(countdown.hours).padStart(2, "0")}:
-                  {String(countdown.minutes).padStart(2, "0")}:
-                  {String(countdown.seconds).padStart(2, "0")}
-                </span>
-              </div>
+              {/* Quick dismiss button */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full rounded-2xl bg-white/10 hover:bg-white/15 active:scale-[0.99] border border-white/15 py-3 text-sm font-bold text-white transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>Done &middot; Continue to Feed</span>
+              </button>
             </div>
           )}
 
