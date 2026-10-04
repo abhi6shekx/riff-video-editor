@@ -30,8 +30,8 @@ function LoginPage() {
 
   // Google Account Chooser Modal state
   const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [googleNameInput, setGoogleNameInput] = useState("Abhishek Gawade");
-  const [googleEmailInput, setGoogleEmailInput] = useState("abhishekgawadeag.92@gmail.com");
+  const [googleNameInput, setGoogleNameInput] = useState("");
+  const [googleEmailInput, setGoogleEmailInput] = useState("");
 
   function openGoogleAuth() {
     playSound("pop");
@@ -306,35 +306,41 @@ function LoginPage() {
               <p className="text-xs text-gray-500">to continue to <strong className="text-gray-700">RIFF Video Studio</strong></p>
             </div>
 
-            {/* Account Card (1-Tap Fast Continue) */}
-            <div className="border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 bg-gray-50/70 hover:bg-gray-50 transition-colors">
-              <div className="size-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-sm">
-                {(googleNameInput[0] || "A").toUpperCase()}
+            {/* Account Card (Shown when details entered) */}
+            {(googleNameInput.trim() || googleEmailInput.trim()) && (
+              <div className="border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 bg-gray-50/70 transition-colors">
+                <div className="size-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-sm">
+                  {((googleNameInput.trim()[0] || googleEmailInput.trim()[0] || "U")).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-gray-900 truncate">
+                    {googleNameInput.trim() || "Google Creator"}
+                  </p>
+                  <p className="text-[11px] text-gray-500 truncate">
+                    {googleEmailInput.trim() || "creator@gmail.com"}
+                  </p>
+                </div>
+                <div className="size-2 rounded-full bg-emerald-500 shrink-0" title="Ready" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-gray-900 truncate">{googleNameInput}</p>
-                <p className="text-[11px] text-gray-500 truncate">{googleEmailInput}</p>
-              </div>
-              <div className="size-2 rounded-full bg-emerald-500 shrink-0" title="Active Account" />
-            </div>
+            )}
 
-            {/* Custom Google Account Inputs */}
+            {/* Google Account Inputs */}
             <div className="flex flex-col gap-2 pt-1">
               <label className="text-[11px] font-semibold text-gray-600">
-                Account Details
+                Enter your Google Account
               </label>
               <input
                 type="text"
                 value={googleNameInput}
                 onChange={(e) => setGoogleNameInput(e.target.value)}
-                placeholder="Your Full Name"
+                placeholder="Full Name (e.g. Rahul Sharma)"
                 className="w-full text-xs px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 text-gray-800 bg-white"
               />
               <input
                 type="email"
                 value={googleEmailInput}
                 onChange={(e) => setGoogleEmailInput(e.target.value)}
-                placeholder="your.email@gmail.com"
+                placeholder="Google Email (e.g. yourname@gmail.com)"
                 className="w-full text-xs px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 text-gray-800 bg-white"
               />
             </div>
@@ -350,14 +356,18 @@ function LoginPage() {
                 type="button"
                 onClick={() =>
                   handleGoogleSignIn({
-                    name: googleNameInput || "Google User",
-                    email: googleEmailInput || "user@gmail.com",
+                    name: googleNameInput.trim() || "Google Creator",
+                    email: googleEmailInput.trim() || "creator@gmail.com",
                   })
                 }
                 disabled={googleLoading}
                 className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
               >
-                {googleLoading ? "Signing in..." : `Continue as ${(googleNameInput || "User").split(" ")[0]}`}
+                {googleLoading
+                  ? "Signing in..."
+                  : googleNameInput.trim()
+                    ? `Continue as ${googleNameInput.trim().split(" ")[0]}`
+                    : "Continue with Google"}
               </button>
               <button
                 type="button"
