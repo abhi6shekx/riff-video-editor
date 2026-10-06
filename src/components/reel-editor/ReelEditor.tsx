@@ -931,7 +931,9 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
             <div
               className={`relative ${getAspectClass(
                 aspectRatio
-              )} h-full max-h-[58vh] sm:max-h-[66vh] max-w-full overflow-hidden rounded-2xl bg-black shadow-2xl border border-border flex items-center justify-center transition-all duration-300`}
+              )} h-full max-h-[58vh] sm:max-h-[66vh] max-w-full overflow-hidden rounded-2xl ${
+                activeClip ? "bg-black" : "bg-surface border-2 border-dashed border-border"
+              } shadow-2xl border border-border flex items-center justify-center transition-all duration-300`}
             >
               {activeClip ? (
                 activeClip.isBroken ? (
@@ -1032,24 +1034,26 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                 )
               ) : (
                 /* EMPTY STATE */
-                <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center text-white/40">
-                  <span className="text-5xl">＋</span>
-                  <span className="text-sm font-bold text-white">
+                <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center text-muted">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-raised border border-border text-2xl text-fg shadow-inner">
+                    ＋
+                  </div>
+                  <span className="text-sm font-bold text-fg">
                     Import Videos or Photos/Memes
                   </span>
-                  <span className="text-xs text-white/50 max-w-xs">
+                  <span className="text-xs text-muted max-w-xs leading-relaxed">
                     Create viral reels from video clips or photo slides with music, text & effects!
                   </span>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                     <button
                       onClick={() => inputRef.current?.click()}
-                      className="rounded-full bg-[#d4ff00] text-black font-extrabold px-4 py-1.5 text-xs hover:opacity-90 shadow-md transition"
+                      className="rounded-full bg-[#d4ff00] text-black font-extrabold px-4 py-2 text-xs hover:opacity-90 shadow-md transition"
                     >
                       📁 Browse Media
                     </button>
                     <button
                       onClick={loadSampleMedia}
-                      className="rounded-full bg-white/10 text-white font-bold px-4 py-1.5 text-xs hover:bg-white/20 transition"
+                      className="rounded-full bg-raised border border-border text-fg font-bold px-4 py-2 text-xs hover:bg-surface transition shadow-xs"
                     >
                       ✨ Starter Template
                     </button>
@@ -1116,10 +1120,18 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               })}
 
               {/* PREVIEW WATERMARK BADGE */}
-              <div className="pointer-events-none absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-xl bg-black/60 px-3 py-1.5 backdrop-blur-sm border border-white/10">
+              <div
+                className={`pointer-events-none absolute bottom-3 left-3 z-30 flex items-center gap-2 rounded-xl px-3 py-1.5 backdrop-blur-sm border shadow-sm ${
+                  activeClip
+                    ? "bg-black/60 border-white/10 text-white"
+                    : "bg-surface/90 border-border text-fg"
+                }`}
+              >
                 <span className="font-black text-xs text-[#d4ff00]">RIFF</span>
-                <span className="h-1 w-1 rounded-full bg-white/40" />
-                <span className="text-[11px] font-medium text-white/90">@{username}</span>
+                <span className={`h-1 w-1 rounded-full ${activeClip ? "bg-white/40" : "bg-border"}`} />
+                <span className={`text-[11px] font-medium ${activeClip ? "text-white/90" : "text-muted"}`}>
+                  @{username}
+                </span>
               </div>
             </div>
           </div>

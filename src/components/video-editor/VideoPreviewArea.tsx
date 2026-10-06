@@ -139,7 +139,8 @@ export function VideoPreviewArea({ className }: VideoPreviewAreaProps) {
       {/* Canvas Wrapper */}
       <div
         className={cn(
-          "relative flex items-center justify-center shadow-2xl rounded-2xl overflow-hidden border border-border bg-black group",
+          "relative flex items-center justify-center shadow-2xl rounded-2xl overflow-hidden border border-border group",
+          project.clips.length > 0 ? "bg-black" : "bg-surface border-2 border-dashed border-border",
           aspectClass,
         )}
       >
@@ -148,8 +149,20 @@ export function VideoPreviewArea({ className }: VideoPreviewAreaProps) {
           width={dims.width}
           height={dims.height}
           onClick={togglePlay}
-          className="size-full object-contain cursor-pointer"
+          className={cn("size-full object-contain cursor-pointer", project.clips.length === 0 && "hidden")}
         />
+
+        {project.clips.length === 0 && (
+          <div className="flex flex-col items-center justify-center p-6 text-center text-muted gap-2 select-none">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-raised border border-border text-2xl text-fg shadow-inner">
+              🎬
+            </div>
+            <span className="text-sm font-bold text-fg">No Media on Timeline</span>
+            <span className="text-xs text-muted max-w-[220px]">
+              Upload videos or photos to start editing in multi-track mode
+            </span>
+          </div>
+        )}
 
         {/* Selected Text Layer Bounding Box Indicator */}
         {activeText && (
@@ -169,7 +182,7 @@ export function VideoPreviewArea({ className }: VideoPreviewAreaProps) {
         )}
 
         {/* Big Center Play Icon overlay on pause */}
-        {!isPlaying && (
+        {project.clips.length > 0 && !isPlaying && (
           <button
             type="button"
             onClick={togglePlay}
