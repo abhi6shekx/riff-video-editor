@@ -187,22 +187,6 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
     };
   }, [showComments, showMenu, showStatsModal, safeReels.length]);
 
-  if (!activeReel) {
-    return (
-      <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center text-white">
-        <span className="text-4xl">🎬</span>
-        <h3 className="mt-3 text-lg font-bold">No Reels Available</h3>
-        <p className="mt-1 text-xs text-white/50">Be the first creator to drop a 9:16 Reel on RIFF!</p>
-        <Link
-          to="/create"
-          className="mt-4 rounded-xl bg-[#d4ff00] px-4 py-2 text-xs font-black text-black hover:opacity-90"
-        >
-          Create a Reel
-        </Link>
-      </div>
-    );
-  }
-
   const safeLiked = Array.isArray(likedPostIds) ? likedPostIds : [];
   const safeSaved = Array.isArray(savedPostIds) ? savedPostIds : [];
   const safeFollowing = Array.isArray(followingUserIds) ? followingUserIds : [];
@@ -294,14 +278,14 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
 
   if (safeReels.length === 0 || !activeReel) {
     return (
-      <div className="relative flex h-full w-full items-center justify-center bg-[#050507] overflow-hidden p-4">
-        <div className="relative flex h-full max-h-[860px] w-full max-w-[420px] aspect-[9/16] flex-col items-center justify-center overflow-hidden rounded-none sm:rounded-3xl border-0 sm:border border-white/10 bg-[#0d0d12] p-8 text-center shadow-2xl">
+      <div className="relative flex h-full w-full items-center justify-center bg-bg text-fg overflow-hidden p-4">
+        <div className="relative flex h-full max-h-[860px] w-full max-w-[420px] aspect-[9/16] flex-col items-center justify-center overflow-hidden rounded-none sm:rounded-3xl border border-border bg-surface p-8 text-center shadow-2xl">
           <div className="absolute top-4 left-4 z-10">
             {onClose ? (
               <button
                 type="button"
                 onClick={onClose}
-                className="flex size-9 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md hover:bg-black/80 hover:text-white transition-colors"
+                className="flex size-9 items-center justify-center rounded-full bg-raised text-fg border border-border backdrop-blur-md hover:bg-surface transition-colors"
                 title="Back"
               >
                 <ChevronLeft className="size-5" />
@@ -309,7 +293,7 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             ) : (
               <Link
                 to="/"
-                className="flex size-9 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md hover:bg-black/80 hover:text-white transition-colors"
+                className="flex size-9 items-center justify-center rounded-full bg-raised text-fg border border-border backdrop-blur-md hover:bg-surface transition-colors"
                 title="Back to Feed"
               >
                 <ChevronLeft className="size-5" />
@@ -320,8 +304,8 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
           <div className="size-20 rounded-full bg-[#d4ff00]/10 border border-[#d4ff00]/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
             🎬
           </div>
-          <h2 className="font-display text-xl font-extrabold text-white">No Reels Published Yet</h2>
-          <p className="text-xs text-white/50 mt-2 max-w-xs leading-relaxed">
+          <h2 className="font-display text-xl font-extrabold text-fg">No Reels Published Yet</h2>
+          <p className="text-xs text-muted mt-2 max-w-xs leading-relaxed">
             The reels stream is clean. Be the first creator to record or export a 9:16 vertical reel!
           </p>
           <div className="mt-6 flex flex-col gap-2.5 w-full max-w-xs">
@@ -333,7 +317,7 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             </Link>
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 transition-all"
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-raised py-2.5 text-xs font-bold text-muted hover:text-fg hover:bg-surface transition-all"
             >
               Back to Feed
             </Link>
@@ -345,12 +329,12 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
 
   return (
     <div
-      className="relative flex h-full w-full items-center justify-center bg-[#050507] overflow-hidden select-none"
+      className="relative flex h-full w-full items-center justify-center bg-bg text-fg overflow-hidden select-none"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* 9:16 Centered Container */}
-      <div className="relative flex h-full max-h-[860px] w-full max-w-[420px] aspect-[9/16] flex-col justify-between overflow-hidden rounded-none sm:rounded-3xl border-0 sm:border border-white/10 bg-black shadow-2xl">
+      <div className="relative flex h-full max-h-[860px] w-full max-w-[420px] aspect-[9/16] flex-col justify-between overflow-hidden rounded-none sm:rounded-3xl border-0 sm:border border-border bg-black shadow-2xl">
         {/* Top Header Overlay */}
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 via-black/30 to-transparent">
           <div className="flex items-center gap-2">
@@ -801,7 +785,7 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             type="button"
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-[#121217] text-white shadow-xl hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            className="flex size-10 items-center justify-center rounded-full border border-border bg-surface text-fg shadow-xl hover:bg-raised disabled:opacity-30 disabled:pointer-events-none transition-all"
             title="Previous Reel (Up Arrow)"
           >
             <ChevronUp className="size-5" />
@@ -810,7 +794,7 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             type="button"
             onClick={goNext}
             disabled={activeIndex === reels.length - 1}
-            className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-[#121217] text-white shadow-xl hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            className="flex size-10 items-center justify-center rounded-full border border-border bg-surface text-fg shadow-xl hover:bg-raised disabled:opacity-30 disabled:pointer-events-none transition-all"
             title="Next Reel (Down Arrow)"
           >
             <ChevronDown className="size-5" />
@@ -828,31 +812,31 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             onClick={() => setShowComments(false)}
           />
 
-          <div className="relative z-10 flex h-[70vh] sm:h-[600px] w-full max-w-lg flex-col rounded-t-3xl sm:rounded-3xl border border-white/15 bg-[#0f0f14] shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+          <div className="relative z-10 flex h-[70vh] sm:h-[600px] w-full max-w-lg flex-col rounded-t-3xl sm:rounded-3xl border border-border bg-surface text-fg shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 shrink-0">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 shrink-0">
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-sm font-bold text-white">Comments</h3>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono text-white/70">
+                <h3 className="font-display text-sm font-bold text-fg">Comments</h3>
+                <span className="rounded-full bg-raised px-2 py-0.5 text-[10px] font-mono text-muted border border-border">
                   {comments.length}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowComments(false)}
-                className="flex size-8 items-center justify-center rounded-full text-white/50 hover:bg-white/10 hover:text-white"
+                className="flex size-8 items-center justify-center rounded-full text-muted hover:bg-raised hover:text-fg transition-colors"
               >
                 <X className="size-4" />
               </button>
             </div>
 
             {/* Comments List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-white/5">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-border">
               {comments.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center text-center p-8 text-white/40">
+                <div className="flex h-full flex-col items-center justify-center text-center p-8 text-muted">
                   <MessageCircle className="size-8 opacity-40 mb-2" />
-                  <p className="text-xs font-semibold text-white/80">No comments yet</p>
-                  <p className="text-[11px] mt-0.5">Start the conversation on this Reel!</p>
+                  <p className="text-xs font-semibold text-fg">No comments yet</p>
+                  <p className="text-[11px] mt-0.5 text-muted">Start the conversation on this Reel!</p>
                 </div>
               ) : (
                 comments.map((c) => (
@@ -860,27 +844,27 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
                     <PersonMark mark="you" size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-white">
+                        <p className="text-xs font-bold text-fg">
                           {c.authorName}{" "}
-                          <span className="text-[10px] font-normal text-white/40 font-mono">
+                          <span className="text-[10px] font-normal text-muted font-mono">
                             @{c.authorHandle}
                           </span>
                         </p>
-                        <span className="text-[9px] text-white/40 font-mono">
+                        <span className="text-[9px] text-muted font-mono">
                           {Math.max(1, Math.round((Date.now() - c.createdAt) / 60000))}m ago
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-white/80 leading-relaxed">{c.text}</p>
+                      <p className="mt-1 text-xs text-fg/80 leading-relaxed">{c.text}</p>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => likeComment(c.id)}
-                      className="flex flex-col items-center text-white/40 hover:text-rose-400 transition-colors pt-1"
+                      className="flex flex-col items-center text-muted hover:text-rose-500 transition-colors pt-1"
                     >
                       <Heart className={cn("size-3.5", c.likes > 0 && "text-rose-500 fill-rose-500")} />
                       {c.likes > 0 && (
-                        <span className="text-[9px] font-mono font-bold mt-0.5">{c.likes}</span>
+                        <span className="text-[9px] font-mono font-bold mt-0.5 text-fg">{c.likes}</span>
                       )}
                     </button>
                   </div>
@@ -891,14 +875,14 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             {/* Add Comment Input */}
             <form
               onSubmit={handleAddComment}
-              className="flex items-center gap-2 border-t border-white/10 bg-[#0d0e12] p-3 shrink-0"
+              className="flex items-center gap-2 border-t border-border bg-surface p-3 shrink-0"
             >
               <PersonMark mark="you" size="sm" />
               <Input
                 placeholder={`Comment as @${myProfile.handle}...`}
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="h-9 text-xs bg-white/5 border-white/10 rounded-xl flex-1 text-white"
+                className="h-9 text-xs bg-raised border-border rounded-xl flex-1 text-fg placeholder:text-muted"
               />
               <Button
                 type="submit"
@@ -923,51 +907,51 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
             onClick={() => setShowStatsModal(false)}
           />
 
-          <div className="relative z-10 w-full max-w-sm rounded-3xl border border-white/15 bg-[#121217] p-6 shadow-2xl text-white">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="relative z-10 w-full max-w-sm rounded-3xl border border-border bg-surface p-6 shadow-2xl text-fg">
+            <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2">
                 <BarChart2 className="size-5 text-[#d4ff00]" />
-                <h3 className="font-display text-base font-black">Your Reel Insights</h3>
+                <h3 className="font-display text-base font-black text-fg">Your Reel Insights</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowStatsModal(false)}
-                className="flex size-7 items-center justify-center rounded-full text-white/50 hover:bg-white/10 hover:text-white"
+                className="flex size-7 items-center justify-center rounded-full text-muted hover:bg-raised hover:text-fg transition-colors"
               >
                 <X className="size-4" />
               </button>
             </div>
 
-            <p className="mt-2 text-xs text-white/50">
+            <p className="mt-2 text-xs text-muted">
               Private performance telemetry visible only to you as creator.
             </p>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-[10px] uppercase font-bold text-white/40">Total Views</p>
-                <p className="mt-1 text-lg font-black text-white">{formatNumber(activeReel.views)}</p>
+              <div className="rounded-2xl border border-border bg-raised p-3">
+                <p className="text-[10px] uppercase font-bold text-muted">Total Views</p>
+                <p className="mt-1 text-lg font-black text-fg">{formatNumber(activeReel.views)}</p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-[10px] uppercase font-bold text-white/40">Likes</p>
-                <p className="mt-1 text-lg font-black text-rose-400">{formatNumber(activeReel.likes)}</p>
+              <div className="rounded-2xl border border-border bg-raised p-3">
+                <p className="text-[10px] uppercase font-bold text-muted">Likes</p>
+                <p className="mt-1 text-lg font-black text-rose-500">{formatNumber(activeReel.likes)}</p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-[10px] uppercase font-bold text-white/40">Comments</p>
-                <p className="mt-1 text-lg font-black text-cyan-400">
+              <div className="rounded-2xl border border-border bg-raised p-3">
+                <p className="text-[10px] uppercase font-bold text-muted">Comments</p>
+                <p className="mt-1 text-lg font-black text-cyan-500">
                   {formatNumber(comments.length || activeReel.comments)}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-[10px] uppercase font-bold text-white/40">Shares</p>
-                <p className="mt-1 text-lg font-black text-purple-400">{formatNumber(activeReel.shares)}</p>
+              <div className="rounded-2xl border border-border bg-raised p-3">
+                <p className="text-[10px] uppercase font-bold text-muted">Shares</p>
+                <p className="mt-1 text-lg font-black text-purple-500">{formatNumber(activeReel.shares)}</p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-[10px] uppercase font-bold text-white/40">Popularity Score</p>
-                <p className="mt-1 text-lg font-black text-orange-400">
+              <div className="rounded-2xl border border-border bg-raised p-3">
+                <p className="text-[10px] uppercase font-bold text-muted">Popularity Score</p>
+                <p className="mt-1 text-lg font-black text-amber-500">
                   {Math.round(activeReel.popularityScore).toLocaleString()}
                 </p>
               </div>
@@ -982,7 +966,7 @@ export function ReelViewer({ reels, initialPostId, onClose }: ReelViewerProps) {
 
             <Button
               onClick={() => setShowStatsModal(false)}
-              className="mt-5 w-full rounded-xl bg-white/10 text-white font-bold text-xs hover:bg-white/20"
+              className="mt-5 w-full rounded-xl bg-raised border border-border text-fg font-bold text-xs hover:bg-surface"
             >
               Close
             </Button>

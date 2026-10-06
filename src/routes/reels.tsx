@@ -39,7 +39,7 @@ function ReelsRoutePage() {
   }, [posts, demotedPostIds, mutedCategoryIds, mutedCreatorHandles]);
 
   return (
-    <div className="h-[calc(100dvh-3.5rem)] md:h-screen w-full bg-[#050507]">
+    <div className="h-[calc(100dvh-3.5rem)] md:h-screen w-full bg-bg text-fg">
       <ReelViewer reels={publishedReels} initialPostId={search.id} />
     </div>
   );

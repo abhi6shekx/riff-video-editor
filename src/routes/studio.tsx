@@ -347,7 +347,7 @@ function StudioPage() {
       </div>
 
       {/* User Content Creation Pipeline Step Banner */}
-      <div className="rounded-2xl border border-white/10 bg-[#0d0e14] px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 shadow-md">
+      <div className="rounded-2xl border border-border bg-surface px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 shadow-md">
         <div className="flex items-center gap-2 font-bold text-fg">
           <span className="flex size-6 items-center justify-center rounded-lg bg-accent/20 text-accent font-mono text-[11px]">1</span>
           <span>Create {editorMode === "post" ? "Meme Post" : "RIFF Reel"}</span>

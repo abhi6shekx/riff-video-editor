@@ -16,10 +16,10 @@ function ChallengeRedirectPage() {
   }, [navigate]);
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-[#0d1017] text-white">
+    <div className="flex h-screen w-full items-center justify-center bg-bg text-fg">
       <div className="text-center">
         <div className="size-8 mx-auto border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-3" />
-        <p className="text-sm text-white/70">Loading Meme Challenges...</p>
+        <p className="text-sm text-muted">Loading Meme Challenges...</p>
       </div>
     </div>
   );
