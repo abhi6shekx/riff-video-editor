@@ -12,7 +12,6 @@ import {
   Bell,
   Shield,
   Palette,
-  Sparkles,
   LogOut,
   ChevronRight,
   CheckCircle2,
@@ -355,40 +354,7 @@ function SettingsPage() {
         </section>
 
         {/* ================================================= */}
-        {/* 4. APP EXPERIENCE */}
-        {/* ================================================= */}
-        <section className="rounded-3xl border border-border bg-surface p-5 shadow-xs">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="size-4 text-accent" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-fg">
-              App Experience
-            </h2>
-          </div>
-
-          <div className="flex items-center justify-between py-2 text-xs">
-            <div>
-              <p className="font-semibold text-fg">Welcome Intro Animation</p>
-              <p className="text-[11px] text-muted leading-snug">
-                Replay the interactive RIFF onboarding showcase &amp; features tour
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("riff:open-intro"));
-                }
-              }}
-              className="rounded-xl border border-accent/40 bg-accent/10 hover:bg-accent/20 px-3.5 py-2 text-xs font-bold text-accent transition flex items-center gap-1.5 shrink-0 cursor-pointer"
-            >
-              <Sparkles className="size-3.5" />
-              Replay Intro
-            </button>
-          </div>
-        </section>
-
-        {/* ================================================= */}
-        {/* 5. SIGN OUT */}
+        {/* 4. SIGN OUT */}
         {/* ================================================= */}
         <section className="rounded-3xl border border-border bg-surface p-5 shadow-xs">
           <div className="flex items-center justify-between">
