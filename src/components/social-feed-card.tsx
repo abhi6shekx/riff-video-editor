@@ -138,7 +138,7 @@ export function SocialFeedCard({
   const timeLabel = hoursAgo < 1 ? "Just now" : hoursAgo < 24 ? `${hoursAgo}h ago` : `${Math.floor(hoursAgo / 24)}d ago`;
 
   return (
-    <article className="w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0d0e14] shadow-xl transition-all duration-200 hover:border-white/20">
+    <article className="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-md transition-all duration-200 hover:border-border/80">
       {/* 1. Header: Author info, Category Pill, Follow, More Menu */}
       <div className="flex items-center justify-between p-4 pb-3">
         <div className="flex items-center gap-3">

@@ -385,18 +385,18 @@ function ProfilePage() {
             </p>
 
             {/* 6 Distinct Profile Statistics */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2 border-t border-white/5 text-center">
-              <div className="p-2 rounded-2xl bg-raised/40 border border-white/5">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2 border-t border-border text-center">
+              <div className="p-2 rounded-2xl bg-raised border border-border">
                 <p className="font-display text-base font-black text-fg">{myPosts.length}</p>
                 <p className="text-[10px] text-muted">Posts</p>
               </div>
-              <div className="p-2 rounded-2xl bg-raised/40 border border-white/5">
+              <div className="p-2 rounded-2xl bg-raised border border-border">
                 <p className="font-display text-base font-black text-fg">
                   {formatNumber(profile.followers || 0)}
                 </p>
                 <p className="text-[10px] text-muted">Followers</p>
               </div>
-              <div className="p-2 rounded-2xl bg-raised/40 border border-white/5">
+              <div className="p-2 rounded-2xl bg-raised border border-border">
                 <p className="font-display text-base font-black text-fg">
                   {formatNumber(followingUserIds.length)}
                 </p>

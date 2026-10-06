@@ -53,7 +53,8 @@
     --color-accent-fg: #021a1f;
   }
 
-  [data-theme="light"] {
+  [data-theme="light"],
+  .light {
     --color-bg: #f8fafc;
     --color-surface: #ffffff;
     --color-raised: #f1f5f9;

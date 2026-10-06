@@ -152,7 +152,7 @@ function HomePage() {
   return (
     <div className="w-full">
       {/* 1. Header with Full-Width Search & AI Algorithm Toggle */}
-      <header className="border-b border-white/10 bg-[#0b0b0f]/80 backdrop-blur-md sticky top-0 z-20">
+      <header className="border-b border-border bg-surface/90 backdrop-blur-md sticky top-0 z-20">
         <div className="mx-auto flex w-full max-w-[1100px] items-center gap-4 px-4 sm:px-6 py-3.5">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
@@ -161,7 +161,7 @@ function HomePage() {
               placeholder="Search memes, reels, creators, #hashtags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-11 w-full rounded-full border border-white/10 bg-[#101117] pl-11 pr-10 text-sm text-fg placeholder:text-white/30 focus:border-accent/40 focus:outline-none transition-colors"
+              className="h-11 w-full rounded-full border border-border bg-raised/70 pl-11 pr-10 text-sm text-fg placeholder:text-muted focus:border-accent focus:bg-surface focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
@@ -180,7 +180,7 @@ function HomePage() {
             type="button"
             onClick={() => setShowAiInspector(!showAiInspector)}
             className={cn(
-              "shrink-0 rounded-full border border-white/10 bg-[#101117] px-4 py-2 text-sm font-bold transition-all flex items-center gap-2",
+              "shrink-0 rounded-full border border-border bg-raised/70 px-4 py-2 text-sm font-bold transition-all flex items-center gap-2",
               showAiInspector ? "bg-accent/20 text-accent border-accent/40" : "text-fg hover:border-accent/40",
             )}
             title="Inspect AI Feed Ranking Algorithm"
@@ -228,7 +228,7 @@ function HomePage() {
         )}
 
         {/* Top Feed Switcher: For You vs Following */}
-        <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-6">
             <button
               type="button"
@@ -236,7 +236,7 @@ function HomePage() {
               className={cn(
                 "font-display text-sm font-black transition-all relative pb-1",
                 mainTab === "for-you"
-                  ? "text-fg after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-accent shadow-sm"
+                  ? "text-fg after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-accent shadow-xs"
                   : "text-muted hover:text-fg",
               )}
             >
@@ -249,7 +249,7 @@ function HomePage() {
               className={cn(
                 "font-display text-sm font-black transition-all relative pb-1",
                 mainTab === "following"
-                  ? "text-fg after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-accent shadow-sm"
+                  ? "text-fg after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-accent shadow-xs"
                   : "text-muted hover:text-fg",
               )}
             >
@@ -273,10 +273,10 @@ function HomePage() {
           type="button"
           onClick={() => setFilter("all")}
           className={cn(
-            "flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all",
+            "flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all border",
             filter === "all"
-              ? "bg-accent text-black shadow-[0_0_15px_rgba(0,240,255,0.35)]"
-              : "bg-surface/80 text-muted hover:bg-raised hover:text-fg border border-white/5",
+              ? "bg-accent text-accent-fg border-accent shadow-xs"
+              : "bg-surface text-muted hover:bg-raised hover:text-fg border-border",
           )}
         >
           <LayoutGrid className="size-3.5" />
@@ -288,13 +288,13 @@ function HomePage() {
           type="button"
           onClick={() => setFilter("featured")}
           className={cn(
-            "flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all",
+            "flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all border",
             filter === "featured"
-              ? "bg-gradient-to-r from-orange-500 to-amber-400 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-              : "bg-surface/80 text-muted hover:bg-raised hover:text-fg border border-white/5",
+              ? "bg-gradient-to-r from-orange-500 to-amber-400 text-white dark:text-black border-orange-500 shadow-xs"
+              : "bg-surface text-muted hover:bg-raised hover:text-fg border-border",
           )}
         >
-          <Flame className="size-3.5 fill-orange-400 text-orange-400" />
+          <Flame className="size-3.5 fill-orange-500 text-orange-500" />
           <span>Featured</span>
         </button>
 
@@ -309,8 +309,8 @@ function HomePage() {
               className={cn(
                 "flex items-center gap-1.5 shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-all border",
                 active
-                  ? "bg-accent/20 text-accent border-accent shadow-[0_0_12px_rgba(0,240,255,0.25)] font-bold"
-                  : "bg-surface/80 text-muted hover:bg-raised hover:text-fg border-white/5",
+                  ? "bg-accent/20 text-accent border-accent font-bold"
+                  : "bg-surface text-muted hover:bg-raised hover:text-fg border-border",
               )}
             >
               <span>{cat.icon}</span>
@@ -322,8 +322,8 @@ function HomePage() {
 
       {/* 4. Interactive AI Algorithm Inspector Drawer */}
       {showAiInspector && (
-        <div className="mb-6 rounded-3xl border border-accent/30 bg-surface/95 p-4 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-4 duration-200">
-          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="mb-6 rounded-3xl border border-accent/30 bg-surface/95 p-4 shadow-xl backdrop-blur-2xl animate-in slide-in-from-top-4 duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-border">
             <div className="flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded-xl bg-accent/20 text-accent border border-accent/30">
                 <Brain className="size-4" />
@@ -340,7 +340,7 @@ function HomePage() {
             <button
               type="button"
               onClick={() => setShowAiInspector(false)}
-              className="text-muted hover:text-fg"
+              className="text-muted hover:text-fg cursor-pointer"
             >
               <X className="size-4" />
             </button>
@@ -354,14 +354,14 @@ function HomePage() {
               return (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between rounded-xl bg-raised/50 px-2.5 py-1.5 border border-white/5"
+                  className="flex items-center justify-between rounded-xl bg-raised px-2.5 py-1.5 border border-border"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{cat.icon}</span>
                     <span className="text-[11px] font-semibold text-fg">{cat.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-16 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-1.5 w-16 rounded-full bg-border overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-accent to-mint rounded-full transition-all"
                         style={{ width: `${pct}%` }}
@@ -376,9 +376,9 @@ function HomePage() {
             })}
           </div>
 
-          <div className="mt-3.5 flex items-center justify-between text-[10px] text-muted border-t border-white/5 pt-2.5">
+          <div className="mt-3.5 flex items-center justify-between text-[10px] text-muted border-t border-border pt-2.5">
             <span>Formula: 40% Interest Match + 35% Velocity + 25% Freshness</span>
-            <span className="text-emerald-400 font-semibold">● Realtime Adaptive</span>
+            <span className="text-emerald-500 dark:text-emerald-400 font-semibold">● Realtime Adaptive</span>
           </div>
         </div>
       )}
@@ -386,7 +386,7 @@ function HomePage() {
       {/* 5. Feed Stream */}
       <div className="space-y-6">
         {rankedFeed.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-[#0d0d12]/70 p-12 text-center flex flex-col items-center justify-center">
+          <div className="rounded-3xl border border-border bg-surface p-12 text-center flex flex-col items-center justify-center shadow-xs">
             <div className="size-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl mb-3">
               ✨
             </div>
@@ -404,13 +404,13 @@ function HomePage() {
               <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   to="/create"
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-black shadow-lg shadow-accent/20 hover:opacity-90 transition-all"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-accent-fg shadow-sm shadow-accent/20 hover:opacity-90 transition-all cursor-pointer"
                 >
                   <Plus className="size-3.5" /> Create Post / Meme
                 </Link>
                 <Link
                   to="/reel-studio"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-fg hover:bg-white/10 transition-all"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-raised px-4 py-2.5 text-xs font-bold text-fg hover:bg-surface transition-all cursor-pointer"
                 >
                   <Clapperboard className="size-3.5" /> Reel Studio
                 </Link>
@@ -419,7 +419,7 @@ function HomePage() {
               <Button
                 size="sm"
                 onClick={() => setMainTab("for-you")}
-                className="mt-4 rounded-xl bg-accent text-black font-bold"
+                className="mt-4 rounded-xl bg-accent text-accent-fg font-bold"
               >
                 Explore For You Feed
               </Button>
@@ -430,7 +430,7 @@ function HomePage() {
                   setFilter("all");
                   setSearchQuery("");
                 }}
-                className="mt-4 rounded-xl bg-accent text-black font-bold"
+                className="mt-4 rounded-xl bg-accent text-accent-fg font-bold"
               >
                 Reset Filters
               </Button>

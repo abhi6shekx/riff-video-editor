@@ -371,8 +371,8 @@ export function AppFrame({
                     className={cn(
                       "flex h-11 items-center justify-between rounded-xl px-4 text-sm font-semibold transition-colors",
                       active
-                        ? "bg-[#d4ff00]/10 text-[#d4ff00]"
-                        : "text-white/50 hover:bg-white/[0.05] hover:text-white",
+                        ? "bg-accent/15 text-accent font-bold"
+                        : "text-muted hover:bg-raised hover:text-fg",
                     )}
                   >
                     <span className="flex items-center gap-3">
@@ -387,7 +387,7 @@ export function AppFrame({
                     </span>
 
                     {badge > 0 && (
-                      <span className="flex min-w-5 items-center justify-center rounded-full bg-[#d4ff00] px-1.5 py-0.5 text-[10px] font-black text-black">
+                      <span className="flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-black text-accent-fg">
                         {badge > 99 ? "99+" : badge}
                       </span>
                     )}
@@ -399,14 +399,14 @@ export function AppFrame({
             {/* ADMIN ONLY */}
 
             {isAdmin && (
-              <div className="mt-5 border-t border-white/[0.07] pt-4 space-y-1">
+              <div className="mt-5 border-t border-border pt-4 space-y-1">
                 <Link
                   to="/admin"
                   className={cn(
                     "flex h-11 items-center justify-between rounded-xl px-4 text-sm font-semibold transition-colors",
                     pathname.startsWith("/admin")
-                      ? "bg-[#d4ff00]/10 text-[#d4ff00]"
-                      : "text-white/40 hover:bg-white/[0.05] hover:text-white",
+                      ? "bg-accent/15 text-accent font-bold"
+                      : "text-muted hover:bg-raised hover:text-fg",
                   )}
                 >
                   <span className="flex items-center gap-3">
@@ -427,16 +427,16 @@ export function AppFrame({
                     className={cn(
                       "flex h-11 items-center justify-between rounded-xl px-4 text-sm font-semibold transition-colors",
                       pathname.startsWith("/owner")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-white/40 hover:bg-white/[0.05] hover:text-white",
+                        ? "bg-amber-500/15 text-amber-500 dark:text-amber-400 font-bold"
+                        : "text-muted hover:bg-raised hover:text-fg",
                     )}
                   >
                     <span className="flex items-center gap-3">
-                      <Crown className="size-[18px] text-amber-400" />
+                      <Crown className="size-[18px] text-amber-500 dark:text-amber-400" />
                       Owner Controls
                     </span>
 
-                    <span className="rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2 py-0.2 text-[9px] font-black">
+                    <span className="rounded-full bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/40 px-2 py-0.2 text-[9px] font-black">
                       ROOT
                     </span>
                   </Link>
@@ -614,10 +614,10 @@ export function AppFrame({
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "relative flex h-full flex-col items-center justify-center gap-1 text-[9px] font-semibold",
+                    "relative flex h-full flex-col items-center justify-center gap-1 text-[9px] font-semibold transition-colors",
                     active
-                      ? "text-[#d4ff00]"
-                      : "text-white/35",
+                      ? "text-accent font-bold"
+                      : "text-muted hover:text-fg",
                   )}
                 >
                   <span className="relative">
