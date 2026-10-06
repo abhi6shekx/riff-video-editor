@@ -19,7 +19,6 @@ import {
   Zap,
 } from "lucide-react";
 import { SocialFeedCard } from "@/components/social-feed-card";
-import { StreakButton } from "@/components/streak-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -173,8 +172,6 @@ function HomePage() {
               </button>
             )}
           </div>
-
-          <StreakButton variant="pill" className="shrink-0" />
 
           <button
             type="button"
