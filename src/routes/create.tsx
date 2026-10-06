@@ -8,7 +8,7 @@ export const Route = createFileRoute("/create")({
 
 function CreatePage() {
   return (
-    <main className="min-h-screen bg-[#080808] text-white">
+    <main className="min-h-screen bg-bg text-fg">
       <CreateContent />
     </main>
   );

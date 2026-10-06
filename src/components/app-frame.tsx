@@ -129,7 +129,7 @@ function SearchIcon({
 
 function Splash() {
   return (
-    <div className="grid min-h-dvh place-items-center bg-[#080808] text-white">
+    <div className="grid min-h-dvh place-items-center bg-bg text-fg">
       <RiffNavbarLockup size={46} />
     </div>
   );

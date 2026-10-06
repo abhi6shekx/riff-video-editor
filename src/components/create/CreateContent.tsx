@@ -108,41 +108,41 @@ export function CreateContent() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-5 py-8 pb-32">
         <div className="mb-8">
-          <Link to="/" className="text-sm text-white/40 hover:text-white">
+          <Link to="/" className="text-sm text-muted hover:text-fg transition-colors">
             ← Back
           </Link>
-          <h1 className="mt-4 text-3xl font-black">Create on RIFF</h1>
-          <p className="mt-1 text-sm text-white/40">What are you creating today?</p>
+          <h1 className="mt-4 text-3xl font-black text-fg font-display">Create on RIFF</h1>
+          <p className="mt-1 text-sm text-muted">What are you creating today?</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <button
             onClick={() => setType("post")}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-left transition hover:border-[#d4ff00]/60 hover:bg-white/[0.06]"
+            className="group rounded-3xl border border-border bg-surface p-8 text-left transition hover:border-[#d4ff00]/60 hover:bg-raised shadow-xs"
           >
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#d4ff00] text-2xl font-black text-black">
               +
             </div>
-            <h2 className="text-xl font-bold">Create Post</h2>
-            <p className="mt-2 text-sm leading-6 text-white/40">
+            <h2 className="text-xl font-bold text-fg">Create Post</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
               Share a meme, image, thought or carousel with the RIFF community.
             </p>
           </button>
 
           <Link
             to="/reel-studio"
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-left transition hover:border-[#d4ff00]/60 hover:bg-white/[0.06]"
+            className="group rounded-3xl border border-border bg-surface p-8 text-left transition hover:border-[#d4ff00]/60 hover:bg-raised shadow-xs"
           >
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#d4ff00] text-2xl font-black text-black">
               ▶
             </div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold">Create Reel</h2>
+              <h2 className="text-xl font-bold text-fg">Create Reel</h2>
               <span className="rounded-full bg-[#d4ff00]/15 px-2 py-0.5 text-[10px] font-black uppercase text-[#d4ff00] border border-[#d4ff00]/30">
                 Video Editor &amp; Studio
               </span>
             </div>
-            <p className="mt-2 text-sm leading-6 text-white/40">
+            <p className="mt-2 text-sm leading-6 text-muted">
               Vertical reels &amp; video editor. Multi-track clips, trending audio, voiceover, PIP, text animations, filters &amp; export.
             </p>
           </Link>
@@ -154,12 +154,12 @@ export function CreateContent() {
   return (
     <div className="mx-auto min-h-screen w-full max-w-5xl px-4 py-6 pb-36">
       {/* Header Bar: Top Submit Button visible ONLY on Desktop */}
-      <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-        <button onClick={() => setType(null)} className="text-sm font-semibold text-white/50 hover:text-white transition-colors">
+      <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
+        <button onClick={() => setType(null)} className="text-sm font-semibold text-muted hover:text-fg transition-colors">
           ← Back
         </button>
 
-        <h1 className="text-base font-extrabold text-white font-display">Create Post</h1>
+        <h1 className="text-base font-extrabold text-fg font-display">Create Post</h1>
 
         {/* Desktop-only Header Submit Action */}
         <button
@@ -178,7 +178,7 @@ export function CreateContent() {
         <section>
           <div
             onClick={() => inputRef.current?.click()}
-            className="flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-3xl border border-dashed border-white/20 bg-white/[0.03] transition hover:border-[#d4ff00]/60 hover:bg-white/[0.05]"
+            className="flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-3xl border border-dashed border-border bg-surface transition hover:border-[#d4ff00]/60 hover:bg-raised shadow-xs"
           >
             {mediaUrl ? (
               <img src={mediaUrl} alt="Post preview" className="h-full w-full object-contain" />
@@ -187,8 +187,8 @@ export function CreateContent() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#d4ff00]/10 text-[#d4ff00] border border-[#d4ff00]/30">
                   <ImagePlus className="size-8" />
                 </div>
-                <p className="font-bold text-white text-base">Tap to add image</p>
-                <p className="mt-1 text-xs text-white/40">JPG, PNG or WebP supported</p>
+                <p className="font-bold text-fg text-base">Tap to add image</p>
+                <p className="mt-1 text-xs text-muted">JPG, PNG or WebP supported</p>
               </div>
             )}
           </div>
@@ -199,19 +199,19 @@ export function CreateContent() {
         {/* DETAILS & FORM */}
         <section className="space-y-5">
           <div>
-            <label className="mb-2 block text-xs font-semibold text-white/60">Caption</label>
+            <label className="mb-2 block text-xs font-semibold text-fg">Caption</label>
             <textarea
               value={caption}
               onChange={(event) => setCaption(event.target.value)}
               placeholder="Write a funny caption or meme title..."
               rows={4}
-              className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d4ff00]/60"
+              className="w-full resize-none rounded-2xl border border-border bg-surface p-4 text-sm text-fg outline-none placeholder:text-muted focus:border-[#d4ff00]/60"
             />
           </div>
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-xs font-semibold text-white/60">Category (Required)</label>
+              <label className="text-xs font-semibold text-fg">Category (Required)</label>
               {category && <span className="text-[11px] font-bold text-[#d4ff00]">Selected: {category}</span>}
             </div>
 
@@ -226,14 +226,14 @@ export function CreateContent() {
                     className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                       category === cat.name
                         ? "border-[#d4ff00] bg-[#d4ff00]/15 text-[#d4ff00] shadow-[0_0_12px_rgba(212,255,0,0.2)]"
-                        : "border-white/10 bg-white/[0.03] text-white/70 hover:border-white/30"
+                        : "border-border bg-surface text-muted hover:border-border hover:bg-raised hover:text-fg"
                     }`}
                   >
                     <span className="truncate flex items-center gap-1.5">
                       <span>{cat.icon}</span>
                       <span>{cat.name}</span>
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-400 font-bold shrink-0 ml-1">
+                    <span className="text-[10px] font-mono text-emerald-500 font-bold shrink-0 ml-1">
                       +{cat.approvalPoints}
                     </span>
                   </button>
@@ -242,12 +242,12 @@ export function CreateContent() {
           </div>
 
           <div>
-            <label className="mb-2 block text-xs font-semibold text-white/60">Hashtags</label>
+            <label className="mb-2 block text-xs font-semibold text-fg">Hashtags</label>
             <input
               value={hashtags}
               onChange={(event) => setHashtags(event.target.value)}
               placeholder="#gaming #meme #relatable"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d4ff00]/60"
+              className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-fg outline-none placeholder:text-muted focus:border-[#d4ff00]/60"
             />
           </div>
 
@@ -256,7 +256,7 @@ export function CreateContent() {
             <p className="text-xs font-bold text-[#d4ff00] flex items-center gap-1.5">
               <Sparkles className="size-3.5 inline" /> Admin Review & Reward
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-white/50">
+            <p className="mt-1 text-xs leading-relaxed text-muted">
               Your selected category is a suggestion. RIFF moderators review and reward approved posts with creator points!
             </p>
           </div>
@@ -264,14 +264,14 @@ export function CreateContent() {
       </div>
 
       {/* SINGLE STICKY SUBMISSION BAR ON MOBILE ONLY */}
-      <div className="fixed bottom-[66px] inset-x-0 z-30 border-t border-white/15 bg-[#080808]/95 p-3.5 backdrop-blur-xl md:hidden">
+      <div className="fixed bottom-[66px] inset-x-0 z-30 border-t border-border bg-surface/95 p-3.5 backdrop-blur-xl md:hidden">
         <button
           onClick={handleSubmit}
           disabled={!isValid}
           className={`w-full rounded-2xl py-3.5 text-sm font-black transition-all flex items-center justify-center gap-2 ${
             isValid
               ? "bg-[#d4ff00] text-black shadow-[0_0_20px_rgba(212,255,0,0.4)] active:scale-[0.98]"
-              : "bg-white/15 text-white/60 border border-white/10 disabled:opacity-40"
+              : "bg-raised text-muted border border-border disabled:opacity-40"
           }`}
         >
           <Send className="size-4" />
