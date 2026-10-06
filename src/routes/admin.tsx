@@ -93,7 +93,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin & Moderation Console · RIFF" }] }),
 });
 
-type Tab = "queue" | "reports" | "withdrawals" | "team" | "governance" | "categories" | "audit" | "rules" | "config";
+type Tab = "queue" | "reports" | "withdrawals" | "team" | "roles" | "governance" | "categories" | "audit" | "rules" | "config";
 
 const REJECTION_REASONS = [
   "Inappropriate or offensive content",
@@ -239,8 +239,9 @@ export function AdminDashboardPage() {
   const [resolutionAction, setResolutionAction] = useState<"dismiss" | "remove_content" | "warn_user">("dismiss");
   const [resolutionNote, setResolutionNote] = useState("");
 
-  // Search filter for Team tab
+  // Search and category filter for Team tab
   const [teamSearch, setTeamSearch] = useState("");
+  const [teamSubCategory, setTeamSubCategory] = useState<"team" | "creators">("team");
 
   // Audit tab filters
   const [auditFilter, setAuditFilter] = useState<
@@ -753,12 +754,28 @@ export function AdminDashboardPage() {
     toast.success("Category display priority reordered.");
   }
 
-  const filteredPeople = people.filter(
+  const teamMembers = people.filter((p) =>
+    ["owner", "super_admin", "admin", "moderator"].includes(p.role || "")
+  );
+  const platformCreators = people.filter((p) =>
+    !["owner", "super_admin", "admin", "moderator"].includes(p.role || "")
+  );
+
+  const filteredTeamMembers = teamMembers.filter(
     (p) =>
       p.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
       p.handle.toLowerCase().includes(teamSearch.toLowerCase()) ||
-      p.role.toLowerCase().includes(teamSearch.toLowerCase()),
+      (p.role && p.role.toLowerCase().includes(teamSearch.toLowerCase()))
   );
+
+  const filteredCreators = platformCreators.filter(
+    (p) =>
+      p.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
+      p.handle.toLowerCase().includes(teamSearch.toLowerCase()) ||
+      (p.role && p.role.toLowerCase().includes(teamSearch.toLowerCase()))
+  );
+
+  const filteredPeople = teamSubCategory === "team" ? filteredTeamMembers : filteredCreators;
 
   const openReportsCount = reports.filter((r) => r.status === "open").length;
 
@@ -1003,12 +1020,26 @@ export function AdminDashboardPage() {
           className={cn(
             "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all",
             activeTab === "team"
-              ? "bg-accent text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+              ? "bg-accent text-black shadow-[0_0_15px_rgba(0,240,255,0.3)] font-black"
               : "text-muted hover:text-fg",
           )}
         >
           <Users className="size-3.5" />
-          <span>Team & Roles ({people.length})</span>
+          <span>Team ({teamMembers.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("roles")}
+          className={cn(
+            "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all",
+            activeTab === "roles"
+              ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] font-black"
+              : "text-muted hover:text-fg",
+          )}
+        >
+          <Shield className="size-3.5" />
+          <span>Roles</span>
         </button>
 
         {/* ⚡ Super Admin Governance Tab */}
@@ -2076,222 +2107,678 @@ export function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 3. Team & Governance Hierarchy Tab */}
+      {/* 3. Team Management Tab */}
       {activeTab === "team" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="font-display text-sm font-bold text-fg">
-                Team Roles, Warnings & Account Moderation
-              </h2>
-              <p className="text-[11px] text-muted">
-                Hierarchy: Owner &gt; Super Admin &gt; Admin/Moderator &gt; Creator. Admins are demoted at &gt;5 category warnings.
-              </p>
+        <div className="space-y-5">
+          {/* Category Switcher & Search Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface/80 border border-border p-3.5 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setTeamSubCategory("team")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all",
+                  teamSubCategory === "team"
+                    ? "bg-[#d4ff00] text-black shadow-sm font-black"
+                    : "text-muted hover:text-fg bg-raised border border-border",
+                )}
+              >
+                <Users className="size-3.5" />
+                <span>Core Team ({teamMembers.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setTeamSubCategory("creators")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all",
+                  teamSubCategory === "creators"
+                    ? "bg-[#d4ff00] text-black shadow-sm font-black"
+                    : "text-muted hover:text-fg bg-raised border border-border",
+                )}
+              >
+                <Sparkles className="size-3.5" />
+                <span>Platform Creators ({platformCreators.length})</span>
+              </button>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setActiveTab("roles")}
+                className="h-9 rounded-xl text-xs font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-purple-500/20 gap-1.5"
+              >
+                <Shield className="size-3.5" />
+                <span>View Roles Matrix ➔</span>
+              </Button>
+
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted" />
                 <Input
-                  placeholder="Search user..."
+                  placeholder={teamSubCategory === "team" ? "Search team..." : "Search creators..."}
                   value={teamSearch}
                   onChange={(e) => setTeamSearch(e.target.value)}
-                  className="h-9 text-xs pl-8 w-44 bg-surface rounded-xl border-white/10"
+                  className="h-9 text-xs pl-8 w-44 bg-surface rounded-xl border-border"
                 />
               </div>
             </div>
           </div>
 
-          {/* User List */}
-          <div className="grid gap-3 sm:grid-cols-2">
-            {filteredPeople.map((person) => {
-              const warnings = person.warningsCount || 0;
-              const isBanned = person.isBanned || false;
-              const role = person.role;
+          {/* Sub-Category 1: Core Team */}
+          {teamSubCategory === "team" && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-display text-sm font-bold text-fg flex items-center gap-2">
+                  <span>Core Team & Platform Leadership</span>
+                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40 text-[10px] font-black uppercase">
+                    Root Sovereign
+                  </Badge>
+                </h2>
+                <p className="text-[11px] text-muted">
+                  Active administrators and root staff with elevated operational access. All mock staff have been cleared.
+                </p>
+              </div>
 
-              return (
-                <div
-                  key={person.id}
-                  className={cn(
-                    "rounded-3xl border bg-surface/90 p-4 shadow-xl backdrop-blur-xl flex flex-col justify-between space-y-3",
-                    isBanned ? "border-rose-500/40 bg-rose-950/10" : "border-white/10",
-                  )}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-display text-sm font-bold text-fg">{person.name}</h3>
-                        {/* Role Badge */}
-                        <Badge
-                          className={cn(
-                            "text-[10px] font-black uppercase px-2 py-0.5 rounded-full border",
-                            role === "owner" && "bg-purple-500/20 border-purple-500/40 text-purple-300",
-                            role === "super_admin" && "bg-amber-500/20 border-amber-500/40 text-amber-300",
-                            role === "admin" && "bg-sky-500/20 border-sky-500/40 text-sky-300",
-                            role === "creator" && "bg-white/10 border-white/20 text-muted",
-                          )}
-                        >
-                          {role.replace("_", " ")}
-                        </Badge>
+              {/* Team Members List (Only Owner) */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {filteredTeamMembers.map((person) => {
+                  const warnings = person.warningsCount || 0;
+                  const isBanned = person.isBanned || false;
+                  const role = person.role;
+
+                  return (
+                    <div
+                      key={person.id}
+                      className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 via-surface/95 to-surface/80 p-5 shadow-xl backdrop-blur-xl flex flex-col justify-between space-y-4"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="flex size-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 text-sm">
+                              👑
+                            </span>
+                            <h3 className="font-display text-sm font-black text-fg">{person.name}</h3>
+                            <Badge className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full border bg-purple-500/20 border-purple-500/40 text-purple-300">
+                              {role.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <p className="text-xs font-mono text-muted">@{person.handle}</p>
+                          <p className="text-[11px] text-muted/90 mt-1 leading-relaxed">{person.bio}</p>
+                        </div>
+
+                        {/* Status Pills */}
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[9px] font-mono font-black text-emerald-400">
+                            🛡️ Root Sovereign
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-xs font-mono text-muted">@{person.handle}</p>
-                      <p className="text-[11px] text-muted/80 mt-1 line-clamp-1">{person.bio}</p>
-                    </div>
 
-                    {/* Status Pills */}
-                    <div className="flex flex-col items-end gap-1">
-                      {isBanned ? (
-                        <span className="rounded-full bg-rose-500/20 border border-rose-500/40 px-2 py-0.5 text-[9px] font-black text-rose-400">
-                          BANNED 🚫
-                        </span>
-                      ) : (
-                        <span className={cn(
-                          "rounded-full px-2 py-0.5 text-[9px] font-mono font-black border",
-                          warnings >= 5 ? "bg-rose-500/20 border-rose-500/40 text-rose-400" :
-                          warnings > 0 ? "bg-amber-500/20 border-amber-500/40 text-amber-300" :
-                          "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                        )}>
-                          ⚠️ {warnings}/5 Warnings
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                      {/* Permissions Strip */}
+                      <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] text-muted font-bold">Authority:</span>
+                          <span className="rounded-full bg-purple-500/20 border border-purple-500/40 px-2.5 py-0.5 text-[9px] font-bold text-purple-300">
+                            👑 Root Authority (All 9 Perms Active)
+                          </span>
+                        </div>
 
-                  {/* Staff Granular Permissions Strip */}
-                  {["owner", "super_admin", "admin", "moderator"].includes(person.role || "") && (
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] text-muted font-bold">Permissions:</span>
-                        {person.role === "owner" ? (
-                          <span className="rounded-full bg-purple-500/20 border border-purple-500/40 px-2 py-0.5 text-[9px] font-bold text-purple-300">
-                            👑 Root Authority (All)
-                          </span>
-                        ) : (
-                          <span className="rounded-full bg-sky-500/20 border border-sky-500/40 px-2 py-0.5 text-[9px] font-mono font-bold text-sky-300">
-                            🛡️ {(person.permissions || []).length} Active
-                          </span>
+                        {isSuperAdminOrOwner && (
+                          <Button
+                            size="sm"
+                            variant="subtle"
+                            onClick={() => handleOpenPermissionsModal(person)}
+                            className="h-7 px-2.5 text-[10px] font-bold rounded-lg border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 gap-1"
+                          >
+                            <ShieldCheck className="size-3" />
+                            <span>Manage Perms</span>
+                          </Button>
                         )}
                       </div>
 
-                      {/* Open Permissions Modal button */}
-                      {isSuperAdminOrOwner && (
-                        <Button
-                          size="sm"
-                          variant="subtle"
-                          onClick={() => handleOpenPermissionsModal(person)}
-                          className="h-6 px-2 text-[10px] font-bold rounded-lg border border-sky-500/30 text-sky-300 hover:bg-sky-500/10 gap-1"
-                        >
-                          <ShieldCheck className="size-3" />
-                          <span>Manage Perms</span>
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Actions Bar */}
-                  <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2 flex-wrap text-xs">
-                    {/* Role Change Selector with Constitutional Hierarchy Protection */}
-                    {myRole === "owner" ? (
-                      <select
-                        value={person.role}
-                        onChange={(e) => {
-                          const newR = e.target.value as Person["role"];
-                          const success = updateUserRole(person.handle, newR, myRole);
-                          if (success) {
-                            playSound("cheer");
-                            toast.success(`Updated @${person.handle}'s role to ${newR.toUpperCase()}.`);
-                          } else {
-                            toast.error(`Permission denied updating role.`);
-                          }
-                        }}
-                        className="rounded-xl border border-purple-500/30 bg-raised p-1.5 text-[11px] font-bold text-fg"
-                      >
-                        <option value="creator">Creator</option>
-                        <option value="brand">Brand</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                        <option value="super_admin">Super Admin</option>
-                        <option value="owner">Owner</option>
-                      </select>
-                    ) : myRole === "super_admin" ? (
-                      person.role === "owner" || person.role === "super_admin" ? (
-                        <span className="rounded-xl border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-muted flex items-center gap-1">
-                          <Shield className="size-3 text-amber-400" /> Protected Staff
+                      {/* Security Bar */}
+                      <div className="pt-2 border-t border-border flex items-center justify-between gap-2 text-xs">
+                        <span className="text-[10px] font-mono text-muted">
+                          Protected Root Account · Cannot be warned, demoted or banned
                         </span>
-                      ) : (
-                        <select
-                          value={person.role}
-                          onChange={(e) => {
-                            const newR = e.target.value as Person["role"];
-                            const success = updateUserRole(person.handle, newR, myRole);
-                            if (success) {
-                              playSound("cheer");
-                              toast.success(`Updated @${person.handle}'s role to ${newR.toUpperCase()}.`);
-                            } else {
-                              toast.error(`Permission denied: Super Admin cannot assign ${newR}.`);
-                            }
-                          }}
-                          className="rounded-xl border border-amber-500/30 bg-raised p-1.5 text-[11px] font-bold text-amber-300"
-                        >
-                          <option value="creator">Creator</option>
-                          <option value="brand">Brand</option>
-                          <option value="moderator">Moderator</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      )
-                    ) : (
-                      <span className="text-[10px] font-mono text-muted/60 uppercase">
-                        Role: {person.role}
-                      </span>
-                    )}
-
-                    <div className="flex items-center gap-2 ml-auto">
-                      {/* Issue Warning Button (Gated by Moderation Hierarchy) */}
-                      {canPerformModeration(myRole, person.role) ? (
-                        <Button
-                          size="sm"
-                          variant="subtle"
-                          onClick={() => {
-                            setWarningUserHandle(person.handle);
-                            setShowWarningModal(true);
-                          }}
-                          className="h-7 text-[10px] font-bold rounded-xl border border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
-                        >
-                          <AlertTriangle className="size-3 mr-1" />
-                          Warn
-                        </Button>
-                      ) : (
-                        <span className="text-[10px] text-muted/40 font-mono italic">
-                          Protected
-                        </span>
-                      )}
-
-                      {/* Ban / Unban Button (Only Owner & Super Admin, hierarchy checked) */}
-                      {isSuperAdminOrOwner && canPerformModeration(myRole, person.role) && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (isBanned) {
-                              unbanUser(person.handle, myRole);
-                              toast.info(`Unbanned @${person.handle}.`);
-                            } else {
-                              banUser(person.handle, "Violation of platform guidelines", myRole);
-                              toast.error(`Banned @${person.handle}. Posts removed.`);
-                            }
-                          }}
-                          className={cn(
-                            "h-7 text-[10px] font-bold rounded-xl",
-                            isBanned ? "text-emerald-400 hover:bg-emerald-500/10" : "text-rose-400 hover:bg-rose-500/10",
-                          )}
-                        >
-                          {isBanned ? "Unban" : "Ban User"}
-                        </Button>
-                      )}
+                        <Badge className="bg-purple-500/10 text-purple-300 border-purple-500/20 text-[9px] font-bold">
+                          Owner
+                        </Badge>
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+
+              {/* Single Owner Status Banner */}
+              <div className="rounded-2xl border border-dashed border-border bg-raised/40 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                    <ShieldCheck className="size-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-fg">Sole Platform Owner Governance</h4>
+                    <p className="text-[11px] text-muted max-w-lg mt-0.5">
+                      Only the Platform Owner (@abhishek) is in the Core Team. All demo and mock staff accounts have been removed. You can promote creators to Moderator or Admin anytime.
+                    </p>
                   </div>
                 </div>
-              );
-            })}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTeamSubCategory("creators")}
+                  className="h-8 text-xs font-bold rounded-xl border-border shrink-0 gap-1"
+                >
+                  <Plus className="size-3.5" />
+                  <span>Promote Creator to Team</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Sub-Category 2: Platform Creators */}
+          {teamSubCategory === "creators" && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-display text-sm font-bold text-fg flex items-center gap-2">
+                  <span>Platform Creators Directory ({filteredCreators.length})</span>
+                  <Badge className="bg-white/10 text-muted border-border text-[10px] font-black uppercase">
+                    Community Tier
+                  </Badge>
+                </h2>
+                <p className="text-[11px] text-muted">
+                  General creators on RIFF. You can inspect warnings, moderate accounts, or promote creators to Team roles below.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {filteredCreators.map((person) => {
+                  const warnings = person.warningsCount || 0;
+                  const isBanned = person.isBanned || false;
+                  const role = person.role;
+
+                  return (
+                    <div
+                      key={person.id}
+                      className={cn(
+                        "rounded-3xl border bg-surface/90 p-4 shadow-md backdrop-blur-xl flex flex-col justify-between space-y-3",
+                        isBanned ? "border-rose-500/40 bg-rose-950/10" : "border-border",
+                      )}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-display text-sm font-bold text-fg">{person.name}</h3>
+                            <Badge className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full border bg-white/10 border-border text-muted">
+                              {role.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <p className="text-xs font-mono text-muted">@{person.handle}</p>
+                          <p className="text-[11px] text-muted/80 mt-1 line-clamp-1">{person.bio}</p>
+                        </div>
+
+                        {/* Status Pills */}
+                        <div className="flex flex-col items-end gap-1">
+                          {isBanned ? (
+                            <span className="rounded-full bg-rose-500/20 border border-rose-500/40 px-2 py-0.5 text-[9px] font-black text-rose-400">
+                              BANNED 🚫
+                            </span>
+                          ) : (
+                            <span
+                              className={cn(
+                                "rounded-full px-2 py-0.5 text-[9px] font-mono font-black border",
+                                warnings >= 5
+                                  ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
+                                  : warnings > 0
+                                  ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
+                                  : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+                              )}
+                            >
+                              ⚠️ {warnings}/5 Warnings
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions Bar */}
+                      <div className="pt-2 border-t border-border flex items-center justify-between gap-2 flex-wrap text-xs">
+                        {myRole === "owner" ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-muted font-bold">Assign Role:</span>
+                            <select
+                              value={person.role}
+                              onChange={(e) => {
+                                const newR = e.target.value as Person["role"];
+                                const success = updateUserRole(person.handle, newR, myRole);
+                                if (success) {
+                                  playSound("cheer");
+                                  toast.success(`Updated @${person.handle}'s role to ${newR.toUpperCase()}.`);
+                                } else {
+                                  toast.error(`Permission denied updating role.`);
+                                }
+                              }}
+                              className="rounded-xl border border-border bg-raised p-1.5 text-[11px] font-bold text-fg"
+                            >
+                              <option value="creator">Creator</option>
+                              <option value="brand">Brand</option>
+                              <option value="moderator">Moderator</option>
+                              <option value="admin">Admin</option>
+                              <option value="super_admin">Super Admin</option>
+                            </select>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-mono text-muted/60 uppercase">
+                            Role: {person.role}
+                          </span>
+                        )}
+
+                        <div className="flex items-center gap-2 ml-auto">
+                          {canPerformModeration(myRole, person.role) && (
+                            <Button
+                              size="sm"
+                              variant="subtle"
+                              onClick={() => {
+                                setWarningUserHandle(person.handle);
+                                setShowWarningModal(true);
+                              }}
+                              className="h-7 text-[10px] font-bold rounded-xl border border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+                            >
+                              <AlertTriangle className="size-3 mr-1" />
+                              Warn
+                            </Button>
+                          )}
+
+                          {isSuperAdminOrOwner && canPerformModeration(myRole, person.role) && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                if (isBanned) {
+                                  unbanUser(person.handle, myRole);
+                                  toast.info(`Unbanned @${person.handle}.`);
+                                } else {
+                                  banUser(person.handle, "Violation of platform guidelines", myRole);
+                                  toast.error(`Banned @${person.handle}. Posts removed.`);
+                                }
+                              }}
+                              className={cn(
+                                "h-7 text-[10px] font-bold rounded-xl",
+                                isBanned
+                                  ? "text-emerald-400 hover:bg-emerald-500/10"
+                                  : "text-rose-400 hover:bg-rose-500/10",
+                              )}
+                            >
+                              {isBanned ? "Unban" : "Ban User"}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3.5 Dedicated Roles & Governance Matrix Tab */}
+      {activeTab === "roles" && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 via-surface/90 to-surface/80 p-5 backdrop-blur-xl shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex size-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 text-sm">
+                    🛡️
+                  </span>
+                  <h2 className="font-display text-base font-black text-fg">
+                    Platform Roles & Permissions Matrix
+                  </h2>
+                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40 text-[10px] font-black uppercase">
+                    Governance Hierarchy
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted max-w-2xl">
+                  Constitutional authority tiers, warning thresholds, demotion protocols, and assigned permission privileges for each role.
+                </p>
+              </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setActiveTab("team")}
+                className="h-9 px-3.5 text-xs font-bold rounded-xl border-border bg-surface text-fg hover:bg-raised gap-1.5 self-start md:self-auto shadow-xs"
+              >
+                <Users className="size-3.5" />
+                <span>Manage Core Team ({teamMembers.length})</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* 5 Roles Breakdown Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* 1. OWNER */}
+            <div className="rounded-3xl border border-purple-500/30 bg-surface/95 p-5 shadow-lg flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">👑</span>
+                    <div>
+                      <h3 className="font-display text-sm font-black text-fg">Owner</h3>
+                      <p className="text-[10px] font-mono text-purple-400">Apex Founder (Tier 5)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40 text-[10px] font-bold">
+                    {teamMembers.filter((m) => m.role === "owner").length} Active
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted leading-relaxed">
+                  Full sovereign control. Unrestricted bypass over submissions, categories, escrows, database configs, and staff appointments.
+                </p>
+
+                <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-2.5 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Warning Policy:</span>
+                    <span className="font-bold text-purple-300">Protected Root (Immune)</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Active Perms:</span>
+                    <span className="font-bold text-purple-300">9 of 9 (Full Access)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted/80 pt-2 border-t border-border">
+                Assigned to: @abhishek
+              </div>
+            </div>
+
+            {/* 2. SUPER ADMIN */}
+            <div className="rounded-3xl border border-amber-500/30 bg-surface/95 p-5 shadow-lg flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">⚡</span>
+                    <div>
+                      <h3 className="font-display text-sm font-black text-fg">Super Admin</h3>
+                      <p className="text-[10px] font-mono text-amber-400">Executive Governance (Tier 4)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] font-bold">
+                    {teamMembers.filter((m) => m.role === "super_admin").length} Active
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted leading-relaxed">
+                  Supervises staff accountability, enforces compliance, issues disciplinary warnings, reviews escrow payouts, and tunes economy.
+                </p>
+
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-2.5 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Warning Policy:</span>
+                    <span className="font-bold text-amber-300">5 Warnings = Demotion</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Active Perms:</span>
+                    <span className="font-bold text-amber-300">8 of 9 Permissions</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted/80 pt-2 border-t border-border">
+                Appointed by: Platform Owner
+              </div>
+            </div>
+
+            {/* 3. ADMIN */}
+            <div className="rounded-3xl border border-sky-500/30 bg-surface/95 p-5 shadow-lg flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🛡️</span>
+                    <div>
+                      <h3 className="font-display text-sm font-black text-fg">Admin</h3>
+                      <p className="text-[10px] font-mono text-sky-400">Operations Curator (Tier 3)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/40 text-[10px] font-bold">
+                    {teamMembers.filter((m) => m.role === "admin").length} Active
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted leading-relaxed">
+                  Reviews creator submissions, curates trending categories, manages reward point rates, and arbitrates rejected content appeals.
+                </p>
+
+                <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-2.5 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Warning Policy:</span>
+                    <span className="font-bold text-sky-300">5 Warnings = Demotion</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Active Perms:</span>
+                    <span className="font-bold text-sky-300">3 of 9 Permissions</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted/80 pt-2 border-t border-border">
+                Supervised by: Super Admin & Owner
+              </div>
+            </div>
+
+            {/* 4. MODERATOR */}
+            <div className="rounded-3xl border border-emerald-500/30 bg-surface/95 p-5 shadow-lg flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">⚖️</span>
+                    <div>
+                      <h3 className="font-display text-sm font-black text-fg">Moderator</h3>
+                      <p className="text-[10px] font-mono text-emerald-400">Content Compliance (Tier 2)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px] font-bold">
+                    {teamMembers.filter((m) => m.role === "moderator").length} Active
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted leading-relaxed">
+                  Resolves user reports, issues content takedowns, flags guideline violations, and verifies submission queue items.
+                </p>
+
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Warning Policy:</span>
+                    <span className="font-bold text-emerald-300">5 Warnings = Demotion</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Active Perms:</span>
+                    <span className="font-bold text-emerald-300">2 of 9 Permissions</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted/80 pt-2 border-t border-border">
+                Supervised by: Admins & Owner
+              </div>
+            </div>
+
+            {/* 5. CREATOR */}
+            <div className="rounded-3xl border border-border bg-surface/95 p-5 shadow-lg flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🎨</span>
+                    <div>
+                      <h3 className="font-display text-sm font-black text-fg">Creator</h3>
+                      <p className="text-[10px] font-mono text-muted">Community Creator (Tier 1)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-white/10 text-muted border-border text-[10px] font-bold">
+                    {platformCreators.length} Active
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted leading-relaxed">
+                  Standard community member. Creates reels, earns RIFF points, participates in sponsor campaigns, and requests cashouts.
+                </p>
+
+                <div className="rounded-xl border border-border bg-raised p-2.5 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Warning Policy:</span>
+                    <span className="font-bold text-amber-400">5 Warnings = Suspension</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted">
+                    <span>Staff Perms:</span>
+                    <span className="font-bold text-muted">0 (Public User)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted/80 pt-2 border-t border-border">
+                Standard platform participant
+              </div>
+            </div>
+          </div>
+
+          {/* Granular Permissions Matrix Table */}
+          <div className="rounded-3xl border border-border bg-surface/95 p-5 shadow-xl space-y-4">
+            <div>
+              <h3 className="font-display text-sm font-bold text-fg flex items-center gap-2">
+                <Scale className="size-4 text-purple-400" />
+                <span>Granular Permissions Matrix by Role</span>
+              </h3>
+              <p className="text-[11px] text-muted">
+                Detailed constitutional capability map across every system authority level.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-border text-[11px] text-muted font-bold">
+                    <th className="py-2.5 pr-4">System Capability</th>
+                    <th className="py-2.5 px-3 text-center text-purple-400">Owner</th>
+                    <th className="py-2.5 px-3 text-center text-amber-400">Super Admin</th>
+                    <th className="py-2.5 px-3 text-center text-sky-400">Admin</th>
+                    <th className="py-2.5 px-3 text-center text-emerald-400">Moderator</th>
+                    <th className="py-2.5 pl-3 text-center text-muted">Creator</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50 text-[11px]">
+                  {[
+                    {
+                      name: "submission.review",
+                      desc: "Review & approve pending video reels in review queue",
+                      owner: true,
+                      super: true,
+                      admin: true,
+                      mod: true,
+                      creator: false,
+                    },
+                    {
+                      name: "category.manage",
+                      desc: "Configure reward economy, category multipliers & limits",
+                      owner: true,
+                      super: true,
+                      admin: true,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "appeal.review",
+                      desc: "Arbitrate disputes and re-examine rejected submissions",
+                      owner: true,
+                      super: true,
+                      admin: true,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "moderation.manage",
+                      desc: "Resolve user reports, remove posts & issue warnings",
+                      owner: true,
+                      super: true,
+                      admin: false,
+                      mod: true,
+                      creator: false,
+                    },
+                    {
+                      name: "withdrawal.review",
+                      desc: "Arbitrate, approve & settle creator escrow cashouts",
+                      owner: true,
+                      super: true,
+                      admin: false,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "campaign.manage",
+                      desc: "Create and supervise brand sponsorship campaigns",
+                      owner: true,
+                      super: true,
+                      admin: false,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "wallet.view",
+                      desc: "Inspect platform payout balances & treasury escrows",
+                      owner: true,
+                      super: true,
+                      admin: false,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "audit.view",
+                      desc: "Inspect immutable platform governance audit trail",
+                      owner: true,
+                      super: true,
+                      admin: false,
+                      mod: false,
+                      creator: false,
+                    },
+                    {
+                      name: "staff.manage",
+                      desc: "Assign roles, demote staff & configure permission tiers",
+                      owner: true,
+                      super: false,
+                      admin: false,
+                      mod: false,
+                      creator: false,
+                    },
+                  ].map((perm) => (
+                    <tr key={perm.name} className="hover:bg-raised/40 transition-colors">
+                      <td className="py-2.5 pr-4">
+                        <div className="font-mono font-bold text-fg">{perm.name}</div>
+                        <div className="text-[10px] text-muted">{perm.desc}</div>
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        {perm.owner ? "✓" : "—"}
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-bold text-amber-400">
+                        {perm.super ? "✓" : "—"}
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-bold text-sky-400">
+                        {perm.admin ? "✓" : "—"}
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        {perm.mod ? "✓" : "—"}
+                      </td>
+                      <td className="py-2.5 pl-3 text-center font-mono text-muted/40">
+                        {perm.creator ? "✓" : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
