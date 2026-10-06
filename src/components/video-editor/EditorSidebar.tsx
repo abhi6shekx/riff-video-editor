@@ -216,12 +216,12 @@ export function EditorSidebar({ className, onCloseMobile }: EditorSidebarProps) 
   return (
     <div
       className={cn(
-        "flex h-full bg-[#0c0e15] border-r border-white/10 select-none text-white",
+        "flex h-full bg-surface border-r border-border select-none text-fg",
         className,
       )}
     >
       {/* 1. Left Icon Rail */}
-      <div className="w-16 border-r border-white/10 bg-[#090b10] flex flex-col items-center py-3 gap-2 shrink-0">
+      <div className="w-16 border-r border-border bg-raised flex flex-col items-center py-3 gap-2 shrink-0">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -234,7 +234,7 @@ export function EditorSidebar({ className, onCloseMobile }: EditorSidebarProps) 
                 "flex flex-col items-center justify-center size-12 rounded-xl text-[10px] font-medium gap-1 transition-all",
                 isActive
                   ? "bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30 shadow-sm"
-                  : "text-white/50 hover:text-white hover:bg-white/5",
+                  : "text-muted hover:text-fg hover:bg-surface",
               )}
             >
               <Icon className="size-4" />
@@ -247,8 +247,8 @@ export function EditorSidebar({ className, onCloseMobile }: EditorSidebarProps) 
       {/* 2. Expanded Drawer Panel */}
       <div className="w-72 md:w-80 flex flex-col p-4 overflow-y-auto scrollbar-thin">
         {/* Drawer Header */}
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10 shrink-0">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white/90">
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-border shrink-0">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-fg">
             {TABS.find((t) => t.id === activeTab)?.label}
           </h3>
           {onCloseMobile && (

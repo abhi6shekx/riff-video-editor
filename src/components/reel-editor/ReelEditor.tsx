@@ -684,7 +684,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-[#080808] text-white overflow-hidden select-none">
+    <div className="flex h-dvh flex-col bg-bg text-fg overflow-hidden select-none">
       {/* Hidden file input for general media import */}
       <input
         ref={inputRef}
@@ -712,11 +712,11 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
       />
 
       {/* HEADER */}
-      <header className="flex h-14 sm:h-16 items-center justify-between border-b border-white/10 bg-[#0b0b0b] px-3 sm:px-6 shrink-0">
+      <header className="flex h-14 sm:h-16 items-center justify-between border-b border-border bg-surface px-3 sm:px-6 shrink-0">
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => window.history.back()}
-            className="text-white/60 hover:text-white transition p-1 text-base sm:text-lg"
+            className="text-muted hover:text-fg transition p-1 text-base sm:text-lg"
             title="Go back"
           >
             ←
@@ -727,32 +727,32 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               <input
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
-                className="bg-transparent font-bold text-xs sm:text-sm text-white focus:bg-white/5 px-1 sm:px-1.5 py-0.5 rounded outline-none border border-transparent focus:border-white/20 max-w-[110px] sm:max-w-[200px]"
+                className="bg-transparent font-bold text-xs sm:text-sm text-fg focus:bg-raised px-1 sm:px-1.5 py-0.5 rounded outline-none border border-transparent focus:border-border max-w-[110px] sm:max-w-[200px]"
               />
-              <span className="flex items-center gap-1 rounded-full bg-white/5 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] text-white/50">
+              <span className="flex items-center gap-1 rounded-full bg-raised px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] text-muted border border-border">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#d4ff00]" />
                 <span className="hidden xs:inline">{autoSaveStatus}</span>
               </span>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-white/40">RIFF Studio Engine</p>
+            <p className="text-[10px] sm:text-[11px] text-muted">RIFF Studio Engine</p>
           </div>
         </div>
 
         {/* TOOLBAR CENTER (UNDO / REDO + MULTI-TRACK SWITCH) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
+          <div className="hidden md:flex items-center gap-1 bg-raised rounded-xl p-1 border border-border">
             <button
               onClick={handleUndo}
               title="Undo (Ctrl/Cmd+Z)"
-              className="rounded-lg px-2.5 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white transition"
+              className="rounded-lg px-2.5 py-1 text-xs text-muted hover:bg-surface hover:text-fg transition"
             >
               ⟲ Undo
             </button>
-            <div className="h-4 w-px bg-white/10" />
+            <div className="h-4 w-px bg-border" />
             <button
               onClick={handleRedo}
               title="Redo (Ctrl/Cmd+Shift+Z)"
-              className="rounded-lg px-2.5 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white transition"
+              className="rounded-lg px-2.5 py-1 text-xs text-muted hover:bg-surface hover:text-fg transition"
             >
               ⟳ Redo
             </button>
@@ -776,7 +776,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
         <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={() => setIsDraftsModalOpen(true)}
-            className="hidden sm:flex rounded-lg border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-white/80 hover:bg-white/5 transition items-center gap-1.5"
+            className="hidden sm:flex rounded-lg border border-border px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-muted hover:bg-raised hover:text-fg transition items-center gap-1.5"
           >
             <span>📁</span> Drafts
           </button>
@@ -803,7 +803,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               );
               setAutoSaveStatus("Saved to Drafts");
             }}
-            className="hidden lg:block rounded-lg border border-white/10 px-3.5 py-2 text-xs font-semibold text-white/80 hover:bg-white/5 transition"
+            className="hidden lg:block rounded-lg border border-border px-3.5 py-2 text-xs font-semibold text-muted hover:bg-raised hover:text-fg transition"
           >
             Save Draft
           </button>
@@ -811,7 +811,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
           {/* MOBILE INSPECTOR TOGGLE */}
           <button
             onClick={() => setShowMobileInspector(!showMobileInspector)}
-            className="md:hidden flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-white/90 active:scale-95 transition"
+            className="md:hidden flex items-center gap-1 rounded-lg border border-border bg-raised px-2.5 py-1.5 text-xs font-semibold text-fg active:scale-95 transition"
           >
             <span>🎛️</span>
             <span>{showMobileInspector ? "Canvas" : "Tools"}</span>
@@ -826,7 +826,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
             disabled={clips.length === 0}
             className={`flex items-center gap-1 sm:gap-1.5 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-extrabold transition ${
               clips.length === 0
-                ? "cursor-not-allowed bg-white/10 text-white/30"
+                ? "cursor-not-allowed bg-raised text-muted/40 border border-border"
                 : "bg-[#d4ff00] text-black hover:opacity-90 shadow-md shadow-[#d4ff00]/10"
             }`}
           >
@@ -841,7 +841,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
       {/* MAIN LAYOUT */}
       <div className="flex flex-1 overflow-hidden relative min-h-0">
         {/* LEFT TOOLBAR */}
-        <aside className="w-14 sm:w-20 border-r border-white/10 bg-[#0b0b0b] p-1.5 sm:p-3 flex flex-col justify-between shrink-0">
+        <aside className="w-14 sm:w-20 border-r border-border bg-surface p-1.5 sm:p-3 flex flex-col justify-between shrink-0">
           <div>
             <ToolButton
               icon="＋"
@@ -919,19 +919,19 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
             />
           </div>
 
-          <div className="text-center text-[10px] text-white/30 hidden sm:block">
+          <div className="text-center text-[10px] text-muted hidden sm:block">
             <span>RIFF</span>
           </div>
         </aside>
 
         {/* CENTER VIEWPORT & TIMELINE */}
-        <section className="flex flex-1 flex-col bg-[#111111] min-w-0 overflow-hidden">
+        <section className="flex flex-1 flex-col bg-bg min-w-0 overflow-hidden">
           {/* PREVIEW CONTAINER: Expanded vertical room with max containment */}
           <div className="flex flex-1 items-center justify-center p-3 sm:p-5 overflow-hidden min-h-0">
             <div
               className={`relative ${getAspectClass(
                 aspectRatio
-              )} h-full max-h-[58vh] sm:max-h-[66vh] max-w-full overflow-hidden rounded-2xl bg-black shadow-2xl border border-white/10 flex items-center justify-center transition-all duration-300`}
+              )} h-full max-h-[58vh] sm:max-h-[66vh] max-w-full overflow-hidden rounded-2xl bg-black shadow-2xl border border-border flex items-center justify-center transition-all duration-300`}
             >
               {activeClip ? (
                 activeClip.isBroken ? (
@@ -1125,7 +1125,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
           </div>
 
           {/* CONTROLS STRIP */}
-          <div className="flex items-center justify-between border-t border-white/10 bg-[#0b0b0b] px-3 sm:px-6 py-2 shrink-0">
+          <div className="flex items-center justify-between border-t border-border bg-surface px-3 sm:px-6 py-2 shrink-0">
             {/* MASTER PLAY / PAUSE BUTTON */}
             <div className="flex items-center gap-2">
               <button
@@ -1133,7 +1133,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                 disabled={clips.length === 0}
                 className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
                   clips.length === 0
-                    ? "bg-white/5 text-white/30 cursor-not-allowed"
+                    ? "bg-raised text-muted/40 cursor-not-allowed border border-border"
                     : isPlayingReel
                     ? "bg-red-500 text-white shadow-md shadow-red-500/20"
                     : "bg-[#d4ff00] text-black shadow-md shadow-[#d4ff00]/15 hover:opacity-90"
@@ -1144,8 +1144,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               </button>
 
               {activeClip && (
-                <span className="text-[11px] text-white/50 hidden sm:inline">
-                  Playing: <strong className="text-white font-medium truncate max-w-[120px] inline-block align-bottom">{activeClip.name}</strong>
+                <span className="text-[11px] text-muted hidden sm:inline">
+                  Playing: <strong className="text-fg font-medium truncate max-w-[120px] inline-block align-bottom">{activeClip.name}</strong>
                 </span>
               )}
             </div>
@@ -1159,8 +1159,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                     onClick={() => changeSpeed(s)}
                     className={`rounded px-2.5 py-1 text-xs font-semibold transition ${
                       speed === s
-                        ? "bg-white/20 text-white font-bold"
-                        : "bg-white/5 text-white/60 hover:text-white"
+                        ? "bg-surface text-fg font-bold border border-border shadow-xs"
+                        : "bg-raised text-muted hover:text-fg"
                     }`}
                   >
                     {s}x
@@ -1168,11 +1168,11 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                 ))}
               </div>
 
-              <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
+              <div className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
               <button
                 onClick={toggleMute}
-                className="rounded bg-white/5 px-2.5 py-1 text-xs font-semibold text-white/70 hover:bg-white/10 transition"
+                className="rounded bg-raised px-2.5 py-1 text-xs font-semibold text-muted hover:text-fg border border-border hover:bg-surface transition"
               >
                 {muted ? "🔇 Unmute" : "🔊 Mute"}
               </button>
@@ -1205,19 +1205,19 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
 
         {/* RIGHT EDIT PANEL */}
         <aside
-          className={`w-full sm:w-80 overflow-y-auto border-l border-white/10 bg-[#0b0b0b] p-4 sm:p-5 space-y-5 shrink-0 ${
+          className={`w-full sm:w-80 overflow-y-auto border-l border-border bg-surface p-4 sm:p-5 space-y-5 shrink-0 ${
             showMobileInspector
               ? "fixed inset-y-0 right-0 z-50 shadow-2xl block md:static md:z-auto"
               : "hidden md:block"
           }`}
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-fg">
               Inspector & Controls
             </h2>
             <button
               onClick={() => setShowMobileInspector(false)}
-              className="md:hidden rounded-lg px-2.5 py-1 text-xs font-bold text-white/70 hover:text-white bg-white/10 hover:bg-white/15 transition"
+              className="md:hidden rounded-lg px-2.5 py-1 text-xs font-bold text-muted hover:text-fg bg-raised hover:bg-surface border border-border transition"
               title="Close Panel"
             >
               ✕ Close
@@ -1225,13 +1225,13 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
           </div>
 
           {/* TAB SELECTOR */}
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-white/5 p-1 border border-white/10 text-xs">
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-raised p-1 border border-border text-xs">
             <button
               onClick={() => setInspectorTab("clip")}
               className={`rounded-lg py-1.5 font-bold transition ${
                 inspectorTab === "clip"
                   ? "bg-[#d4ff00] text-black shadow-sm"
-                  : "text-white/60 hover:text-white"
+                  : "text-muted hover:text-fg"
               }`}
             >
               🎬 Clip
@@ -1241,7 +1241,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               className={`rounded-lg py-1.5 font-bold transition ${
                 inspectorTab === "text"
                   ? "bg-[#d4ff00] text-black shadow-sm"
-                  : "text-white/60 hover:text-white"
+                  : "text-muted hover:text-fg"
               }`}
             >
               📝 Layers
@@ -1251,7 +1251,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               className={`rounded-lg py-1.5 font-bold transition ${
                 inspectorTab === "style"
                   ? "bg-[#d4ff00] text-black shadow-sm"
-                  : "text-white/60 hover:text-white"
+                  : "text-muted hover:text-fg"
               }`}
             >
               ⚙️ Style
@@ -1263,26 +1263,26 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
             <div className="space-y-4">
               {activeClip ? (
                 <>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-1">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-white truncate max-w-[170px]">
+                      <span className="font-bold text-fg truncate max-w-[170px]">
                         {activeClip.name}
                       </span>
                       <span className="text-[10px] rounded bg-[#d4ff00]/15 text-[#d4ff00] font-bold px-1.5 py-0.5">
                         {isActiveClipImage ? "📸 Photo" : "🎥 Video"}
                       </span>
                     </div>
-                    <div className="text-[10px] text-white/50 flex justify-between">
+                    <div className="text-[10px] text-muted flex justify-between">
                       <span>Trimmed: {activeClip.start.toFixed(1)}s - {activeClip.end.toFixed(1)}s</span>
-                      <span className="font-mono text-white font-bold">
+                      <span className="font-mono text-fg font-bold">
                         {(activeClip.end - activeClip.start).toFixed(1)}s
                       </span>
                     </div>
                   </div>
 
                   {/* START TRIM SLIDER */}
-                  <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2">
-                    <div className="flex justify-between text-xs text-white/60">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-2">
+                    <div className="flex justify-between text-xs text-muted">
                       <span>Start Trim</span>
                       <span className="font-mono text-[#d4ff00] font-bold">
                         {activeClip.start.toFixed(1)}s
@@ -1309,8 +1309,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                   </div>
 
                   {/* END TRIM SLIDER */}
-                  <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2">
-                    <div className="flex justify-between text-xs text-white/60">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-2">
+                    <div className="flex justify-between text-xs text-muted">
                       <span>End Trim</span>
                       <span className="font-mono text-[#d4ff00] font-bold">
                         {activeClip.end.toFixed(1)}s
@@ -1337,8 +1337,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                   </div>
 
                   {/* SPLIT CLIP SECTION */}
-                  <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2.5">
-                    <div className="flex justify-between text-xs text-white/60">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-2.5">
+                    <div className="flex justify-between text-xs text-muted">
                       <span>Split At Position</span>
                       <span className="font-mono text-[#d4ff00] font-bold">
                         {splitSliderTime.toFixed(1)}s
@@ -1380,13 +1380,13 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                         setReplaceTargetClipId(activeClip.id);
                         replaceInputRef.current?.click();
                       }}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/5 py-2 text-xs font-semibold text-white hover:bg-white/10 transition"
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface py-2 text-xs font-semibold text-fg hover:bg-raised transition"
                     >
                       <span>🔄</span> Replace File
                     </button>
                     <button
                       onClick={() => duplicateClip(activeClip.id)}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/5 py-2 text-xs font-semibold text-white hover:bg-white/10 transition"
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface py-2 text-xs font-semibold text-fg hover:bg-raised transition"
                     >
                       <span>⧉</span> Duplicate
                     </button>
@@ -1400,11 +1400,11 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                   </button>
                 </>
               ) : (
-                <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center text-xs text-white/50 space-y-2">
+                <div className="rounded-xl border border-border bg-raised p-6 text-center text-xs text-muted space-y-2">
                   <span className="text-2xl block">🎬</span>
-                  <p>No clip selected.</p>
-                  <p className="text-[11px] text-white/40">
-                    Click any clip on the timeline or tap <strong>+ Media</strong> to add clips.
+                  <p className="font-semibold text-fg">No clip selected.</p>
+                  <p className="text-[11px] text-muted">
+                    Click any clip on the timeline or tap <strong className="text-fg">+ Media</strong> to add clips.
                   </p>
                 </div>
               )}
@@ -1425,8 +1425,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                 />
               </div>
 
-              <div id="pip-section-anchor" className="border-t border-white/10 pt-4">
-                <h3 className="mb-3 text-xs uppercase tracking-wider text-white/40 font-bold">
+              <div id="pip-section-anchor" className="border-t border-border pt-4">
+                <h3 className="mb-3 text-xs uppercase tracking-wider text-muted font-bold">
                   Picture-in-Picture (PIP)
                 </h3>
                 <PipPanel
@@ -1446,7 +1446,7 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
             <div className="space-y-6">
               {/* ASPECT RATIO */}
               <div>
-                <label className="mb-2 block text-xs uppercase tracking-wider text-white/40 font-bold">
+                <label className="mb-2 block text-xs uppercase tracking-wider text-muted font-bold">
                   Aspect Ratio
                 </label>
                 <div className="grid grid-cols-4 gap-1.5">
@@ -1459,8 +1459,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                       }}
                       className={`rounded-lg py-2 text-xs font-bold transition ${
                         aspectRatio === ar
-                          ? "bg-[#d4ff00] text-black"
-                          : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                          ? "bg-[#d4ff00] text-black shadow-xs"
+                          : "bg-raised text-muted hover:bg-surface hover:text-fg border border-border"
                       }`}
                     >
                       {ar}
@@ -1470,8 +1470,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               </div>
 
               {/* VIDEO FILTERS */}
-              <div id="filters-section-anchor" className="border-t border-white/10 pt-4">
-                <label className="mb-2 block text-xs uppercase tracking-wider text-white/40 font-bold">
+              <div id="filters-section-anchor" className="border-t border-border pt-4">
+                <label className="mb-2 block text-xs uppercase tracking-wider text-muted font-bold">
                   Color Grading & Filters
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -1484,8 +1484,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
                       }}
                       className={`rounded-lg py-2 text-xs font-medium transition ${
                         filter === f
-                          ? "bg-[#d4ff00] text-black font-bold"
-                          : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                          ? "bg-[#d4ff00] text-black font-bold shadow-xs"
+                          : "bg-raised text-muted hover:bg-surface hover:text-fg border border-border"
                       }`}
                     >
                       {f}
@@ -1495,8 +1495,8 @@ export function ReelEditor({ onSwitchToMultiTrack }: ReelEditorProps = {}) {
               </div>
 
               {/* AUDIO TRACKS */}
-              <div id="audio-section-anchor" className="border-t border-white/10 pt-4">
-                <h3 className="mb-3 text-xs uppercase tracking-wider text-white/40 font-bold">
+              <div id="audio-section-anchor" className="border-t border-border pt-4">
+                <h3 className="mb-3 text-xs uppercase tracking-wider text-muted font-bold">
                   Audio & Music Tracks
                 </h3>
                 <AudioPanel
@@ -1583,7 +1583,7 @@ function ToolButton({
   return (
     <button
       onClick={onClick}
-      className="mb-3 flex w-full flex-col items-center gap-1 rounded-xl p-2 text-white/50 transition hover:bg-white/5 hover:text-[#d4ff00]"
+      className="mb-3 flex w-full flex-col items-center gap-1 rounded-xl p-2 text-muted transition hover:bg-raised hover:text-fg"
     >
       <span className="text-xl">{icon}</span>
       <span className="text-[10px] font-medium">{label}</span>

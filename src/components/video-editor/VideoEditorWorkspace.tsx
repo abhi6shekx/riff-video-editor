@@ -41,7 +41,7 @@ export function VideoEditorWorkspace({ onSwitchMode }: VideoEditorWorkspaceProps
   );
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0a0c13] text-white">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg text-fg">
       {/* 1. Top Global Navigation Bar */}
       <VideoEditorHeader
         onOpenExport={() => setIsExportOpen(true)}
@@ -72,7 +72,7 @@ export function VideoEditorWorkspace({ onSwitchMode }: VideoEditorWorkspaceProps
               className="flex-1"
               onClick={() => setMobileDrawer(null)}
             />
-            <div className="bg-[#121520] border-t border-white/15 rounded-t-3xl max-h-[75vh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-200">
+            <div className="bg-surface border-t border-border rounded-t-3xl max-h-[75vh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-200">
               {mobileDrawer === "tools" ? (
                 <EditorSidebar onCloseMobile={() => setMobileDrawer(null)} />
               ) : (
@@ -89,11 +89,11 @@ export function VideoEditorWorkspace({ onSwitchMode }: VideoEditorWorkspaceProps
       </div>
 
       {/* 4. Mobile Bottom Tool Dock */}
-      <div className="md:hidden flex items-center justify-around h-14 bg-[#0d1017] border-t border-white/10 px-2 shrink-0 z-30">
+      <div className="md:hidden flex items-center justify-around h-14 bg-surface border-t border-border px-2 shrink-0 z-30">
         <button
           type="button"
           onClick={() => setMobileDrawer("tools")}
-          className="flex flex-col items-center justify-center text-[10px] text-white/70 hover:text-cyan-400 gap-1"
+          className="flex flex-col items-center justify-center text-[10px] text-muted hover:text-cyan-400 gap-1"
         >
           <Film className="size-4" />
           <span>Media</span>
@@ -102,7 +102,7 @@ export function VideoEditorWorkspace({ onSwitchMode }: VideoEditorWorkspaceProps
         <button
           type="button"
           onClick={() => setMobileDrawer("tools")}
-          className="flex flex-col items-center justify-center text-[10px] text-white/70 hover:text-pink-400 gap-1"
+          className="flex flex-col items-center justify-center text-[10px] text-muted hover:text-pink-400 gap-1"
         >
           <Music className="size-4" />
           <span>Audio</span>

@@ -133,15 +133,15 @@ export function InspectorPanel({ className, onCloseMobile }: InspectorPanelProps
   return (
     <aside
       className={cn(
-        "w-80 border-l border-white/10 bg-[#0e111a] p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin select-none text-white",
+        "w-80 border-l border-border bg-surface p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin select-none text-fg",
         className,
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+      <div className="flex items-center justify-between pb-3 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <Sliders className="size-4 text-cyan-400" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-white/90">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-fg">
             {selectedClip
               ? "Clip Properties"
               : selectedText

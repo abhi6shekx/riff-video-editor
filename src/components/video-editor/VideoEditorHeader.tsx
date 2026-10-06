@@ -45,7 +45,7 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
   return (
     <header
       className={cn(
-        "h-14 border-b border-white/10 bg-[#0d1017] px-3 md:px-5 flex items-center justify-between gap-2 select-none z-30 shrink-0",
+        "h-14 border-b border-border bg-surface px-3 md:px-5 flex items-center justify-between gap-2 select-none z-30 shrink-0 text-fg",
         className,
       )}
     >
@@ -53,7 +53,7 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <Link
           to="/create"
-          className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-muted hover:text-white hover:bg-white/10 transition-colors"
+          className="flex size-8 items-center justify-center rounded-lg border border-border bg-raised text-muted hover:text-fg hover:bg-surface transition-colors"
           title="Back to Create"
         >
           <ArrowLeft className="size-4" />
@@ -63,7 +63,7 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
           <button
             type="button"
             onClick={onSwitchMode}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 transition shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-raised hover:bg-surface text-muted hover:text-fg border border-border transition shrink-0"
             title="Switch to Quick Reel Creator"
           >
             <span>⚡ Quick Mode</span>
@@ -78,7 +78,7 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="hidden sm:block bg-transparent text-sm font-semibold text-white/90 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 rounded px-1.5 py-0.5 truncate max-w-[180px] md:max-w-[260px]"
+            className="hidden sm:block bg-transparent text-sm font-semibold text-fg focus:outline-none focus:ring-1 focus:ring-cyan-500/50 rounded px-1.5 py-0.5 truncate max-w-[180px] md:max-w-[260px]"
             placeholder="Project Name"
           />
         </div>
@@ -87,7 +87,7 @@ export function VideoEditorHeader({ onOpenExport, onSwitchMode, className }: Vid
       {/* Center: Aspect Ratio & Undo/Redo */}
       <div className="flex items-center gap-2 md:gap-3">
         {/* Undo / Redo */}
-        <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-0.5">
+        <div className="flex items-center bg-raised border border-border rounded-lg p-0.5">
           <button
             type="button"
             onClick={undo}

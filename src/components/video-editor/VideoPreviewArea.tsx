@@ -129,17 +129,17 @@ export function VideoPreviewArea({ className }: VideoPreviewAreaProps) {
     <div
       ref={containerRef}
       className={cn(
-        "relative flex flex-col items-center justify-center p-3 md:p-6 bg-[#090b10] overflow-hidden select-none",
+        "relative flex flex-col items-center justify-center p-3 md:p-6 bg-bg text-fg overflow-hidden select-none",
         className,
       )}
     >
       {/* Background Subtle Grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] opacity-5 [background-size:16px_16px] pointer-events-none" />
 
       {/* Canvas Wrapper */}
       <div
         className={cn(
-          "relative flex items-center justify-center shadow-2xl rounded-2xl overflow-hidden border border-white/10 bg-black group",
+          "relative flex items-center justify-center shadow-2xl rounded-2xl overflow-hidden border border-border bg-black group",
           aspectClass,
         )}
       >
@@ -181,12 +181,12 @@ export function VideoPreviewArea({ className }: VideoPreviewAreaProps) {
       </div>
 
       {/* Modern Player Control Toolbar */}
-      <div className="mt-3 flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-xl bg-[#141721] border border-white/10 text-white shadow-lg backdrop-blur-md z-10">
+      <div className="mt-3 flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-xl bg-surface border border-border text-fg shadow-lg backdrop-blur-md z-10">
         {/* Reset to Start */}
         <button
           type="button"
           onClick={() => seek(0)}
-          className="p-1.5 text-white/60 hover:text-white transition-colors"
+          className="p-1.5 text-muted hover:text-fg transition-colors"
           title="Restart (0:00)"
         >
           <RotateCcw className="size-3.5" />

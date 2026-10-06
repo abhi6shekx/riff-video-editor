@@ -157,21 +157,21 @@ export function ExportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-2xl max-h-[92vh] overflow-y-auto text-fg">
         {/* MODAL HEADER */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <h2 className="text-lg font-bold text-fg flex items-center gap-2">
               <span>🎬</span> RIFF Reel Export & Publish
             </h2>
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-muted">
               High-definition 1080×1920 with permanent RIFF watermark
             </p>
           </div>
           {!isRendering && (
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-white/40 hover:bg-white/10 hover:text-white transition"
+              className="rounded-lg p-1.5 text-muted hover:bg-raised hover:text-fg transition"
             >
               ✕
             </button>

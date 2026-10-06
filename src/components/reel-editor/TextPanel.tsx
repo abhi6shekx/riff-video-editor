@@ -91,13 +91,13 @@ export function TextPanel({
   return (
     <div className="space-y-4">
       {/* ACTION TABS */}
-      <div className="flex gap-2 border-b border-white/10 pb-2">
+      <div className="flex gap-2 border-b border-border pb-2">
         <button
           onClick={() => setActiveTab("layers")}
           className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition ${
             activeTab === "layers"
-              ? "bg-[#d4ff00] text-black"
-              : "bg-white/5 text-white/60 hover:text-white"
+              ? "bg-[#d4ff00] text-black shadow-xs"
+              : "bg-raised text-muted hover:bg-surface hover:text-fg border border-border"
           }`}
         >
           Layers ({layers.length})
@@ -106,8 +106,8 @@ export function TextPanel({
           onClick={() => setActiveTab("presets")}
           className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition ${
             activeTab === "presets"
-              ? "bg-[#d4ff00] text-black"
-              : "bg-white/5 text-white/60 hover:text-white"
+              ? "bg-[#d4ff00] text-black shadow-xs"
+              : "bg-raised text-muted hover:bg-surface hover:text-fg border border-border"
           }`}
         >
           Quick Presets
@@ -117,16 +117,16 @@ export function TextPanel({
       {/* QUICK PRESETS TAB */}
       {activeTab === "presets" && (
         <div className="space-y-2">
-          <p className="text-[11px] text-white/40">Tap a preset to insert directly onto the reel:</p>
+          <p className="text-[11px] text-muted">Tap a preset to insert directly onto the reel:</p>
           <div className="grid grid-cols-1 gap-2">
             {PRESET_TEMPLATES.map((tpl, i) => (
               <button
                 key={i}
                 onClick={() => addNewText(tpl.text, tpl.style)}
-                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-2.5 text-left text-xs transition hover:border-[#d4ff00] hover:bg-white/10"
+                className="flex items-center justify-between rounded-lg border border-border bg-raised p-2.5 text-left text-xs transition hover:border-[#d4ff00] hover:bg-surface"
               >
-                <span className="font-semibold text-white">{tpl.label}</span>
-                <span className="text-[10px] text-[#d4ff00]">+ Insert</span>
+                <span className="font-semibold text-fg">{tpl.label}</span>
+                <span className="text-[10px] font-bold text-[#d4ff00]">+ Insert</span>
               </button>
             ))}
           </div>
@@ -155,7 +155,7 @@ export function TextPanel({
                     className={`max-w-[100px] truncate rounded-md px-2 py-1 text-[11px] font-medium transition ${
                       isSelected
                         ? "border border-[#d4ff00] bg-[#d4ff00]/15 text-[#d4ff00]"
-                        : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                        : "border border-border bg-raised text-muted hover:bg-surface hover:text-fg"
                     }`}
                   >
                     #{index + 1} {layer.text.slice(0, 10) || "Text"}
@@ -167,14 +167,14 @@ export function TextPanel({
 
           {/* SELECTED LAYER CONTROLS */}
           {selectedLayer ? (
-            <div className="space-y-4 rounded-xl border border-white/10 bg-[#141414] p-3.5">
+            <div className="space-y-4 rounded-xl border border-border bg-raised p-3.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#d4ff00]">
                   Edit Layer
                 </span>
                 <button
                   onClick={() => onDelete(selectedLayer.id)}
-                  className="rounded px-2 py-0.5 text-[10px] font-semibold text-red-400 transition hover:bg-red-500/10"
+                  className="rounded px-2 py-0.5 text-[10px] font-semibold text-red-500 transition hover:bg-red-500/10"
                 >
                   Delete Layer
                 </button>
@@ -182,7 +182,7 @@ export function TextPanel({
 
               {/* TEXT INPUT */}
               <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-white/40">
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted">
                   Content
                 </label>
                 <textarea
@@ -190,13 +190,13 @@ export function TextPanel({
                   value={selectedLayer.text}
                   onChange={(e) => onUpdate(selectedLayer.id, { text: e.target.value })}
                   placeholder="Enter text..."
-                  className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-xs text-white outline-none focus:border-[#d4ff00]"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-fg outline-none focus:border-[#d4ff00]"
                 />
               </div>
 
               {/* FONT STYLE */}
               <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-white/40">
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted">
                   Font Family
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -219,8 +219,8 @@ export function TextPanel({
                       }
                       className={`rounded px-2 py-1 text-[11px] font-medium transition ${
                         selectedLayer.fontFamily === f.id
-                          ? "bg-[#d4ff00] text-black"
-                          : "bg-white/5 text-white/60 hover:bg-white/10"
+                          ? "bg-[#d4ff00] text-black font-semibold"
+                          : "border border-border bg-surface text-muted hover:text-fg"
                       }`}
                     >
                       {f.label}
@@ -231,9 +231,9 @@ export function TextPanel({
 
               {/* FONT SIZE SLIDER */}
               <div>
-                <div className="mb-1 flex items-center justify-between text-[10px] text-white/40">
+                <div className="mb-1 flex items-center justify-between text-[10px] text-muted">
                   <span className="uppercase tracking-wider">Font Size</span>
-                  <span className="font-mono text-white/70">{selectedLayer.fontSize}px</span>
+                  <span className="font-mono text-fg">{selectedLayer.fontSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -250,7 +250,7 @@ export function TextPanel({
 
               {/* POSITION SHORTCUTS */}
               <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-white/40">
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted">
                   Screen Position
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -260,8 +260,8 @@ export function TextPanel({
                       onClick={() => setPosition(pos)}
                       className={`rounded px-2 py-1 text-[11px] capitalize transition ${
                         selectedLayer.position === pos
-                          ? "bg-[#d4ff00] text-black"
-                          : "bg-white/5 text-white/60 hover:bg-white/10"
+                          ? "bg-[#d4ff00] text-black font-semibold"
+                          : "border border-border bg-surface text-muted hover:text-fg"
                       }`}
                     >
                       {pos}
@@ -272,7 +272,7 @@ export function TextPanel({
 
               {/* COLOR SWATCHES */}
               <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-white/40">
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted">
                   Text Color
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -283,7 +283,7 @@ export function TextPanel({
                       style={{ backgroundColor: c }}
                       className={`h-6 w-6 rounded-full border-2 transition ${
                         selectedLayer.color === c
-                          ? "scale-110 border-white shadow-md shadow-white/30"
+                          ? "scale-110 border-fg shadow-md"
                           : "border-transparent opacity-80 hover:opacity-100"
                       }`}
                     />
@@ -293,7 +293,7 @@ export function TextPanel({
 
               {/* BACKGROUND PILL STYLE */}
               <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-white/40">
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-muted">
                   Background Box
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -312,8 +312,8 @@ export function TextPanel({
                       }
                       className={`rounded px-2 py-1 text-[10px] font-medium transition ${
                         selectedLayer.bgColor === bg.val
-                          ? "bg-white text-black"
-                          : "bg-white/5 text-white/60 hover:bg-white/10"
+                          ? "bg-[#d4ff00] text-black font-semibold"
+                          : "border border-border bg-surface text-muted hover:text-fg"
                       }`}
                     >
                       {bg.label}
@@ -330,8 +330,8 @@ export function TextPanel({
                   }
                   className={`rounded-lg border px-2 py-1.5 text-center text-[10px] font-semibold transition ${
                     selectedLayer.hasStroke
-                      ? "border-[#d4ff00] bg-[#d4ff00]/10 text-[#d4ff00]"
-                      : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10"
+                      ? "border-[#d4ff00] bg-[#d4ff00]/15 text-[#d4ff00]"
+                      : "border-border bg-surface text-muted hover:text-fg"
                   }`}
                 >
                   Outline / Stroke {selectedLayer.hasStroke ? "✓" : "✗"}
@@ -342,8 +342,8 @@ export function TextPanel({
                   }
                   className={`rounded-lg border px-2 py-1.5 text-center text-[10px] font-semibold transition ${
                     selectedLayer.hasShadow
-                      ? "border-[#d4ff00] bg-[#d4ff00]/10 text-[#d4ff00]"
-                      : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10"
+                      ? "border-[#d4ff00] bg-[#d4ff00]/15 text-[#d4ff00]"
+                      : "border-border bg-surface text-muted hover:text-fg"
                   }`}
                 >
                   Drop Shadow {selectedLayer.hasShadow ? "✓" : "✗"}
@@ -351,7 +351,7 @@ export function TextPanel({
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-white/10 p-5 text-center text-xs text-white/30">
+            <div className="rounded-xl border border-dashed border-border bg-raised p-5 text-center text-xs text-muted">
               No text layer selected. Click "+ Add Text Layer" or tap one on screen.
             </div>
           )}

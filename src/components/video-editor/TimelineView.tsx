@@ -362,12 +362,12 @@ export function TimelineView({ className, onOpenAddMedia }: TimelineViewProps) {
     <div
       ref={containerRef}
       className={cn(
-        "flex flex-col border-t border-white/10 bg-[#0c0e15] select-none text-white",
+        "flex flex-col border-t border-border bg-surface select-none text-fg",
         className,
       )}
     >
       {/* 1. Quick Editing Action Toolbar */}
-      <div className="h-11 px-3 md:px-5 border-b border-white/10 bg-[#121520] flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
+      <div className="h-11 px-3 md:px-5 border-b border-border bg-raised flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
         {/* Left: Core Clip Operations */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Split at Playhead */}
@@ -377,7 +377,7 @@ export function TimelineView({ className, onOpenAddMedia }: TimelineViewProps) {
               splitClipAtPlayhead();
               playSound("pop");
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white/90 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-surface border border-border hover:bg-raised text-fg active:scale-95 transition-all"
             title="Split selected clip at current playhead (Press 'S')"
           >
             <Scissors className="size-3.5 text-cyan-400" />
