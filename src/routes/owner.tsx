@@ -30,6 +30,7 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
+  Scale,
   Sliders,
   Sparkles,
   TrendingUp,
@@ -158,8 +159,11 @@ function OwnerDashboardPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "controls" | "rbac" | "economy" | "finance" | "audit" | "config"
+    "overview" | "controls" | "team" | "roles" | "config" | "economy" | "finance" | "audit"
   >("overview");
+
+  // Team vs Creators Sub-category State
+  const [teamSubCategory, setTeamSubCategory] = useState<"team" | "creators">("team");
 
   // System Configuration State
   const [configCategoryFilter, setConfigCategoryFilter] = useState<"all" | SystemConfigCategory>("all");
@@ -708,13 +712,29 @@ function OwnerDashboardPage() {
     setArbitrationNote("");
   }
 
-  // Filtered Team
-  const filteredTeam = people.filter(
+  // Team & Creators separation: Core Team has only Owner / Admins
+  const teamMembers = people.filter((p) =>
+    ["owner", "super_admin", "admin", "moderator"].includes(p.role || "")
+  );
+  const platformCreators = people.filter((p) =>
+    !["owner", "super_admin", "admin", "moderator"].includes(p.role || "")
+  );
+
+  const filteredTeamMembers = teamMembers.filter(
     (p) =>
       p.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
       p.handle.toLowerCase().includes(teamSearch.toLowerCase()) ||
       p.role.toLowerCase().includes(teamSearch.toLowerCase()),
   );
+
+  const filteredCreators = platformCreators.filter(
+    (p) =>
+      p.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
+      p.handle.toLowerCase().includes(teamSearch.toLowerCase()) ||
+      p.role.toLowerCase().includes(teamSearch.toLowerCase()),
+  );
+
+  const filteredTeam = teamSubCategory === "team" ? filteredTeamMembers : filteredCreators;
 
   // Filtered Audit Logs
   const filteredAuditLogs = storeAuditLogs.filter((log) => {
@@ -795,7 +815,7 @@ function OwnerDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white pb-28">
+    <div className="min-h-screen bg-bg text-fg pb-28">
       {/* IMPERSONATION NOTICE IF TESTING NON-OWNER ROLE */}
       {!isActualOwner && (
         <div className="bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-xs flex items-center justify-between text-amber-200">
@@ -817,7 +837,7 @@ function OwnerDashboardPage() {
       )}
 
       {/* TOP HEADER */}
-      <div className="border-b border-white/10 bg-[#0c0c0e]/95 backdrop-blur-md sticky top-0 z-30">
+      <div className="border-b border-border bg-surface/95 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
@@ -825,14 +845,14 @@ function OwnerDashboardPage() {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
+                <h1 className="text-xl font-black tracking-tight text-fg flex items-center gap-1.5">
                   RIFF Owner Command Center
                 </h1>
                 <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] font-black">
                   PLATFORM ROOT AUTHORITY
                 </Badge>
               </div>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-muted">
                 System Governance, RBAC Delegation, Category Economy & Platform Kill Switches
               </p>
             </div>
@@ -840,24 +860,24 @@ function OwnerDashboardPage() {
 
           {/* ROLE SWITCHER TOOLBAR */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 bg-black/60 border border-white/10 rounded-xl px-2.5 py-1 text-xs">
-              <span className="text-white/40 text-[11px]">Active Role:</span>
+            <div className="flex items-center gap-1.5 bg-raised border border-border rounded-xl px-2.5 py-1 text-xs">
+              <span className="text-muted text-[11px]">Active Role:</span>
               <select
                 value={myRole}
                 onChange={(e) => handleSwitchMyRole(e.target.value as Person["role"])}
                 className="bg-transparent font-bold text-amber-400 text-xs outline-none cursor-pointer"
               >
-                <option value="owner" className="bg-[#111] text-white">👑 Owner</option>
-                <option value="super_admin" className="bg-[#111] text-white">⚡ Super Admin</option>
-                <option value="admin" className="bg-[#111] text-white">🛡️ Admin</option>
-                <option value="moderator" className="bg-[#111] text-white">🧹 Moderator</option>
-                <option value="creator" className="bg-[#111] text-white">🎨 Creator</option>
+                <option value="owner" className="bg-surface text-fg">👑 Owner</option>
+                <option value="super_admin" className="bg-surface text-fg">⚡ Super Admin</option>
+                <option value="admin" className="bg-surface text-fg">🛡️ Admin</option>
+                <option value="moderator" className="bg-surface text-fg">🧹 Moderator</option>
+                <option value="creator" className="bg-surface text-fg">🎨 Creator</option>
               </select>
             </div>
 
             <Link
               to="/admin"
-              className="flex items-center gap-1 text-xs text-white/70 hover:text-white bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl transition"
+              className="flex items-center gap-1 text-xs text-fg/80 hover:text-fg bg-raised border border-border px-3 py-1.5 rounded-xl transition"
             >
               <Shield className="size-3.5 text-sky-400" />
               <span>Admin Queue</span>
@@ -866,12 +886,13 @@ function OwnerDashboardPage() {
         </div>
 
         {/* NAVIGATION TABS */}
-        <div className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto no-scrollbar border-t border-white/5 pt-1">
+        <div className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto no-scrollbar border-t border-border pt-1">
           {[
             { id: "overview", label: "Overview & Health", icon: Activity },
             { id: "controls", label: "Platform Controls", icon: Sliders },
             { id: "config", label: `System Config (${storeSystemConfigs.length})`, icon: Settings },
-            { id: "rbac", label: `Admins & Delegation (${people.length})`, icon: Users },
+            { id: "team", label: `Team (${teamMembers.length})`, icon: Users },
+            { id: "roles", label: "Roles & Perms", icon: ShieldCheck },
             { id: "economy", label: `Category Economy (${storeCategories.length})`, icon: DollarSign },
             {
               id: "finance",
@@ -889,7 +910,7 @@ function OwnerDashboardPage() {
                 className={`flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold transition border-b-2 whitespace-nowrap ${
                   isActive
                     ? "border-amber-400 text-amber-400 bg-amber-400/10"
-                    : "border-transparent text-white/60 hover:text-white hover:bg-white/5"
+                    : "border-transparent text-muted hover:text-fg hover:bg-raised"
                 }`}
               >
                 <Icon className="size-3.5" />
@@ -909,12 +930,12 @@ function OwnerDashboardPage() {
           <div className="space-y-6">
             {/* KPI STAT CARDS */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-1">
-                <div className="flex items-center justify-between text-white/50 text-xs">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
                   <span>Gross Platform Volume</span>
                   <DollarSign className="size-4 text-emerald-400" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-fg">
                   {inr(serverStats?.totalVolume || 148500)}
                 </div>
                 <div className="text-[11px] text-emerald-400 flex items-center gap-1 pt-1">
@@ -922,25 +943,25 @@ function OwnerDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-1">
-                <div className="flex items-center justify-between text-white/50 text-xs">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
                   <span>Points in Circulation</span>
                   <Sparkles className="size-4 text-amber-400" />
                 </div>
                 <div className="text-2xl font-black text-amber-400 font-mono">
                   {totalCirculatingPoints.toLocaleString()} pts
                 </div>
-                <div className="text-[11px] text-white/50 pt-1">
+                <div className="text-[11px] text-muted pt-1">
                   100% Solvency · No deficits
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-1">
-                <div className="flex items-center justify-between text-white/50 text-xs">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
                   <span>Content Moderation Queue</span>
                   <Activity className="size-4 text-sky-400" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-fg">
                   {pendingSubmissions.length}
                 </div>
                 <div className="text-[11px] text-sky-400 pt-1">
@@ -948,15 +969,15 @@ function OwnerDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-1">
-                <div className="flex items-center justify-between text-white/50 text-xs">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
                   <span>Safety Reports</span>
                   <AlertOctagon className="size-4 text-rose-400" />
                 </div>
                 <div className="text-2xl font-black text-rose-400">
                   {reports.filter((r) => r.status === "open").length} Open
                 </div>
-                <div className="text-[11px] text-white/50 pt-1">
+                <div className="text-[11px] text-muted pt-1">
                   {removedSubmissions.length} removed from feed
                 </div>
               </div>
@@ -964,8 +985,8 @@ function OwnerDashboardPage() {
 
             {/* SYSTEM INFRASTRUCTURE & HEALTH */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="md:col-span-2 rounded-2xl border border-border bg-surface p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-border pb-3">
                   <h3 className="text-sm font-bold flex items-center gap-2">
                     <Server className="size-4 text-emerald-400" />
                     Platform Subsystem Infrastructure
@@ -976,43 +997,43 @@ function OwnerDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white flex items-center gap-1.5">
+                      <span className="font-semibold text-fg flex items-center gap-1.5">
                         <Database className="size-3.5 text-sky-400" /> PGLite / Storage Engine
                       </span>
                       <span className="text-emerald-400 text-[10px] font-bold">ONLINE</span>
                     </div>
-                    <p className="text-[11px] text-white/40">Zero latency local state persistence with server sync</p>
+                    <p className="text-[11px] text-muted">Zero latency local state persistence with server sync</p>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white flex items-center gap-1.5">
+                      <span className="font-semibold text-fg flex items-center gap-1.5">
                         <Cpu className="size-3.5 text-[#d4ff00]" /> Reel Studio Render Farm
                       </span>
                       <span className="text-emerald-400 text-[10px] font-bold">ACTIVE</span>
                     </div>
-                    <p className="text-[11px] text-white/40">
+                    <p className="text-[11px] text-muted">
                       {platformControls.renderFarmEcoMode ? "Eco Mode (720p throttled)" : "1080p High-Throughput Engine"}
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white flex items-center gap-1.5">
+                      <span className="font-semibold text-fg flex items-center gap-1.5">
                         <ShieldCheck className="size-3.5 text-purple-400" /> Automated Moderation
                       </span>
                       <span className="text-emerald-400 text-[10px] font-bold uppercase">
                         {platformControls.aiModerationSensitivity}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/40">Multi-stage perceptual hashing & text filters active</p>
+                    <p className="text-[11px] text-muted">Multi-stage perceptual hashing & text filters active</p>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1">
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white flex items-center gap-1.5">
+                      <span className="font-semibold text-fg flex items-center gap-1.5">
                         <Globe className="size-3.5 text-emerald-400" /> Creator Submissions Gate
                       </span>
                       <span
@@ -1023,7 +1044,7 @@ function OwnerDashboardPage() {
                         {platformControls.submissionsPaused ? "PAUSED" : "OPEN"}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/40">
+                    <p className="text-[11px] text-muted">
                       {platformControls.submissionsPaused
                         ? "Creator uploads temporarily held by Owner"
                         : "Creators actively publishing memes & reels"}
@@ -1044,12 +1065,12 @@ function OwnerDashboardPage() {
               </div>
 
               {/* QUICK KILL-SWITCH CARD */}
-              <div className="rounded-2xl border border-rose-500/20 bg-[#111114] p-5 space-y-4">
+              <div className="rounded-2xl border border-rose-500/20 bg-surface p-5 space-y-4">
                 <div className="flex items-center gap-2 text-rose-400">
                   <AlertOctagon className="size-4" />
                   <h3 className="text-sm font-bold">Emergency Platform Controls</h3>
                 </div>
-                <p className="text-xs text-white/50 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Trigger global platform state overrides. Every change is immutably timestamped in the audit log.
                 </p>
 
@@ -1066,7 +1087,7 @@ function OwnerDashboardPage() {
                     className={`w-full flex items-center justify-between p-3 rounded-xl border transition ${
                       platformControls.submissionsPaused
                         ? "bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold"
-                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                        : "bg-raised border-border text-fg/80 hover:bg-raised"
                     }`}
                   >
                     <span>{platformControls.submissionsPaused ? "⏸ Submissions Paused" : "▶ Submissions Open"}</span>
@@ -1085,7 +1106,7 @@ function OwnerDashboardPage() {
                     className={`w-full flex items-center justify-between p-3 rounded-xl border transition ${
                       platformControls.maintenanceMode
                         ? "bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold"
-                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                        : "bg-raised border-border text-fg/80 hover:bg-raised"
                     }`}
                   >
                     <span>{platformControls.maintenanceMode ? "🚧 Maintenance Active" : "🟢 Platform Live"}</span>
@@ -1104,7 +1125,7 @@ function OwnerDashboardPage() {
                     className={`w-full flex items-center justify-between p-3 rounded-xl border transition ${
                       platformControls.emergencyWalletFreeze
                         ? "bg-red-500/30 border-red-500/60 text-red-200 font-bold"
-                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                        : "bg-raised border-border text-fg/80 hover:bg-raised"
                     }`}
                   >
                     <span>{platformControls.emergencyWalletFreeze ? "🔒 Global Payouts Frozen" : "🔓 Payouts Normal"}</span>
@@ -1123,14 +1144,14 @@ function OwnerDashboardPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold">Platform Switches & Feature Flags</h2>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-muted">
                 Direct platform runtime settings. Changes take effect instantly for all visitors, creators, and moderators.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Submission Gate Switch */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-3">
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Globe className="size-4 text-emerald-400" />
@@ -1146,7 +1167,7 @@ function OwnerDashboardPage() {
                     {platformControls.submissionsPaused ? "PAUSED" : "ACTIVE"}
                   </Badge>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Controls whether creators can submit new memes and reels into the contest queue. When paused, creators see an informative queue maintenance notice.
                 </p>
                 <div className="pt-2">
@@ -1172,7 +1193,7 @@ function OwnerDashboardPage() {
               </div>
 
               {/* Maintenance Mode Switch */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-3">
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Power className="size-4 text-amber-400" />
@@ -1188,7 +1209,7 @@ function OwnerDashboardPage() {
                     {platformControls.maintenanceMode ? "MAINTENANCE" : "LIVE"}
                   </Badge>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Puts the platform in read-only mode during major database upgrades or migrations. Admins and owners retain bypass privileges.
                 </p>
                 <div className="pt-2">
@@ -1203,7 +1224,7 @@ function OwnerDashboardPage() {
                       toast.warning(next ? "Maintenance mode activated." : "Platform returned to live.");
                     }}
                     variant="outline"
-                    className={`w-full font-bold text-xs h-9 border-white/20 ${
+                    className={`w-full font-bold text-xs h-9 border-border ${
                       platformControls.maintenanceMode ? "text-amber-300 border-amber-500/40 bg-amber-500/10" : ""
                     }`}
                   >
@@ -1213,7 +1234,7 @@ function OwnerDashboardPage() {
               </div>
 
               {/* Reel Studio Engine Mode */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-3">
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Cpu className="size-4 text-[#d4ff00]" />
@@ -1223,7 +1244,7 @@ function OwnerDashboardPage() {
                     {platformControls.renderFarmEcoMode ? "ECO 720P" : "FULL 1080P"}
                   </Badge>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Choose between high-definition 1080×1920 WebCodecs rendering and lightweight client-side Eco mode during peak contest traffic hours.
                 </p>
                 <div className="pt-2">
@@ -1238,7 +1259,7 @@ function OwnerDashboardPage() {
                       toast.success(next ? "Eco Render Mode Active." : "1080p Full Performance Mode Active.");
                     }}
                     variant="outline"
-                    className="w-full font-bold text-xs h-9 border-white/15 hover:bg-white/10"
+                    className="w-full font-bold text-xs h-9 border-border hover:bg-raised"
                   >
                     {platformControls.renderFarmEcoMode ? "Switch to 1080p High Performance" : "Switch to Eco Render Mode"}
                   </Button>
@@ -1246,7 +1267,7 @@ function OwnerDashboardPage() {
               </div>
 
               {/* AI Moderation Sensitivity */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-3">
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="size-4 text-purple-400" />
@@ -1256,7 +1277,7 @@ function OwnerDashboardPage() {
                     {platformControls.aiModerationSensitivity}
                   </Badge>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Adjust strictness of perceptual hash duplicates and text safety filters for incoming memes and reels.
                 </p>
                 <div className="grid grid-cols-3 gap-2 pt-2">
@@ -1274,7 +1295,7 @@ function OwnerDashboardPage() {
                       className={`rounded-xl border py-2 text-xs font-bold capitalize transition ${
                         platformControls.aiModerationSensitivity === sens
                           ? "border-purple-400 bg-purple-500/20 text-purple-200"
-                          : "border-white/10 bg-black/40 text-white/60 hover:text-white"
+                          : "border-border bg-raised text-muted hover:text-fg"
                       }`}
                     >
                       {sens}
@@ -1288,7 +1309,7 @@ function OwnerDashboardPage() {
                 className={`rounded-2xl border p-5 space-y-3 transition-all ${
                   platformControls.emergencyWalletFreeze
                     ? "border-rose-500/60 bg-rose-950/40 shadow-[0_0_25px_rgba(244,63,94,0.25)]"
-                    : "border-white/10 bg-[#111114]"
+                    : "border-border bg-surface"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -1310,7 +1331,7 @@ function OwnerDashboardPage() {
                     {platformControls.emergencyWalletFreeze ? "KILLSWITCH ENGAGED" : "PAYOUTS UNRESTRICTED"}
                   </Badge>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   System-wide emergency circuit breaker. When engaged, all creator cashouts, points redemptions, and banking transfers are instantly locked platform-wide.
                 </p>
                 <div className="pt-2">
@@ -1343,13 +1364,13 @@ function OwnerDashboardPage() {
             </div>
 
             {/* Platform Economy Calibration & Conversion Levers */}
-            <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="rounded-2xl border border-border bg-surface p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
                 <div className="flex items-center gap-2">
                   <BadgePercent className="size-4 text-amber-400" />
                   <div>
-                    <h3 className="font-bold text-sm text-white">Platform Economy Levers & Calibration</h3>
-                    <p className="text-[11px] text-white/50">
+                    <h3 className="font-bold text-sm text-fg">Platform Economy Levers & Calibration</h3>
+                    <p className="text-[11px] text-muted">
                       Configure monetary redemption rates, cashout thresholds, daily velocity limits, and transaction fees.
                     </p>
                   </div>
@@ -1361,8 +1382,8 @@ function OwnerDashboardPage() {
 
               <form onSubmit={handleSaveEconomyLevers} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1.5">
-                    <label className="block text-white/60 font-medium">Points Conversion Rate (₹/pt)</label>
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1.5">
+                    <label className="block text-muted font-medium">Points Conversion Rate (₹/pt)</label>
                     <div className="flex items-center gap-2">
                       <Input
                         type="number"
@@ -1371,17 +1392,17 @@ function OwnerDashboardPage() {
                         max="5.0"
                         value={leversRate}
                         onChange={(e) => setLeversRate(Number(e.target.value))}
-                        className="bg-black/60 border-white/10 font-mono text-amber-300 font-bold text-sm h-8"
+                        className="bg-raised border-border font-mono text-amber-300 font-bold text-sm h-8"
                         required
                       />
                     </div>
-                    <span className="text-[10px] text-white/40 block">
+                    <span className="text-[10px] text-muted block">
                       Creator gets ₹{leversRate} for each approved RIFF point
                     </span>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1.5">
-                    <label className="block text-white/60 font-medium">Min Withdrawal Threshold (₹)</label>
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1.5">
+                    <label className="block text-muted font-medium">Min Withdrawal Threshold (₹)</label>
                     <Input
                       type="number"
                       step="50"
@@ -1389,16 +1410,16 @@ function OwnerDashboardPage() {
                       max="10000"
                       value={leversMin}
                       onChange={(e) => setLeversMin(Number(e.target.value))}
-                      className="bg-black/60 border-white/10 font-mono text-emerald-400 font-bold text-sm h-8"
+                      className="bg-raised border-border font-mono text-emerald-400 font-bold text-sm h-8"
                       required
                     />
-                    <span className="text-[10px] text-white/40 block">
+                    <span className="text-[10px] text-muted block">
                       Min cashout balance (={Math.ceil(leversMin / (leversRate || 0.5))} pts)
                     </span>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1.5">
-                    <label className="block text-white/60 font-medium">Daily Creator Payout Limit (₹)</label>
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1.5">
+                    <label className="block text-muted font-medium">Daily Creator Payout Limit (₹)</label>
                     <Input
                       type="number"
                       step="1000"
@@ -1406,16 +1427,16 @@ function OwnerDashboardPage() {
                       max="100000"
                       value={leversMaxDaily}
                       onChange={(e) => setLeversMaxDaily(Number(e.target.value))}
-                      className="bg-black/60 border-white/10 font-mono text-sky-400 font-bold text-sm h-8"
+                      className="bg-raised border-border font-mono text-sky-400 font-bold text-sm h-8"
                       required
                     />
-                    <span className="text-[10px] text-white/40 block">
+                    <span className="text-[10px] text-muted block">
                       Max cumulative 24h withdrawal per creator
                     </span>
                   </div>
 
-                  <div className="rounded-xl border border-white/5 bg-black/40 p-3 space-y-1.5">
-                    <label className="block text-white/60 font-medium">Platform Processing Fee (%)</label>
+                  <div className="rounded-xl border border-border bg-raised p-3 space-y-1.5">
+                    <label className="block text-muted font-medium">Platform Processing Fee (%)</label>
                     <Input
                       type="number"
                       step="0.5"
@@ -1423,10 +1444,10 @@ function OwnerDashboardPage() {
                       max="15"
                       value={leversFee}
                       onChange={(e) => setLeversFee(Number(e.target.value))}
-                      className="bg-black/60 border-white/10 font-mono text-purple-400 font-bold text-sm h-8"
+                      className="bg-raised border-border font-mono text-purple-400 font-bold text-sm h-8"
                       required
                     />
-                    <span className="text-[10px] text-white/40 block">
+                    <span className="text-[10px] text-muted block">
                       Gateway & settlement operational fee
                     </span>
                   </div>
@@ -1438,7 +1459,7 @@ function OwnerDashboardPage() {
                       placeholder="Mandatory calibration reason for audit log (e.g. Q3 creator incentive program update)..."
                       value={leversReason}
                       onChange={(e) => setLeversReason(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs text-white h-9"
+                      className="bg-raised border-border text-xs text-fg h-9"
                     />
                   </div>
                   <Button
@@ -1454,77 +1475,233 @@ function OwnerDashboardPage() {
         )}
 
         {/* ========================================================= */}
-        {/* 3. RBAC & DELEGATION TAB */}
+        {/* 3. CORE TEAM MANAGEMENT TAB */}
         {/* ========================================================= */}
-        {activeTab === "rbac" && (
+        {activeTab === "team" && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Grant Permission Scope Card */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
-                <div className="flex items-center gap-2">
-                  <UserPlus className="size-4 text-amber-400" />
-                  <h3 className="font-bold text-sm">Delegate Granular Permission Scope</h3>
-                </div>
-                <p className="text-xs text-white/50 leading-relaxed">
-                  Assign specific capabilities without granting full superuser permissions.
-                </p>
+            {/* Subcategory Switcher & Search Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface border border-border p-3.5 rounded-2xl shadow-sm">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setTeamSubCategory("team")}
+                  className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                    teamSubCategory === "team"
+                      ? "bg-amber-400 text-black shadow-sm font-black"
+                      : "text-muted hover:text-fg bg-raised border border-border"
+                  }`}
+                >
+                  <Users className="size-3.5" />
+                  <span>Core Team ({teamMembers.length})</span>
+                </button>
 
-                <form onSubmit={handleGrantPermissionSubmit} className="space-y-3 text-xs">
-                  <div>
-                    <label className="block text-white/40 mb-1">User Handle</label>
-                    <Input
-                      placeholder="e.g. 'aanya' or 'kabir'"
-                      value={delegateHandle}
-                      onChange={(e) => setDelegateHandle(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-white/40 mb-1">Permission Scope</label>
-                    <select
-                      value={delegatePerm}
-                      onChange={(e) => setDelegatePerm(e.target.value as AdminPermission)}
-                      className="w-full rounded-lg bg-black/60 border border-white/10 px-3 py-2 text-white text-xs outline-none"
-                    >
-                      {PERMISSION_SCOPES.map((scope) => (
-                        <option key={scope.id} value={scope.id} className="bg-[#111]">
-                          {scope.id} ({scope.name})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black text-xs h-9"
-                  >
-                    Delegate Capability
-                  </Button>
-                </form>
+                <button
+                  type="button"
+                  onClick={() => setTeamSubCategory("creators")}
+                  className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                    teamSubCategory === "creators"
+                      ? "bg-amber-400 text-black shadow-sm font-black"
+                      : "text-muted hover:text-fg bg-raised border border-border"
+                  }`}
+                >
+                  <Sparkles className="size-3.5" />
+                  <span>Platform Creators ({platformCreators.length})</span>
+                </button>
               </div>
 
-              {/* Team Directory & Roles */}
-              <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <Shield className="size-4 text-sky-400" />
-                    <h3 className="font-bold text-sm">Platform Staff & User Directory ({people.length})</h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setActiveTab("roles")}
+                  className="h-9 rounded-xl text-xs font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-purple-500/30 gap-1.5 bg-surface"
+                >
+                  <ShieldCheck className="size-3.5" />
+                  <span>View Roles Matrix ➔</span>
+                </Button>
+
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted" />
+                  <Input
+                    placeholder={teamSubCategory === "team" ? "Search core team..." : "Search platform creators..."}
+                    value={teamSearch}
+                    onChange={(e) => setTeamSearch(e.target.value)}
+                    className="h-9 w-48 sm:w-60 pl-8 rounded-xl bg-raised border-border text-xs text-fg placeholder:text-muted"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Core Team View */}
+            {teamSubCategory === "team" && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Core Staff Members List */}
+                <div className="lg:col-span-2 space-y-4">
+                  <div className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <Crown className="size-4 text-amber-400" />
+                        <h3 className="font-bold text-sm text-fg">Active Core Team ({teamMembers.length})</h3>
+                      </div>
+                      <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 text-[10px] font-bold">
+                        RESTRICTED PLATFORM GOVERNANCE
+                      </Badge>
+                    </div>
+
+                    <div className="divide-y divide-border">
+                      {filteredTeamMembers.map((person) => {
+                        const isSelf = person.handle === profile?.handle || person.role === "owner";
+                        const userPerms = person.permissions || [];
+                        const warnings = person.warningsCount || 0;
+
+                        return (
+                          <div key={person.id} className="py-4 space-y-3 text-xs">
+                            <div className="flex items-center justify-between flex-wrap gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="size-11 rounded-2xl bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center font-black text-amber-400 text-base shadow-sm shrink-0">
+                                  {person.name.charAt(0)}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-bold text-fg text-sm truncate">{person.name}</span>
+                                    <span className="text-muted text-xs">@{person.handle}</span>
+                                    {isSelf && (
+                                      <span className="text-[10px] bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded-md font-black">
+                                        👑 OWNER (YOU)
+                                      </span>
+                                    )}
+                                    <Badge className="bg-purple-500/15 text-purple-400 border-purple-500/30 text-[10px] font-bold">
+                                      ROOT AUTHORITY
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2.5 text-xs text-muted pt-1">
+                                    <span>{person.followers.toLocaleString()} followers</span>
+                                    <span>•</span>
+                                    <span className="font-mono text-emerald-500 font-bold">
+                                      {person.riffPoints || 0} pts
+                                    </span>
+                                    <span>•</span>
+                                    <span className="text-emerald-500 font-medium">100% Governance clearance</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-black text-amber-500 flex items-center gap-1.5">
+                                  <Crown className="size-3.5" />
+                                  <span>Owner Superuser</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Active Permissions / Capabilities Pill Badges */}
+                            <div className="rounded-xl bg-raised border border-border p-3 space-y-2">
+                              <div className="flex items-center justify-between text-[11px]">
+                                <span className="font-semibold text-fg">Active Superuser Capabilities:</span>
+                                <span className="text-muted font-mono">7 of 7 Scopes (Apex Authority)</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {PERMISSION_SCOPES.map((scope) => (
+                                  <span
+                                    key={scope.id}
+                                    className="inline-flex items-center gap-1 text-[11px] bg-surface border border-border px-2.5 py-1 rounded-lg text-fg font-medium shadow-xs"
+                                  >
+                                    <Check className="size-3 text-emerald-500" />
+                                    <span>{scope.name}</span>
+                                    <span className="text-muted text-[10px] font-mono">({scope.id})</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {filteredTeamMembers.length === 0 && (
+                        <div className="py-8 text-center text-muted">
+                          No team members found matching your search.
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Search className="size-3.5 absolute left-3 top-2.5 text-white/40" />
-                    <input
-                      placeholder="Search by name, handle, role..."
-                      value={teamSearch}
-                      onChange={(e) => setTeamSearch(e.target.value)}
-                      className="rounded-xl border border-white/10 bg-black/60 pl-8 pr-3 py-1.5 text-xs text-white outline-none w-56 focus:border-amber-400"
-                    />
+
+                  {/* Clean Informational Note */}
+                  <div className="rounded-2xl border border-border bg-raised p-4 flex items-start gap-3 text-xs text-muted">
+                    <ShieldCheck className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <span className="font-bold text-fg block">Strict Team Isolation Enforced</span>
+                      <p>
+                        Core Team is strictly restricted to platform staff with confirmed administrative credentials. All general community creators are segregated into the Platform Creators directory.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="divide-y divide-white/5 max-h-[480px] overflow-y-auto pr-1">
-                  {filteredTeam.map((person) => {
+                {/* Right Column: Delegate Granular Capability Card */}
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-border pb-3">
+                      <UserPlus className="size-4 text-amber-500" />
+                      <h3 className="font-bold text-sm text-fg">Delegate Capability Scope</h3>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Grant temporary or specific operational capabilities to a creator without granting full root superuser access.
+                    </p>
+
+                    <form onSubmit={handleGrantPermissionSubmit} className="space-y-3.5 text-xs">
+                      <div>
+                        <label className="block text-muted mb-1 font-medium">Creator Handle</label>
+                        <Input
+                          placeholder="e.g. 'aanya' or 'kabir'"
+                          value={delegateHandle}
+                          onChange={(e) => setDelegateHandle(e.target.value)}
+                          className="bg-raised border-border text-xs text-fg placeholder:text-muted"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-muted mb-1 font-medium">Permission Scope</label>
+                        <select
+                          value={delegatePerm}
+                          onChange={(e) => setDelegatePerm(e.target.value as AdminPermission)}
+                          className="w-full rounded-xl bg-raised border border-border px-3 py-2 text-fg text-xs outline-none cursor-pointer"
+                        >
+                          {PERMISSION_SCOPES.map((scope) => (
+                            <option key={scope.id} value={scope.id} className="bg-surface text-fg">
+                              {scope.name} ({scope.id})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-amber-400 hover:bg-amber-300 text-black font-black text-xs h-9 rounded-xl shadow-sm"
+                      >
+                        Delegate Capability
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Platform Creators View */}
+            {teamSubCategory === "creators" && (
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-4 text-amber-500" />
+                    <h3 className="font-bold text-sm text-fg">Platform Creators ({platformCreators.length})</h3>
+                  </div>
+                  <span className="text-xs text-muted">
+                    Promote creators to Moderator or Admin to add them to the Core Team.
+                  </span>
+                </div>
+
+                <div className="divide-y divide-border max-h-[560px] overflow-y-auto pr-1">
+                  {filteredCreators.map((person) => {
                     const isSelf = person.handle === profile?.handle;
                     const isLockedOwner = person.role === "owner";
                     const userPerms = person.permissions || [];
@@ -1534,28 +1711,23 @@ function OwnerDashboardPage() {
                       <div key={person.id} className="py-3.5 space-y-2 text-xs">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="size-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-amber-400 shrink-0">
+                            <div className="size-9 rounded-full bg-raised border border-border flex items-center justify-center font-bold text-fg shrink-0">
                               {person.name.charAt(0)}
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-bold text-white truncate">{person.name}</span>
-                                <span className="text-white/40 text-[11px]">@{person.handle}</span>
-                                {isSelf && (
-                                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-bold">
-                                    YOU
-                                  </span>
-                                )}
+                                <span className="font-bold text-fg truncate">{person.name}</span>
+                                <span className="text-muted text-[11px]">@{person.handle}</span>
                                 {person.isWalletFrozen && (
-                                  <span className="text-[9px] bg-rose-500/20 text-rose-400 border border-rose-500/30 px-1.5 py-0.2 rounded font-bold flex items-center gap-1">
+                                  <span className="text-[9px] bg-rose-500/15 text-rose-500 border border-rose-500/30 px-1.5 py-0.2 rounded font-bold flex items-center gap-1">
                                     <Lock className="size-2.5" /> FROZEN
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-[11px] text-white/40 pt-0.5">
+                              <div className="flex items-center gap-2 text-[11px] text-muted pt-0.5">
                                 <span>{person.followers.toLocaleString()} followers</span>
                                 <span>•</span>
-                                <span className="font-mono text-emerald-400 font-bold">
+                                <span className="font-mono text-emerald-500 font-bold">
                                   {person.riffPoints || 0} pts
                                 </span>
                                 {warnings > 0 && (
@@ -1563,7 +1735,7 @@ function OwnerDashboardPage() {
                                     <span>•</span>
                                     <span
                                       className={`font-bold ${
-                                        warnings >= 5 ? "text-rose-400" : "text-amber-400"
+                                        warnings >= 5 ? "text-rose-500" : "text-amber-500"
                                       }`}
                                     >
                                       ⚠️ {warnings}/5 warnings
@@ -1574,8 +1746,9 @@ function OwnerDashboardPage() {
                             </div>
                           </div>
 
-                          {/* Role Selector */}
+                          {/* Role Selector & Actions */}
                           <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-muted font-medium">Role:</span>
                             <select
                               value={person.role}
                               disabled={isLockedOwner && !isSelf}
@@ -1584,31 +1757,31 @@ function OwnerDashboardPage() {
                                 playSound("pop");
                                 toast.success(`Changed @${person.handle} role to ${e.target.value}.`);
                               }}
-                              className="rounded-lg border border-white/10 bg-black/60 px-2.5 py-1 text-[11px] font-bold text-amber-300 outline-none disabled:opacity-50"
+                              className="rounded-xl border border-border bg-raised px-2.5 py-1 text-[11px] font-bold text-fg outline-none cursor-pointer"
                             >
-                              <option value="creator" className="bg-[#111] text-white">Creator</option>
-                              <option value="brand" className="bg-[#111] text-white">Brand</option>
-                              <option value="moderator" className="bg-[#111] text-white">Moderator</option>
-                              <option value="admin" className="bg-[#111] text-white">Admin</option>
-                              <option value="super_admin" className="bg-[#111] text-white">Super Admin</option>
-                              <option value="owner" className="bg-[#111] text-white">Owner</option>
+                              <option value="creator" className="bg-surface text-fg">Creator</option>
+                              <option value="brand" className="bg-surface text-fg">Brand</option>
+                              <option value="moderator" className="bg-surface text-fg">Moderator</option>
+                              <option value="admin" className="bg-surface text-fg">Admin</option>
+                              <option value="super_admin" className="bg-surface text-fg">Super Admin</option>
+                              <option value="owner" className="bg-surface text-fg">Owner</option>
                             </select>
                           </div>
                         </div>
 
                         {/* Delegated Capabilities List */}
                         {userPerms.length > 0 && (
-                          <div className="flex items-center gap-1.5 flex-wrap pl-10">
-                            <span className="text-[10px] text-white/40">Capabilities:</span>
+                          <div className="flex items-center gap-1.5 flex-wrap pl-11">
+                            <span className="text-[10px] text-muted font-medium">Capabilities:</span>
                             {userPerms.map((perm) => (
                               <span
                                 key={perm}
-                                className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-sky-300 font-mono"
+                                className="inline-flex items-center gap-1 text-[10px] bg-raised border border-border px-2 py-0.5 rounded-md text-sky-400 font-mono"
                               >
                                 <span>{perm}</span>
                                 <button
                                   onClick={() => revokeUserPermission(person.handle, perm)}
-                                  className="text-white/40 hover:text-rose-400"
+                                  className="text-muted hover:text-rose-500"
                                   title="Revoke permission"
                                 >
                                   ✕
@@ -1620,7 +1793,357 @@ function OwnerDashboardPage() {
                       </div>
                     );
                   })}
+
+                  {filteredCreators.length === 0 && (
+                    <div className="py-8 text-center text-muted">
+                      No platform creators found matching your search.
+                    </div>
+                  )}
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* 3.5 DEDICATED ROLES & PERMISSIONS MATRIX TAB */}
+        {/* ========================================================= */}
+        {activeTab === "roles" && (
+          <div className="space-y-6">
+            {/* Header Banner */}
+            <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 via-surface to-surface p-5 backdrop-blur-xl shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 text-sm">
+                      🛡️
+                    </span>
+                    <h2 className="font-display text-base font-black text-fg">
+                      Platform Roles & Permissions Matrix
+                    </h2>
+                    <Badge className="bg-purple-500/15 text-purple-400 border-purple-500/30 text-[10px] font-black uppercase">
+                      Governance Hierarchy
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted max-w-2xl">
+                    Constitutional authority tiers, warning thresholds, demotion protocols, and assigned permission privileges for each role.
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setActiveTab("team")}
+                  className="h-9 px-3.5 text-xs font-bold rounded-xl border-border bg-surface text-fg hover:bg-raised gap-1.5 self-start md:self-auto shadow-xs"
+                >
+                  <Users className="size-3.5" />
+                  <span>Manage Core Team ({teamMembers.length})</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* 5 Roles Breakdown Cards */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* 1. OWNER */}
+              <div className="rounded-3xl border border-purple-500/30 bg-surface p-5 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">👑</span>
+                      <div>
+                        <h3 className="font-display text-sm font-black text-fg">Owner</h3>
+                        <p className="text-[10px] font-mono text-purple-400">Apex Founder (Tier 5)</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-purple-500/15 text-purple-400 border-purple-500/30 text-[10px] font-bold">
+                      {teamMembers.filter((m) => m.role === "owner").length} Active
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted leading-relaxed">
+                    Full sovereign control. Unrestricted bypass over submissions, categories, escrows, database configs, and staff appointments.
+                  </p>
+
+                  <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-2.5 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Warning Policy:</span>
+                      <span className="font-bold text-purple-400">Protected Root (Immune)</span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Active Perms:</span>
+                      <span className="font-bold text-purple-400">7 of 7 (Full Access)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-muted pt-2 border-t border-border">
+                  Assigned to: @abhishek
+                </div>
+              </div>
+
+              {/* 2. SUPER ADMIN */}
+              <div className="rounded-3xl border border-amber-500/30 bg-surface p-5 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">⚡</span>
+                      <div>
+                        <h3 className="font-display text-sm font-black text-fg">Super Admin</h3>
+                        <p className="text-[10px] font-mono text-amber-500">Executive Governance (Tier 4)</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 text-[10px] font-bold">
+                      {teamMembers.filter((m) => m.role === "super_admin").length} Active
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted leading-relaxed">
+                    Supervises staff accountability, enforces compliance, issues disciplinary warnings, reviews escrow payouts, and tunes economy.
+                  </p>
+
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-2.5 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Warning Policy:</span>
+                      <span className="font-bold text-amber-500">5 Warnings = Demotion</span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Active Perms:</span>
+                      <span className="font-bold text-amber-500">6 of 7 Permissions</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-muted pt-2 border-t border-border">
+                  Appointed by: Platform Owner
+                </div>
+              </div>
+
+              {/* 3. ADMIN */}
+              <div className="rounded-3xl border border-sky-500/30 bg-surface p-5 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">🛡️</span>
+                      <div>
+                        <h3 className="font-display text-sm font-black text-fg">Admin</h3>
+                        <p className="text-[10px] font-mono text-sky-400">Operations Curator (Tier 3)</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-sky-500/15 text-sky-400 border-sky-500/30 text-[10px] font-bold">
+                      {teamMembers.filter((m) => m.role === "admin").length} Active
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted leading-relaxed">
+                    Reviews creator submissions, curates trending categories, manages reward point rates, and arbitrates rejected content appeals.
+                  </p>
+
+                  <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-2.5 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Warning Policy:</span>
+                      <span className="font-bold text-sky-400">5 Warnings = Demotion</span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Active Perms:</span>
+                      <span className="font-bold text-sky-400">4 of 7 Permissions</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-muted pt-2 border-t border-border">
+                  Supervised by: Super Admin & Owner
+                </div>
+              </div>
+
+              {/* 4. MODERATOR */}
+              <div className="rounded-3xl border border-emerald-500/30 bg-surface p-5 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">⚖️</span>
+                      <div>
+                        <h3 className="font-display text-sm font-black text-fg">Moderator</h3>
+                        <p className="text-[10px] font-mono text-emerald-400">Content Compliance (Tier 2)</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
+                      {teamMembers.filter((m) => m.role === "moderator").length} Active
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted leading-relaxed">
+                    Resolves user reports, issues content takedowns, flags guideline violations, and verifies submission queue items.
+                  </p>
+
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Warning Policy:</span>
+                      <span className="font-bold text-emerald-400">5 Warnings = Demotion</span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Active Perms:</span>
+                      <span className="font-bold text-emerald-400">2 of 7 Permissions</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-muted pt-2 border-t border-border">
+                  Supervised by: Admins & Owner
+                </div>
+              </div>
+
+              {/* 5. CREATOR */}
+              <div className="rounded-3xl border border-border bg-surface p-5 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">🎨</span>
+                      <div>
+                        <h3 className="font-display text-sm font-black text-fg">Creator</h3>
+                        <p className="text-[10px] font-mono text-muted">Community Creator (Tier 1)</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-raised text-muted border-border text-[10px] font-bold">
+                      {platformCreators.length} Active
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted leading-relaxed">
+                    Standard community member. Creates reels, earns RIFF points, participates in sponsor campaigns, and requests cashouts.
+                  </p>
+
+                  <div className="rounded-xl border border-border bg-raised p-2.5 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Warning Policy:</span>
+                      <span className="font-bold text-amber-500">5 Warnings = Suspension</span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted">
+                      <span>Staff Perms:</span>
+                      <span className="font-bold text-muted">0 (Public User)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-muted pt-2 border-t border-border">
+                  Standard platform participant
+                </div>
+              </div>
+            </div>
+
+            {/* Granular Permissions Matrix Table */}
+            <div className="rounded-3xl border border-border bg-surface p-5 shadow-sm space-y-4">
+              <div>
+                <h3 className="font-display text-sm font-bold text-fg flex items-center gap-2">
+                  <Scale className="size-4 text-purple-400" />
+                  <span>Granular Permissions Matrix by Role</span>
+                </h3>
+                <p className="text-[11px] text-muted">
+                  Detailed constitutional capability map across every system authority level.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-border text-[11px] text-muted font-bold">
+                      <th className="py-2.5 pr-4">System Capability</th>
+                      <th className="py-2.5 px-3 text-center text-purple-400">Owner</th>
+                      <th className="py-2.5 px-3 text-center text-amber-500">Super Admin</th>
+                      <th className="py-2.5 px-3 text-center text-sky-400">Admin</th>
+                      <th className="py-2.5 px-3 text-center text-emerald-400">Moderator</th>
+                      <th className="py-2.5 pl-3 text-center text-muted">Creator</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border text-[11px]">
+                    {[
+                      {
+                        name: "campaign.manage",
+                        desc: "Create, fund & verify brand campaigns",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: false,
+                        creator: false,
+                      },
+                      {
+                        name: "submission.review",
+                        desc: "Review & approve pending video reels in review queue",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: true,
+                        creator: false,
+                      },
+                      {
+                        name: "withdrawal.review",
+                        desc: "Review, approve & escrow creator point cashouts",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: false,
+                        creator: false,
+                      },
+                      {
+                        name: "wallet.freeze",
+                        desc: "Emergency wallet freeze & fund quarantine",
+                        owner: true,
+                        super: true,
+                        admin: false,
+                        mod: false,
+                        creator: false,
+                      },
+                      {
+                        name: "moderation.manage",
+                        desc: "Content moderation, violation warnings & takedowns",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: true,
+                        creator: false,
+                      },
+                      {
+                        name: "category.manage",
+                        desc: "Configure reward economy, category multipliers & limits",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: false,
+                        creator: false,
+                      },
+                      {
+                        name: "audit.view",
+                        desc: "Inspect immutable platform audit trails & governance logs",
+                        owner: true,
+                        super: true,
+                        admin: true,
+                        mod: false,
+                        creator: false,
+                      },
+                    ].map((perm) => (
+                      <tr key={perm.name} className="hover:bg-raised/40 transition">
+                        <td className="py-3 pr-4">
+                          <div className="font-mono font-bold text-fg">{perm.name}</div>
+                          <div className="text-[10px] text-muted">{perm.desc}</div>
+                        </td>
+                        <td className="py-3 px-3 text-center font-bold text-purple-400">
+                          {perm.owner ? "✓" : "—"}
+                        </td>
+                        <td className="py-3 px-3 text-center font-bold text-amber-500">
+                          {perm.super ? "✓" : "—"}
+                        </td>
+                        <td className="py-3 px-3 text-center font-bold text-sky-400">
+                          {perm.admin ? "✓" : "—"}
+                        </td>
+                        <td className="py-3 px-3 text-center font-bold text-emerald-400">
+                          {perm.mod ? "✓" : "—"}
+                        </td>
+                        <td className="py-3 pl-3 text-center font-bold text-muted">
+                          {perm.creator ? "✓" : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1637,7 +2160,7 @@ function OwnerDashboardPage() {
                   <Tag className="size-5 text-amber-400" />
                   <span>Global Content & Category Controls</span>
                 </h2>
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-muted">
                   Manage categories, content-type restrictions (Memes vs Reels), auto-approval policies, display order, and dynamic RIFF Points rewards.
                 </p>
               </div>
@@ -1652,10 +2175,10 @@ function OwnerDashboardPage() {
 
             {/* Category Governance KPI Strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-3.5 space-y-1">
-                <span className="text-[11px] text-white/40 block font-medium">Total Categories</span>
-                <span className="text-xl font-bold font-mono text-white">{storeCategories.length}</span>
-                <span className="text-[10px] text-white/30 block">Global Taxonomy</span>
+              <div className="rounded-2xl border border-border bg-surface p-3.5 space-y-1">
+                <span className="text-[11px] text-muted block font-medium">Total Categories</span>
+                <span className="text-xl font-bold font-mono text-fg">{storeCategories.length}</span>
+                <span className="text-[10px] text-muted/70 block">Global Taxonomy</span>
               </div>
               <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 space-y-1">
                 <span className="text-[11px] text-emerald-400/70 block font-medium">Active Categories</span>
@@ -1685,15 +2208,15 @@ function OwnerDashboardPage() {
             </div>
 
             {/* Filter & Search Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-black/40 border border-white/10 rounded-2xl p-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-raised border border-border rounded-2xl p-3">
               <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-2.5 size-4 text-white/40" />
+                <Search className="absolute left-3 top-2.5 size-4 text-muted" />
                 <input
                   type="text"
                   placeholder="Search by category name or #slug..."
                   value={catSearch}
                   onChange={(e) => setCatSearch(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/60 pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-white/30 outline-none focus:border-amber-400"
+                  className="w-full rounded-xl border border-border bg-raised pl-9 pr-3 py-1.5 text-xs text-fg placeholder:text-muted/70 outline-none focus:border-amber-400"
                 />
               </div>
 
@@ -1705,7 +2228,7 @@ function OwnerDashboardPage() {
                     className={`px-3 py-1 rounded-lg text-[11px] font-bold capitalize transition ${
                       catStatusFilter === st
                         ? "bg-amber-500 text-black shadow-sm"
-                        : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+                        : "bg-raised text-muted hover:text-fg hover:bg-raised"
                     }`}
                   >
                     {st}
@@ -1734,7 +2257,7 @@ function OwnerDashboardPage() {
                       key={cat.id}
                       className={`rounded-2xl border p-4 flex flex-col justify-between space-y-3 transition ${
                         cat.status === "active"
-                          ? "border-white/10 bg-[#111114]"
+                          ? "border-border bg-surface"
                           : cat.status === "archived"
                             ? "border-rose-500/20 bg-rose-950/10 opacity-70"
                             : "border-amber-500/20 bg-amber-950/10"
@@ -1747,7 +2270,7 @@ function OwnerDashboardPage() {
                             <span className="text-3xl">{cat.icon}</span>
                             <div>
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <h3 className="font-bold text-sm text-white">{cat.name}</h3>
+                                <h3 className="font-bold text-sm text-fg">{cat.name}</h3>
                                 {cat.isDefault && (
                                   <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] font-bold flex items-center gap-1 py-0 px-1.5">
                                     <Star className="size-2.5 fill-amber-300" />
@@ -1755,7 +2278,7 @@ function OwnerDashboardPage() {
                                   </Badge>
                                 )}
                               </div>
-                              <span className="text-[10px] text-white/40 font-mono">
+                              <span className="text-[10px] text-muted font-mono">
                                 #{cat.slug} · Priority #{cat.sortOrder || idx + 1}
                               </span>
                             </div>
@@ -1821,30 +2344,30 @@ function OwnerDashboardPage() {
                           </span>
                         </div>
 
-                        <p className="text-xs text-white/50 mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-muted mt-2 line-clamp-2 leading-relaxed">
                           {cat.description || "No description configured."}
                         </p>
                       </div>
 
                       {/* Economy Breakdown */}
-                      <div className="rounded-xl border border-white/5 bg-black/40 p-2.5 space-y-1 text-xs">
-                        <div className="flex justify-between text-white/50 text-[11px]">
+                      <div className="rounded-xl border border-border bg-raised p-2.5 space-y-1 text-xs">
+                        <div className="flex justify-between text-muted text-[11px]">
                           <span>Approval Points:</span>
-                          <span className="text-white font-mono font-bold">+{cat.approvalPoints} pts</span>
+                          <span className="text-fg font-mono font-bold">+{cat.approvalPoints} pts</span>
                         </div>
-                        <div className="flex justify-between text-white/50 text-[11px]">
+                        <div className="flex justify-between text-muted text-[11px]">
                           <span>Per 1K Views:</span>
                           <span className="text-emerald-400 font-mono font-bold">
                             +{cat.bonusPer1000Views ?? 5} pts
                           </span>
                         </div>
-                        <div className="flex justify-between text-white/50 text-[11px]">
+                        <div className="flex justify-between text-muted text-[11px]">
                           <span>Per 100 Likes:</span>
                           <span className="text-sky-400 font-mono font-bold">
                             +{cat.bonusPer100Likes ?? 2} pts
                           </span>
                         </div>
-                        <div className="flex justify-between text-white/50 text-[11px] border-t border-white/5 pt-1">
+                        <div className="flex justify-between text-muted text-[11px] border-t border-border pt-1">
                           <span>Reward Cap:</span>
                           <span className="text-amber-400 font-mono font-bold">
                             {cat.maxRewardCeiling ?? 100} pts
@@ -1856,12 +2379,12 @@ function OwnerDashboardPage() {
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-center gap-1.5">
                           {/* Reorder Up/Down */}
-                          <div className="flex items-center rounded-lg border border-white/10 bg-black/60 p-0.5">
+                          <div className="flex items-center rounded-lg border border-border bg-raised p-0.5">
                             <button
                               type="button"
                               disabled={isFirst}
                               onClick={() => handleMoveCategory(cat.id, "up")}
-                              className="p-1 text-white/50 hover:text-white disabled:opacity-20 transition"
+                              className="p-1 text-muted hover:text-fg disabled:opacity-20 transition"
                               title="Move Category Up in Menu"
                             >
                               <ArrowUp className="size-3.5" />
@@ -1870,7 +2393,7 @@ function OwnerDashboardPage() {
                               type="button"
                               disabled={isLast}
                               onClick={() => handleMoveCategory(cat.id, "down")}
-                              className="p-1 text-white/50 hover:text-white disabled:opacity-20 transition"
+                              className="p-1 text-muted hover:text-fg disabled:opacity-20 transition"
                               title="Move Category Down in Menu"
                             >
                               <ArrowDown className="size-3.5" />
@@ -1905,7 +2428,7 @@ function OwnerDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleSetDefault(cat)}
-                              className="h-7 px-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-amber-500/20 text-white/70 hover:text-amber-300 text-[10px] font-bold transition flex items-center gap-1"
+                              className="h-7 px-2.5 rounded-lg border border-border bg-raised hover:bg-amber-500/20 text-fg/80 hover:text-amber-300 text-[10px] font-bold transition flex items-center gap-1"
                               title="Make Default Platform Fallback"
                             >
                               <Star className="size-3" />
@@ -1933,7 +2456,7 @@ function OwnerDashboardPage() {
                             setEditReason("");
                           }}
                           variant="outline"
-                          className="w-full text-xs h-7 border-white/10 hover:bg-white/10 font-bold"
+                          className="w-full text-xs h-7 border-border hover:bg-raised font-bold"
                         >
                           <Edit3 className="size-3 mr-1.5" /> Configure Rules & Economy
                         </Button>
@@ -1946,18 +2469,18 @@ function OwnerDashboardPage() {
             {/* EDIT CATEGORY MODAL */}
             {editingCat && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                <div className="bg-[#121214] border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="bg-surface border border-border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{editCatIcon}</span>
                       <div>
-                        <h3 className="font-bold text-base text-white">Configure {editingCat.name}</h3>
-                        <span className="text-[11px] text-white/40 font-mono">#{editingCat.slug}</span>
+                        <h3 className="font-bold text-base text-fg">Configure {editingCat.name}</h3>
+                        <span className="text-[11px] text-muted font-mono">#{editingCat.slug}</span>
                       </div>
                     </div>
                     <button
                       onClick={() => setEditingCat(null)}
-                      className="text-white/40 hover:text-white"
+                      className="text-muted hover:text-fg"
                     >
                       <X className="size-5" />
                     </button>
@@ -1966,20 +2489,20 @@ function OwnerDashboardPage() {
                   <form onSubmit={handleSaveCategoryRule} className="space-y-3.5 text-xs">
                     <div className="grid grid-cols-4 gap-2">
                       <div className="col-span-1">
-                        <label className="block text-white/50 mb-1">Icon</label>
+                        <label className="block text-muted mb-1">Icon</label>
                         <Input
                           value={editCatIcon}
                           onChange={(e) => setEditCatIcon(e.target.value)}
-                          className="bg-black/60 border-white/10 text-center text-lg text-white"
+                          className="bg-raised border-border text-center text-lg text-fg"
                           required
                         />
                       </div>
                       <div className="col-span-3">
-                        <label className="block text-white/50 mb-1">Category Name</label>
+                        <label className="block text-muted mb-1">Category Name</label>
                         <Input
                           value={editCatName}
                           onChange={(e) => setEditCatName(e.target.value)}
-                          className="bg-black/60 border-white/10 text-white font-bold"
+                          className="bg-raised border-border text-fg font-bold"
                           required
                         />
                       </div>
@@ -1987,20 +2510,20 @@ function OwnerDashboardPage() {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-white/50 mb-1">URL Slug</label>
+                        <label className="block text-muted mb-1">URL Slug</label>
                         <Input
                           value={editCatSlug}
                           onChange={(e) => setEditCatSlug(e.target.value)}
-                          className="bg-black/60 border-white/10 font-mono text-white text-xs"
+                          className="bg-raised border-border font-mono text-fg text-xs"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-white/50 mb-1">Category Status</label>
+                        <label className="block text-muted mb-1">Category Status</label>
                         <select
                           value={editCatStatus}
                           onChange={(e) => setEditCatStatus(e.target.value as any)}
-                          className="w-full rounded-md border border-white/10 bg-black/60 px-3 py-2 text-xs text-white outline-none"
+                          className="w-full rounded-md border border-border bg-raised px-3 py-2 text-xs text-fg outline-none"
                         >
                           <option value="active">Active (Submissions Open)</option>
                           <option value="inactive">Inactive (Submissions Paused)</option>
@@ -2010,13 +2533,13 @@ function OwnerDashboardPage() {
                     </div>
 
                     {/* Content Type Rules & Approval Requirement */}
-                    <div className="grid grid-cols-2 gap-2 bg-black/40 border border-white/5 p-3 rounded-xl">
+                    <div className="grid grid-cols-2 gap-2 bg-raised border border-border p-3 rounded-xl">
                       <div>
-                        <label className="block text-white/50 mb-1 font-semibold">Content Type Allowed</label>
+                        <label className="block text-muted mb-1 font-semibold">Content Type Allowed</label>
                         <select
                           value={editCatAllowedTypes}
                           onChange={(e) => setEditCatAllowedTypes(e.target.value as any)}
-                          className="w-full rounded-md border border-white/10 bg-black/80 px-2.5 py-1.5 text-xs text-amber-300 font-bold outline-none"
+                          className="w-full rounded-md border border-border bg-black/80 px-2.5 py-1.5 text-xs text-amber-300 font-bold outline-none"
                         >
                           <option value="all">All Formats (Memes & Reels)</option>
                           <option value="post">Memes Only (1:1 / 4:5 Posts)</option>
@@ -2025,11 +2548,11 @@ function OwnerDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="block text-white/50 mb-1 font-semibold">Moderation Rule</label>
+                        <label className="block text-muted mb-1 font-semibold">Moderation Rule</label>
                         <select
                           value={editCatRequiresReview ? "review" : "auto"}
                           onChange={(e) => setEditCatRequiresReview(e.target.value === "review")}
-                          className="w-full rounded-md border border-white/10 bg-black/80 px-2.5 py-1.5 text-xs text-emerald-300 font-bold outline-none"
+                          className="w-full rounded-md border border-border bg-black/80 px-2.5 py-1.5 text-xs text-emerald-300 font-bold outline-none"
                         >
                           <option value="review">Moderator Review Required</option>
                           <option value="auto">Auto-Approve Community Posts</option>
@@ -2038,7 +2561,7 @@ function OwnerDashboardPage() {
                     </div>
 
                     {/* Default Category Switch */}
-                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-white/10 bg-black/40 cursor-pointer">
+                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border bg-raised cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editCatIsDefault}
@@ -2046,42 +2569,42 @@ function OwnerDashboardPage() {
                         className="size-4 accent-amber-400 rounded"
                       />
                       <div>
-                        <span className="text-white font-bold block text-xs">Default Fallback Category</span>
-                        <span className="text-[10px] text-white/50 block">
+                        <span className="text-fg font-bold block text-xs">Default Fallback Category</span>
+                        <span className="text-[10px] text-muted block">
                           Used automatically if creator omits category or selected category becomes disabled.
                         </span>
                       </div>
                     </label>
 
                     <div>
-                      <label className="block text-white/50 mb-1">Description</label>
+                      <label className="block text-muted mb-1">Description</label>
                       <Input
                         value={editCatDesc}
                         onChange={(e) => setEditCatDesc(e.target.value)}
                         placeholder="Content guidance for creators..."
-                        className="bg-black/60 border-white/10 text-white"
+                        className="bg-raised border-border text-fg"
                       />
                     </div>
 
                     {/* Dynamic Earning Levers */}
-                    <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
+                    <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
                       <div>
-                        <label className="block text-white/50 mb-1">Base Approval Points</label>
+                        <label className="block text-muted mb-1">Base Approval Points</label>
                         <Input
                           type="number"
                           value={editBasePoints}
                           onChange={(e) => setEditBasePoints(Number(e.target.value))}
-                          className="bg-black/60 border-white/10 font-mono text-white"
+                          className="bg-raised border-border font-mono text-fg"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-white/50 mb-1">Bonus / 1,000 Views</label>
+                        <label className="block text-muted mb-1">Bonus / 1,000 Views</label>
                         <Input
                           type="number"
                           value={editBonusViews}
                           onChange={(e) => setEditBonusViews(Number(e.target.value))}
-                          className="bg-black/60 border-white/10 font-mono text-white"
+                          className="bg-raised border-border font-mono text-fg"
                           required
                         />
                       </div>
@@ -2089,34 +2612,34 @@ function OwnerDashboardPage() {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-white/50 mb-1">Bonus / 100 Likes</label>
+                        <label className="block text-muted mb-1">Bonus / 100 Likes</label>
                         <Input
                           type="number"
                           value={editBonusLikes}
                           onChange={(e) => setEditBonusLikes(Number(e.target.value))}
-                          className="bg-black/60 border-white/10 font-mono text-white"
+                          className="bg-raised border-border font-mono text-fg"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-white/50 mb-1">Max Reward Ceiling</label>
+                        <label className="block text-muted mb-1">Max Reward Ceiling</label>
                         <Input
                           type="number"
                           value={editMaxReward}
                           onChange={(e) => setEditMaxReward(Number(e.target.value))}
-                          className="bg-black/60 border-white/10 font-mono text-white"
+                          className="bg-raised border-border font-mono text-fg"
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-white/50 mb-1">Audit Log Rationale</label>
+                      <label className="block text-muted mb-1">Audit Log Rationale</label>
                       <Input
                         placeholder="e.g. Creator demand, policy change, content restriction"
                         value={editReason}
                         onChange={(e) => setEditReason(e.target.value)}
-                        className="bg-black/60 border-white/10 text-white"
+                        className="bg-raised border-border text-fg"
                       />
                     </div>
 
@@ -2125,7 +2648,7 @@ function OwnerDashboardPage() {
                         type="button"
                         onClick={() => setEditingCat(null)}
                         variant="outline"
-                        className="flex-1 border-white/10"
+                        className="flex-1 border-border"
                       >
                         Cancel
                       </Button>
@@ -2144,15 +2667,15 @@ function OwnerDashboardPage() {
             {/* ADD CATEGORY MODAL */}
             {showAddCatModal && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                <div className="bg-[#121214] border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <h3 className="font-bold text-base text-white flex items-center gap-2">
+                <div className="bg-surface border border-border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <h3 className="font-bold text-base text-fg flex items-center gap-2">
                       <Plus className="size-4 text-amber-400" />
                       <span>Create New Content Category</span>
                     </h3>
                     <button
                       onClick={() => setShowAddCatModal(false)}
-                      className="text-white/40 hover:text-white"
+                      className="text-muted hover:text-fg"
                     >
                       <X className="size-5" />
                     </button>
@@ -2161,16 +2684,16 @@ function OwnerDashboardPage() {
                   <form onSubmit={handleCreateCategory} className="space-y-3.5 text-xs">
                     <div className="grid grid-cols-4 gap-2">
                       <div className="col-span-1">
-                        <label className="block text-white/50 mb-1">Icon</label>
+                        <label className="block text-muted mb-1">Icon</label>
                         <Input
                           value={newCatIcon}
                           onChange={(e) => setNewCatIcon(e.target.value)}
-                          className="bg-black/60 border-white/10 text-center text-lg text-white"
+                          className="bg-raised border-border text-center text-lg text-fg"
                           required
                         />
                       </div>
                       <div className="col-span-3">
-                        <label className="block text-white/50 mb-1">Category Name</label>
+                        <label className="block text-muted mb-1">Category Name</label>
                         <Input
                           placeholder="e.g. Standup & Comedy"
                           value={newCatName}
@@ -2178,7 +2701,7 @@ function OwnerDashboardPage() {
                             setNewCatName(e.target.value);
                             setNewCatSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, "-"));
                           }}
-                          className="bg-black/60 border-white/10 text-white font-bold"
+                          className="bg-raised border-border text-fg font-bold"
                           required
                         />
                       </div>
@@ -2186,34 +2709,34 @@ function OwnerDashboardPage() {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-white/50 mb-1">URL Slug</label>
+                        <label className="block text-muted mb-1">URL Slug</label>
                         <Input
                           value={newCatSlug}
                           onChange={(e) => setNewCatSlug(e.target.value)}
-                          className="bg-black/60 border-white/10 font-mono text-white text-xs"
+                          className="bg-raised border-border font-mono text-fg text-xs"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-white/50 mb-1">Approval Base Points</label>
+                        <label className="block text-muted mb-1">Approval Base Points</label>
                         <Input
                           type="number"
                           value={newCatPoints}
                           onChange={(e) => setNewCatPoints(Number(e.target.value))}
-                          className="bg-black/60 border-white/10 font-mono text-white text-xs"
+                          className="bg-raised border-border font-mono text-fg text-xs"
                           required
                         />
                       </div>
                     </div>
 
                     {/* Content Type & Approval Rules */}
-                    <div className="grid grid-cols-2 gap-2 bg-black/40 border border-white/5 p-3 rounded-xl">
+                    <div className="grid grid-cols-2 gap-2 bg-raised border border-border p-3 rounded-xl">
                       <div>
-                        <label className="block text-white/50 mb-1 font-semibold">Format Restriction</label>
+                        <label className="block text-muted mb-1 font-semibold">Format Restriction</label>
                         <select
                           value={newCatAllowedTypes}
                           onChange={(e) => setNewCatAllowedTypes(e.target.value as any)}
-                          className="w-full rounded-md border border-white/10 bg-black/80 px-2 py-1.5 text-xs text-amber-300 font-bold outline-none"
+                          className="w-full rounded-md border border-border bg-black/80 px-2 py-1.5 text-xs text-amber-300 font-bold outline-none"
                         >
                           <option value="all">All Formats (Memes & Reels)</option>
                           <option value="post">Memes Only (Posts)</option>
@@ -2222,11 +2745,11 @@ function OwnerDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="block text-white/50 mb-1 font-semibold">Review Requirement</label>
+                        <label className="block text-muted mb-1 font-semibold">Review Requirement</label>
                         <select
                           value={newCatRequiresReview ? "review" : "auto"}
                           onChange={(e) => setNewCatRequiresReview(e.target.value === "review")}
-                          className="w-full rounded-md border border-white/10 bg-black/80 px-2 py-1.5 text-xs text-emerald-300 font-bold outline-none"
+                          className="w-full rounded-md border border-border bg-black/80 px-2 py-1.5 text-xs text-emerald-300 font-bold outline-none"
                         >
                           <option value="review">Requires Moderator Review</option>
                           <option value="auto">Auto-Approve Live to Feed</option>
@@ -2235,7 +2758,7 @@ function OwnerDashboardPage() {
                     </div>
 
                     {/* Set as Default Checkbox */}
-                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-white/10 bg-black/40 cursor-pointer">
+                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border bg-raised cursor-pointer">
                       <input
                         type="checkbox"
                         checked={newCatIsDefault}
@@ -2243,20 +2766,20 @@ function OwnerDashboardPage() {
                         className="size-4 accent-amber-400 rounded"
                       />
                       <div>
-                        <span className="text-white font-bold block text-xs">Set as Default Platform Category</span>
-                        <span className="text-[10px] text-white/50 block">
+                        <span className="text-fg font-bold block text-xs">Set as Default Platform Category</span>
+                        <span className="text-[10px] text-muted block">
                           Fallback category for undefined submissions or disabled categories.
                         </span>
                       </div>
                     </label>
 
                     <div>
-                      <label className="block text-white/50 mb-1">Description</label>
+                      <label className="block text-muted mb-1">Description</label>
                       <Input
                         placeholder="What kind of content belongs here..."
                         value={newCatDesc}
                         onChange={(e) => setNewCatDesc(e.target.value)}
-                        className="bg-black/60 border-white/10 text-white"
+                        className="bg-raised border-border text-fg"
                       />
                     </div>
 
@@ -2265,7 +2788,7 @@ function OwnerDashboardPage() {
                         type="button"
                         onClick={() => setShowAddCatModal(false)}
                         variant="outline"
-                        className="flex-1 border-white/10"
+                        className="flex-1 border-border"
                       >
                         Cancel
                       </Button>
@@ -2297,7 +2820,7 @@ function OwnerDashboardPage() {
                     ESCROW RECONCILED
                   </Badge>
                 </h2>
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-muted">
                   Track platform liability, settle creator payout queues, and safeguard liquidity with audited arbitration.
                 </p>
               </div>
@@ -2313,26 +2836,26 @@ function OwnerDashboardPage() {
             {/* 4 Solvency Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* 1. Points Liability */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-2">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-white/50 font-medium">Circulating Liability</span>
+                  <span className="text-xs text-muted font-medium">Circulating Liability</span>
                   <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                     <TrendingUp className="size-4" />
                   </div>
                 </div>
-                <div className="text-2xl font-black font-mono text-white">
+                <div className="text-2xl font-black font-mono text-fg">
                   {inr(totalCirculatingPoints * (platformControls.pointConversionRate ?? 0.5))}
                 </div>
-                <p className="text-[11px] text-white/40 flex items-center justify-between">
+                <p className="text-[11px] text-muted flex items-center justify-between">
                   <span>{totalCirculatingPoints.toLocaleString()} pts</span>
                   <span className="text-amber-400/80 font-mono">₹{platformControls.pointConversionRate ?? 0.5}/pt</span>
                 </p>
               </div>
 
               {/* 2. Cumulative Settled Payouts */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-2">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-white/50 font-medium">Settled Payouts</span>
+                  <span className="text-xs text-muted font-medium">Settled Payouts</span>
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                     <CheckCircle2 className="size-4" />
                   </div>
@@ -2340,16 +2863,16 @@ function OwnerDashboardPage() {
                 <div className="text-2xl font-black font-mono text-emerald-400">
                   {inr(totalSettledInr)}
                 </div>
-                <p className="text-[11px] text-white/40 flex items-center justify-between">
+                <p className="text-[11px] text-muted flex items-center justify-between">
                   <span>{completedWithdrawalsCount} completed</span>
                   <span className="text-emerald-400/80 font-mono">Verified bank/UPI</span>
                 </p>
               </div>
 
               {/* 3. Pending Escrow Queue */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-2">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-white/50 font-medium">Pending Escrow</span>
+                  <span className="text-xs text-muted font-medium">Pending Escrow</span>
                   <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
                     <Clock className="size-4" />
                   </div>
@@ -2357,24 +2880,24 @@ function OwnerDashboardPage() {
                 <div className="text-2xl font-black font-mono text-sky-300">
                   {inr(totalPendingEscrowInr)}
                 </div>
-                <p className="text-[11px] text-white/40 flex items-center justify-between">
+                <p className="text-[11px] text-muted flex items-center justify-between">
                   <span>{pendingWithdrawalsCount} pending</span>
                   <span className="text-sky-400/80 font-mono">Needs arbitration</span>
                 </p>
               </div>
 
               {/* 4. Frozen Accounts & Escrow */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-4 space-y-2">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-white/50 font-medium">Frozen Wallets</span>
+                  <span className="text-xs text-muted font-medium">Frozen Wallets</span>
                   <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
                     <Lock className="size-4" />
                   </div>
                 </div>
                 <div className="text-2xl font-black font-mono text-rose-400">
-                  {frozenUsers.length} <span className="text-sm font-normal text-white/50">wallets</span>
+                  {frozenUsers.length} <span className="text-sm font-normal text-muted">wallets</span>
                 </div>
-                <p className="text-[11px] text-white/40 flex items-center justify-between">
+                <p className="text-[11px] text-muted flex items-center justify-between">
                   <span>{totalLockedFrozenPoints.toLocaleString()} pts locked</span>
                   <span className="text-rose-400/80 font-mono">Halted</span>
                 </p>
@@ -2382,23 +2905,23 @@ function OwnerDashboardPage() {
             </div>
 
             {/* PENDING WITHDRAWALS ARBITRATION QUEUE */}
-            <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+            <div className="rounded-2xl border border-border bg-surface p-5 space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <Wallet className="size-4 text-amber-400" />
-                    <h3 className="font-bold text-sm text-white">Creator Cashout & Escrow Arbitration Queue</h3>
+                    <h3 className="font-bold text-sm text-fg">Creator Cashout & Escrow Arbitration Queue</h3>
                     <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px] font-mono font-bold">
                       {pendingWithdrawalsCount} PENDING
                     </Badge>
                   </div>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     Process creator cashouts. Approvals mark transfers settled; rejections return escrow to user balance; flags freeze the account.
                   </p>
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex bg-black/60 border border-white/10 rounded-xl p-1 text-[11px] font-bold">
+                <div className="flex bg-raised border border-border rounded-xl p-1 text-[11px] font-bold">
                   {[
                     { id: "pending", label: `Pending (${pendingWithdrawalsCount})` },
                     { id: "completed", label: `Settled (${completedWithdrawalsCount})` },
@@ -2411,7 +2934,7 @@ function OwnerDashboardPage() {
                       className={`px-3 py-1 rounded-lg transition ${
                         withdrawalFilter === tab.id
                           ? "bg-amber-500/20 text-amber-300 font-black"
-                          : "text-white/40 hover:text-white"
+                          : "text-muted hover:text-fg"
                       }`}
                     >
                       {tab.label}
@@ -2423,7 +2946,7 @@ function OwnerDashboardPage() {
               {/* Table of Withdrawals */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-black/40 text-white/40 border-b border-white/10 text-[10px] uppercase font-mono tracking-wider">
+                  <thead className="bg-raised text-muted border-b border-border text-[10px] uppercase font-mono tracking-wider">
                     <tr>
                       <th className="py-2.5 px-3">Creator</th>
                       <th className="py-2.5 px-3">Payout Method & Details</th>
@@ -2433,30 +2956,30 @@ function OwnerDashboardPage() {
                       <th className="py-2.5 px-3 text-right">Arbitration Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                     {filteredWithdrawals.map((w) => {
                       const isPending = w.status === "pending";
                       const isCompleted = w.status === "completed";
                       const isFailed = w.status === "failed";
 
                       return (
-                        <tr key={w.id} className="hover:bg-white/[0.02] transition">
+                        <tr key={w.id} className="hover:hover:bg-raised/50 transition">
                           <td className="py-3 px-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-bold text-xs text-amber-300">
+                              <div className="w-7 h-7 rounded-full bg-raised border border-border flex items-center justify-center font-bold text-xs text-amber-300">
                                 {w.userName.charAt(0)}
                               </div>
                               <div>
-                                <div className="font-bold text-white text-xs">{w.userName}</div>
-                                <div className="text-[11px] text-white/40 font-mono">@{w.userHandle}</div>
+                                <div className="font-bold text-fg text-xs">{w.userName}</div>
+                                <div className="text-[11px] text-muted font-mono">@{w.userHandle}</div>
                               </div>
                             </div>
                           </td>
 
                           <td className="py-3 px-3">
                             <div className="space-y-0.5">
-                              <div className="flex items-center gap-1.5 font-semibold text-white">
-                                <span className="uppercase text-[10px] px-1.5 py-0.2 rounded bg-white/10 text-white/70 font-mono font-bold">
+                              <div className="flex items-center gap-1.5 font-semibold text-fg">
+                                <span className="uppercase text-[10px] px-1.5 py-0.2 rounded bg-raised text-fg/80 font-mono font-bold">
                                   {w.paymentMethod === "upi" ? "UPI ID" : "Bank IMPS"}
                                 </span>
                                 <span className="font-mono text-[11px] text-sky-300">
@@ -2466,20 +2989,20 @@ function OwnerDashboardPage() {
                                 </span>
                               </div>
                               {w.paymentMethod === "bank_transfer" && w.paymentDetails?.holderName && (
-                                <div className="text-[10px] text-white/40">
+                                <div className="text-[10px] text-muted">
                                   A/C Holder: {String(w.paymentDetails.holderName)}
                                 </div>
                               )}
-                              <div className="text-[10px] text-white/30">
+                              <div className="text-[10px] text-muted/70">
                                 Requested {new Date(w.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
                               </div>
                             </div>
                           </td>
 
                           <td className="py-3 px-3 whitespace-nowrap">
-                            <span className="font-mono font-bold text-sm text-white">{inr(w.amount)}</span>
+                            <span className="font-mono font-bold text-sm text-fg">{inr(w.amount)}</span>
                             {platformControls.payoutProcessingFeePercent > 0 && (
-                              <div className="text-[10px] text-white/40">
+                              <div className="text-[10px] text-muted">
                                 Fee: {platformControls.payoutProcessingFeePercent}% (net {inr(Math.round(w.amount * (1 - platformControls.payoutProcessingFeePercent / 100)))})
                               </div>
                             )}
@@ -2508,7 +3031,7 @@ function OwnerDashboardPage() {
                               </span>
                             )}
                             {w.adminNote && (
-                              <div className="text-[10px] text-white/40 max-w-[180px] truncate mt-0.5">
+                              <div className="text-[10px] text-muted max-w-[180px] truncate mt-0.5">
                                 Note: {w.adminNote}
                               </div>
                             )}
@@ -2533,7 +3056,7 @@ function OwnerDashboardPage() {
                                     setArbitrationModal({ wth: w, action: "reject" });
                                     setArbitrationNote("");
                                   }}
-                                  className="h-7 px-2 border-white/10 hover:border-amber-400/50 hover:bg-amber-500/10 text-amber-300 text-[11px] rounded-lg"
+                                  className="h-7 px-2 border-border hover:border-amber-400/50 hover:bg-amber-500/10 text-amber-300 text-[11px] rounded-lg"
                                 >
                                   Reject & Refund
                                 </Button>
@@ -2552,7 +3075,7 @@ function OwnerDashboardPage() {
                                 </Button>
                               </div>
                             ) : (
-                              <span className="text-[11px] text-white/30 italic">
+                              <span className="text-[11px] text-muted/70 italic">
                                 {isCompleted ? `Processed ${w.processedAt ? new Date(w.processedAt).toLocaleDateString() : "OK"}` : "Closed"}
                               </span>
                             )}
@@ -2563,7 +3086,7 @@ function OwnerDashboardPage() {
 
                     {filteredWithdrawals.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-white/40">
+                        <td colSpan={6} className="py-8 text-center text-muted">
                           No withdrawal records matching current filter ({withdrawalFilter}).
                         </td>
                       </tr>
@@ -2576,33 +3099,33 @@ function OwnerDashboardPage() {
             {/* SECONDARY CONTROLS: TARGETED WALLET FREEZE & POINTS ADJUSTMENT */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Emergency Wallet Freeze */}
-              <div className="rounded-2xl border border-rose-500/20 bg-[#111114] p-5 space-y-4">
+              <div className="rounded-2xl border border-rose-500/20 bg-surface p-5 space-y-4">
                 <div className="flex items-center gap-2 text-rose-400">
                   <AlertOctagon className="size-4" />
                   <h3 className="font-bold text-sm">Targeted Creator Wallet Freeze</h3>
                 </div>
-                <p className="text-xs text-white/50 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Freeze a suspicious creator or brand account. Freezing halts points transfers and locks withdrawals immediately.
                 </p>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="block text-white/40 mb-1">User Handle</label>
+                    <label className="block text-muted mb-1">User Handle</label>
                     <Input
                       placeholder="e.g. 'kabir' or '@kabir'"
                       value={freezeHandle}
                       onChange={(e) => setFreezeHandle(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs"
+                      className="bg-raised border-border text-xs"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/40 mb-1">Reason for Audit Log</label>
+                    <label className="block text-muted mb-1">Reason for Audit Log</label>
                     <Input
                       placeholder="e.g. Copyright infringement report or bot activity"
                       value={freezeReason}
                       onChange={(e) => setFreezeReason(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs"
+                      className="bg-raised border-border text-xs"
                     />
                   </div>
 
@@ -2616,7 +3139,7 @@ function OwnerDashboardPage() {
                     <Button
                       onClick={() => handleToggleFreeze(false)}
                       variant="outline"
-                      className="flex-1 border-white/15 text-white/80 hover:bg-white/10 text-xs font-bold h-9"
+                      className="flex-1 border-border text-fg/90 hover:bg-raised text-xs font-bold h-9"
                     >
                       <Unlock className="size-3.5 mr-1" /> Restore Wallet
                     </Button>
@@ -2625,7 +3148,7 @@ function OwnerDashboardPage() {
 
                 {/* List of Currently Frozen Wallets */}
                 {frozenUsers.length > 0 && (
-                  <div className="pt-3 border-t border-white/10 space-y-2">
+                  <div className="pt-3 border-t border-border space-y-2">
                     <h4 className="text-xs font-bold text-rose-400">
                       Currently Frozen Accounts ({frozenUsers.length}):
                     </h4>
@@ -2635,7 +3158,7 @@ function OwnerDashboardPage() {
                           key={user.id}
                           className="flex items-center justify-between p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
                         >
-                          <span className="font-semibold text-white">@{user.handle}</span>
+                          <span className="font-semibold text-fg">@{user.handle}</span>
                           <button
                             onClick={() => {
                               toggleUserWalletFreeze(user.handle, false, "Owner manual unfreeze");
@@ -2654,47 +3177,47 @@ function OwnerDashboardPage() {
               </div>
 
               {/* Direct Points Adjustment */}
-              <div className="rounded-2xl border border-white/10 bg-[#111114] p-5 space-y-4">
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-4">
                 <div className="flex items-center gap-2 text-amber-400">
                   <Wallet className="size-4" />
                   <h3 className="font-bold text-sm">Direct Creator Points Adjustment</h3>
                 </div>
-                <p className="text-xs text-white/50 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   Credit bonus contest rewards or debit points for policy corrections directly into any creator&apos;s wallet.
                 </p>
 
                 <form onSubmit={handleAdjustPoints} className="space-y-3 text-xs">
                   <div>
-                    <label className="block text-white/40 mb-1">User Handle</label>
+                    <label className="block text-muted mb-1">User Handle</label>
                     <Input
                       placeholder="e.g. 'aanya' or '@you'"
                       value={adjustHandle}
                       onChange={(e) => setAdjustHandle(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs"
+                      className="bg-raised border-border text-xs"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/40 mb-1">
+                    <label className="block text-muted mb-1">
                       Delta Points (Positive to award, Negative to deduct)
                     </label>
                     <Input
                       type="number"
                       value={adjustAmount}
                       onChange={(e) => setAdjustAmount(Number(e.target.value))}
-                      className="bg-black/60 border-white/10 font-mono text-white text-xs"
+                      className="bg-raised border-border font-mono text-fg text-xs"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/40 mb-1">Adjustment Reason (Mandatory Audit)</label>
+                    <label className="block text-muted mb-1">Adjustment Reason (Mandatory Audit)</label>
                     <Input
                       placeholder="e.g. Creator contest winner bonus"
                       value={adjustReason}
                       onChange={(e) => setAdjustReason(e.target.value)}
-                      className="bg-black/60 border-white/10 text-xs"
+                      className="bg-raised border-border text-xs"
                       required
                     />
                   </div>
@@ -2712,8 +3235,8 @@ function OwnerDashboardPage() {
             {/* ARBITRATION CONFIRMATION MODAL */}
             {arbitrationModal && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                <div className="bg-[#121214] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="bg-surface border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       {arbitrationModal.action === "reject" ? (
                         <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -2725,40 +3248,40 @@ function OwnerDashboardPage() {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-bold text-sm text-white">
+                        <h3 className="font-bold text-sm text-fg">
                           {arbitrationModal.action === "reject"
                             ? "Reject Withdrawal & Refund Escrow"
                             : "Flag Suspicious Payout & Freeze Wallet"}
                         </h3>
-                        <p className="text-[11px] text-white/50">
+                        <p className="text-[11px] text-muted">
                           Audited Financial Governance Action
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => setArbitrationModal(null)}
-                      className="text-white/40 hover:text-white"
+                      className="text-muted hover:text-fg"
                     >
                       <X className="size-5" />
                     </button>
                   </div>
 
                   {/* Summary of withdrawal */}
-                  <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-xs space-y-1.5">
+                  <div className="p-3 rounded-xl bg-raised border border-border text-xs space-y-1.5">
                     <div className="flex justify-between">
-                      <span className="text-white/50">Creator:</span>
-                      <span className="font-bold text-white">@{arbitrationModal.wth.userHandle} ({arbitrationModal.wth.userName})</span>
+                      <span className="text-muted">Creator:</span>
+                      <span className="font-bold text-fg">@{arbitrationModal.wth.userHandle} ({arbitrationModal.wth.userName})</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/50">Requested Amount:</span>
-                      <span className="font-mono font-bold text-white">{inr(arbitrationModal.wth.amount)}</span>
+                      <span className="text-muted">Requested Amount:</span>
+                      <span className="font-mono font-bold text-fg">{inr(arbitrationModal.wth.amount)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/50">Escrow Value:</span>
+                      <span className="text-muted">Escrow Value:</span>
                       <span className="font-mono text-amber-400 font-bold">{arbitrationModal.wth.pointsEquivalent.toLocaleString()} pts</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/50">Payout Destination:</span>
+                      <span className="text-muted">Payout Destination:</span>
                       <span className="font-mono text-sky-300">
                         {arbitrationModal.wth.paymentMethod === "upi"
                           ? String(arbitrationModal.wth.paymentDetails?.upiId || "N/A")
@@ -2767,7 +3290,7 @@ function OwnerDashboardPage() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-white/70 leading-relaxed">
+                  <p className="text-xs text-fg/80 leading-relaxed">
                     {arbitrationModal.action === "reject"
                       ? `Rejecting will halt this cashout transaction and credit back ${arbitrationModal.wth.pointsEquivalent.toLocaleString()} points into @${arbitrationModal.wth.userHandle}'s wallet immediately.`
                       : `Flagging will mark this cashout as fraudulent, FREEZE @${arbitrationModal.wth.userHandle}'s wallet, block future payouts, and log an emergency security infraction.`}
@@ -2775,7 +3298,7 @@ function OwnerDashboardPage() {
 
                   <form onSubmit={handleArbitrationSubmit} className="space-y-3 text-xs">
                     <div>
-                      <label className="block text-white/50 mb-1">
+                      <label className="block text-muted mb-1">
                         Arbitration Reason (Mandatory Audit Trail Note)
                       </label>
                       <Input
@@ -2786,7 +3309,7 @@ function OwnerDashboardPage() {
                         }
                         value={arbitrationNote}
                         onChange={(e) => setArbitrationNote(e.target.value)}
-                        className="bg-black/60 border-white/10 text-white"
+                        className="bg-raised border-border text-fg"
                         required
                       />
                     </div>
@@ -2796,7 +3319,7 @@ function OwnerDashboardPage() {
                         type="button"
                         onClick={() => setArbitrationModal(null)}
                         variant="outline"
-                        className="flex-1 border-white/10"
+                        className="flex-1 border-border"
                       >
                         Cancel
                       </Button>
@@ -2828,14 +3351,14 @@ function OwnerDashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold">Immutable System Audit Trail</h2>
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-muted">
                   Chronological cryptographically-traced log of all permissions, economics, moderation, and wallet actions.
                 </p>
               </div>
 
               {/* Sub-filters & Search */}
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex bg-black/60 border border-white/10 rounded-xl p-1 text-[11px] font-bold">
+                <div className="flex bg-raised border border-border rounded-xl p-1 text-[11px] font-bold">
                   {(
                     [
                       { id: "all", label: "All" },
@@ -2851,7 +3374,7 @@ function OwnerDashboardPage() {
                       className={`px-2.5 py-1 rounded-lg transition ${
                         auditFilter === f.id
                           ? "bg-amber-500/20 text-amber-300 font-black"
-                          : "text-white/40 hover:text-white"
+                          : "text-muted hover:text-fg"
                       }`}
                     >
                       {f.label}
@@ -2860,21 +3383,21 @@ function OwnerDashboardPage() {
                 </div>
 
                 <div className="relative">
-                  <Search className="size-3.5 absolute left-3 top-2.5 text-white/40" />
+                  <Search className="size-3.5 absolute left-3 top-2.5 text-muted" />
                   <input
                     placeholder="Search logs..."
                     value={auditSearch}
                     onChange={(e) => setAuditSearch(e.target.value)}
-                    className="rounded-xl border border-white/10 bg-black/60 pl-8 pr-3 py-1.5 text-xs text-white outline-none w-44 focus:border-amber-400"
+                    className="rounded-xl border border-border bg-raised pl-8 pr-3 py-1.5 text-xs text-fg outline-none w-44 focus:border-amber-400"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-[#111114] overflow-hidden">
+            <div className="rounded-2xl border border-border bg-surface overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-black/60 text-white/40 border-b border-white/10 text-[10px] uppercase font-mono tracking-wider">
+                  <thead className="bg-raised text-muted border-b border-border text-[10px] uppercase font-mono tracking-wider">
                     <tr>
                       <th className="py-3 px-4">Timestamp</th>
                       <th className="py-3 px-4">Actor</th>
@@ -2884,12 +3407,12 @@ function OwnerDashboardPage() {
                       <th className="py-3 px-4">Reason / Details</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                     {filteredAuditLogs.map((log) => {
                       const isOwnerActor = log.actorRole === "owner";
                       return (
-                        <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="py-3 px-4 text-white/40 whitespace-nowrap font-mono text-[11px]">
+                        <tr key={log.id} className="hover:hover:bg-raised/50 transition-colors">
+                          <td className="py-3 px-4 text-muted whitespace-nowrap font-mono text-[11px]">
                             {new Date(log.timestamp).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -2897,12 +3420,12 @@ function OwnerDashboardPage() {
                             })}
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="font-bold text-white">@{log.actorId}</span>{" "}
+                            <span className="font-bold text-fg">@{log.actorId}</span>{" "}
                             <span
                               className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
                                 isOwnerActor
                                   ? "bg-amber-500/20 text-amber-300"
-                                  : "bg-white/10 text-white/50"
+                                  : "bg-raised text-muted"
                               }`}
                             >
                               {log.actorRole}
@@ -2917,19 +3440,19 @@ function OwnerDashboardPage() {
                                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                                     : log.action.includes("permission") || log.action.includes("role")
                                       ? "bg-sky-500/20 text-sky-300 border border-sky-500/30"
-                                      : "bg-white/10 text-white/70 border border-white/15"
+                                      : "bg-raised text-fg/80 border border-border"
                               }`}
                             >
                               {log.action}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-white/80">
+                          <td className="py-3 px-4 text-fg/90">
                             {log.submitterHandle && (
                               <span className="font-semibold text-amber-300 mr-1">
                                 @{log.submitterHandle}
                               </span>
                             )}
-                            <span className="text-white/60 truncate max-w-xs block">
+                            <span className="text-muted truncate max-w-xs block">
                               {log.postCaption || log.approvedCategory || log.postId || "—"}
                             </span>
                           </td>
@@ -2944,10 +3467,10 @@ function OwnerDashboardPage() {
                                 {log.pointsAwarded} pts
                               </span>
                             ) : (
-                              <span className="text-white/20">—</span>
+                              <span className="text-muted/50">—</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-white/50 max-w-xs truncate">
+                          <td className="py-3 px-4 text-muted max-w-xs truncate">
                             {log.reason || "—"}
                           </td>
                         </tr>
@@ -2955,7 +3478,7 @@ function OwnerDashboardPage() {
                     })}
                     {filteredAuditLogs.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-12 text-center text-white/40">
+                        <td colSpan={6} className="py-12 text-center text-muted">
                           No audit trail records matching query.
                         </td>
                       </tr>
@@ -2973,7 +3496,7 @@ function OwnerDashboardPage() {
         {activeTab === "config" && (
           <div className="space-y-6">
             {/* Header & Stats Banner */}
-            <div className="rounded-3xl border border-white/10 bg-[#0f0f12] p-6 shadow-xl relative overflow-hidden">
+            <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl relative overflow-hidden">
               <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 size-60 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
                 <div className="flex items-center gap-3">
@@ -2981,13 +3504,13 @@ function OwnerDashboardPage() {
                     <Settings className="size-6 animate-[spin_10s_linear_infinite]" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-white flex items-center gap-2">
+                    <h2 className="text-xl font-black text-fg flex items-center gap-2">
                       Centralized System Configuration
                       <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] font-black">
                         SERVER-AUTHORITATIVE
                       </Badge>
                     </h2>
-                    <p className="text-xs text-white/50 mt-0.5">
+                    <p className="text-xs text-muted mt-0.5">
                       Configure dynamic runtime policies across platform infrastructure, content limits, AI moderation, economy thresholds, and security parameters.
                     </p>
                   </div>
@@ -3005,7 +3528,7 @@ function OwnerDashboardPage() {
                       });
                       loadConfigAudit();
                     }}
-                    className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white hover:bg-white/10 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-border bg-raised px-3 py-2 text-xs font-bold text-fg hover:bg-raised transition"
                   >
                     <RefreshCw className="size-3.5" />
                     <span>Refresh</span>
@@ -3026,17 +3549,17 @@ function OwnerDashboardPage() {
               </div>
 
               {/* Metric Counters */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/5">
-                <div className="bg-black/40 border border-white/5 rounded-2xl p-3">
-                  <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-border">
+                <div className="bg-raised border border-border rounded-2xl p-3">
+                  <span className="text-[10px] uppercase font-bold text-muted tracking-wider">
                     Total Parameters
                   </span>
-                  <div className="text-xl font-black text-white mt-1">
+                  <div className="text-xl font-black text-fg mt-1">
                     {storeSystemConfigs.length}
                   </div>
                 </div>
 
-                <div className="bg-black/40 border border-amber-500/20 rounded-2xl p-3">
+                <div className="bg-raised border border-amber-500/20 rounded-2xl p-3">
                   <span className="text-[10px] uppercase font-bold text-amber-400/70 tracking-wider">
                     Owner Protected
                   </span>
@@ -3045,7 +3568,7 @@ function OwnerDashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-black/40 border border-sky-500/20 rounded-2xl p-3">
+                <div className="bg-raised border border-sky-500/20 rounded-2xl p-3">
                   <span className="text-[10px] uppercase font-bold text-sky-400/70 tracking-wider">
                     Public Exposed
                   </span>
@@ -3054,7 +3577,7 @@ function OwnerDashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-black/40 border border-purple-500/20 rounded-2xl p-3">
+                <div className="bg-raised border border-purple-500/20 rounded-2xl p-3">
                   <span className="text-[10px] uppercase font-bold text-purple-400/70 tracking-wider">
                     Modified Staged
                   </span>
@@ -3101,7 +3624,7 @@ function OwnerDashboardPage() {
                       placeholder="Audit reason (optional)..."
                       value={configReason}
                       onChange={(e) => setConfigReason(e.target.value)}
-                      className="h-9 w-60 bg-black/60 border-amber-500/30 text-xs text-white placeholder:text-amber-300/40"
+                      className="h-9 w-60 bg-raised border-amber-500/30 text-xs text-fg placeholder:text-amber-300/40"
                     />
                     <Button
                       size="sm"
@@ -3114,7 +3637,7 @@ function OwnerDashboardPage() {
                     <button
                       type="button"
                       onClick={handleResetDrafts}
-                      className="h-9 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white/60 hover:text-white hover:bg-white/5 transition"
+                      className="h-9 rounded-xl border border-border px-3 text-xs font-semibold text-muted hover:text-fg hover:bg-raised transition"
                     >
                       Discard
                     </button>
@@ -3150,7 +3673,7 @@ function OwnerDashboardPage() {
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all capitalize whitespace-nowrap ${
                         isActive
                           ? "bg-amber-500 text-black font-black shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-                          : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                          : "bg-raised text-muted hover:bg-raised hover:text-fg"
                       }`}
                     >
                       {cat} ({count})
@@ -3160,13 +3683,13 @@ function OwnerDashboardPage() {
               </div>
 
               <div className="relative sm:w-64">
-                <Search className="size-4 text-white/40 absolute left-3 top-2.5" />
+                <Search className="size-4 text-muted absolute left-3 top-2.5" />
                 <Input
                   type="text"
                   placeholder="Filter parameters..."
                   value={configSearch}
                   onChange={(e) => setConfigSearch(e.target.value)}
-                  className="pl-9 h-9 bg-surface border-white/10 text-xs rounded-xl"
+                  className="pl-9 h-9 bg-surface border-border text-xs rounded-xl"
                 />
               </div>
             </div>
@@ -3201,18 +3724,18 @@ function OwnerDashboardPage() {
                       key={c.key}
                       className={`rounded-2xl border p-4 flex flex-col justify-between transition-all ${
                         isDirty
-                          ? "border-amber-500/60 bg-[#16130b] shadow-[0_0_20px_rgba(245,158,11,0.15)]"
-                          : "border-white/10 bg-[#0c0c0e] hover:border-white/20"
+                          ? "border-amber-500/60 bg-amber-500/10 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+                          : "border-border bg-surface hover:border-border"
                       }`}
                     >
                       <div>
                         {/* Badges Bar */}
                         <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="rounded-md bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/60">
+                            <span className="rounded-md bg-raised px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted">
                               {c.category}
                             </span>
-                            <span className="rounded-md bg-white/5 px-2 py-0.5 text-[9px] font-mono text-white/40">
+                            <span className="rounded-md bg-raised px-2 py-0.5 text-[9px] font-mono text-muted">
                               {c.valueType}
                             </span>
                             {isOwnerOnly && (
@@ -3238,7 +3761,7 @@ function OwnerDashboardPage() {
                         <div className="font-mono text-xs font-bold text-amber-300 break-all">
                           {c.key}
                         </div>
-                        <p className="text-xs text-white/60 mt-1 leading-relaxed">
+                        <p className="text-xs text-muted mt-1 leading-relaxed">
                           {c.description || "Platform operational setting"}
                         </p>
 
@@ -3257,7 +3780,7 @@ function OwnerDashboardPage() {
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                                   currentVal === "true"
                                     ? "bg-emerald-500 text-black font-black shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                                    : "bg-white/10 text-white/50 hover:bg-white/15"
+                                    : "bg-raised text-muted hover:bg-raised"
                                 }`}
                               >
                                 {currentVal === "true" ? (
@@ -3276,7 +3799,7 @@ function OwnerDashboardPage() {
                               step="1"
                               value={currentVal}
                               onChange={(e) => handleConfigDraftChange(c.key, e.target.value)}
-                              className="h-9 bg-black/60 border-white/10 font-mono text-xs text-white rounded-xl"
+                              className="h-9 bg-raised border-border font-mono text-xs text-fg rounded-xl"
                             />
                           ) : c.valueType === "decimal" ? (
                             <Input
@@ -3284,7 +3807,7 @@ function OwnerDashboardPage() {
                               step="0.01"
                               value={currentVal}
                               onChange={(e) => handleConfigDraftChange(c.key, e.target.value)}
-                              className="h-9 bg-black/60 border-white/10 font-mono text-xs text-white rounded-xl"
+                              className="h-9 bg-raised border-border font-mono text-xs text-fg rounded-xl"
                             />
                           ) : c.valueType === "json" ? (
                             <div className="space-y-1">
@@ -3292,7 +3815,7 @@ function OwnerDashboardPage() {
                                 rows={2}
                                 value={currentVal}
                                 onChange={(e) => handleConfigDraftChange(c.key, e.target.value)}
-                                className="w-full bg-black/60 border border-white/10 rounded-xl p-2.5 font-mono text-xs text-white focus:outline-none focus:border-amber-500/50"
+                                className="w-full bg-raised border border-border rounded-xl p-2.5 font-mono text-xs text-fg focus:outline-none focus:border-amber-500/50"
                               />
                               <div className="flex items-center justify-between text-[10px]">
                                 {(() => {
@@ -3312,17 +3835,17 @@ function OwnerDashboardPage() {
                               type="text"
                               value={currentVal}
                               onChange={(e) => handleConfigDraftChange(c.key, e.target.value)}
-                              className="h-9 bg-black/60 border-white/10 font-mono text-xs text-white rounded-xl"
+                              className="h-9 bg-raised border-border font-mono text-xs text-fg rounded-xl"
                             />
                           )}
                         </div>
                       </div>
 
                       {/* Card Footer */}
-                      <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-white/40">
+                      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted">
                         <span className="truncate max-w-[180px]">
                           Default:{" "}
-                          <span className="font-mono text-white/60">
+                          <span className="font-mono text-muted">
                             {c.defaultValue ?? "—"}
                           </span>
                         </span>
@@ -3336,7 +3859,7 @@ function OwnerDashboardPage() {
                                 delete next[c.key];
                                 setDraftConfigs(next);
                               }}
-                              className="text-white/40 hover:text-white px-1.5 py-0.5 text-[11px]"
+                              className="text-muted hover:text-fg px-1.5 py-0.5 text-[11px]"
                             >
                               Revert
                             </button>
@@ -3357,18 +3880,18 @@ function OwnerDashboardPage() {
             </div>
 
             {/* System Configuration Audit Trail */}
-            <div className="rounded-3xl border border-white/10 bg-[#0f0f12] p-6 shadow-xl">
+            <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <History className="size-5 text-amber-400" />
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                  <h3 className="text-sm font-black text-fg uppercase tracking-wider">
                     System Configuration Audit Trail
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={loadConfigAudit}
-                  className="flex items-center gap-1 text-xs text-white/50 hover:text-white"
+                  className="flex items-center gap-1 text-xs text-muted hover:text-fg"
                 >
                   <RefreshCw className="size-3.5" />
                   <span>Refresh Trail</span>
@@ -3378,7 +3901,7 @@ function OwnerDashboardPage() {
               <div className="overflow-x-auto no-scrollbar">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-white/40 font-bold uppercase text-[10px] tracking-wider">
+                    <tr className="border-b border-border text-muted font-bold uppercase text-[10px] tracking-wider">
                       <th className="py-2.5 px-3">Timestamp</th>
                       <th className="py-2.5 px-3">Actor</th>
                       <th className="py-2.5 px-3">Config Key</th>
@@ -3387,17 +3910,17 @@ function OwnerDashboardPage() {
                       <th className="py-2.5 px-3">Reason</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                     {configAuditHistory.map((log) => (
-                      <tr key={log.id} className="hover:bg-white/[0.02]">
-                        <td className="py-2.5 px-3 text-white/40 whitespace-nowrap font-mono text-[11px]">
+                      <tr key={log.id} className="hover:hover:bg-raised/50">
+                        <td className="py-2.5 px-3 text-muted whitespace-nowrap font-mono text-[11px]">
                           {new Date(log.timestamp).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
                             second: "2-digit",
                           })}
                         </td>
-                        <td className="py-2.5 px-3 font-semibold text-white/80">
+                        <td className="py-2.5 px-3 font-semibold text-fg/90">
                           {log.actorId}
                         </td>
                         <td className="py-2.5 px-3 font-mono text-amber-300 font-bold">
@@ -3409,18 +3932,18 @@ function OwnerDashboardPage() {
                           </span>
                         </td>
                         <td className="py-2.5 px-3 font-mono text-[11px]">
-                          <span className="text-white/40">{log.oldValue || "—"}</span>
-                          <span className="text-white/20 mx-1.5">→</span>
+                          <span className="text-muted">{log.oldValue || "—"}</span>
+                          <span className="text-muted/50 mx-1.5">→</span>
                           <span className="text-emerald-400 font-bold">{log.newValue || "—"}</span>
                         </td>
-                        <td className="py-2.5 px-3 text-white/50 max-w-xs truncate">
+                        <td className="py-2.5 px-3 text-muted max-w-xs truncate">
                           {log.reason || "—"}
                         </td>
                       </tr>
                     ))}
                     {configAuditHistory.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-white/30">
+                        <td colSpan={6} className="py-8 text-center text-muted/70">
                           No system configuration audit logs recorded yet.
                         </td>
                       </tr>

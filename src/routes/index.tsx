@@ -15,6 +15,7 @@ import {
   Sliders,
   Sparkles,
   TrendingUp,
+  Trophy,
   X,
   Zap,
 } from "lucide-react";
@@ -295,6 +296,15 @@ function HomePage() {
           <span>Featured</span>
         </button>
 
+        {/* Arena & Competitions Quick Jump */}
+        <Link
+          to="/challenge"
+          className="flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-all cursor-pointer shadow-xs"
+        >
+          <Trophy className="size-3.5 text-amber-400" />
+          <span>Arena · ₹45k Pool</span>
+        </Link>
+
         {/* Category Chips with Icons & Approval Points (Posts only) */}
         {categories.map((cat) => {
           const active = filter === cat.id;
@@ -400,8 +410,15 @@ function HomePage() {
             {posts.length === 0 ? (
               <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                 <Link
+                  to="/challenge"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 px-5 py-2.5 text-xs font-black text-black shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Trophy className="size-4 fill-black" />
+                  <span>Enter Arena (Win ₹45,000)</span>
+                </Link>
+                <Link
                   to="/create"
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-accent-fg shadow-sm shadow-accent/20 hover:opacity-90 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold text-accent-fg shadow-sm shadow-accent/20 hover:opacity-90 transition-all cursor-pointer"
                 >
                   <Plus className="size-3.5" /> Create Post / Meme
                 </Link>

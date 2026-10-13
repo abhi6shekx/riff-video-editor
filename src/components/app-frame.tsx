@@ -14,6 +14,7 @@ import {
   Shield,
   Palette,
   Sliders,
+  Trophy,
   UserRound,
 } from "lucide-react";
 
@@ -47,6 +48,11 @@ const NAV: readonly NavItem[] = [
     to: "/reels",
     label: "Reels",
     icon: Clapperboard,
+  },
+  {
+    to: "/challenge",
+    label: "Arena",
+    icon: Trophy,
   },
   {
     to: "/create",
@@ -303,7 +309,7 @@ export function AppFrame({
     <div className="min-h-screen w-full bg-bg text-fg">
       {/* ONBOARDING INTRO EXPERIENCE */}
       <IntroExperience
-        isOpen={showIntro && pathname !== "/login"}
+        isOpen={showIntro && pathname !== "/login" && pathname !== "/owner" && pathname !== "/admin"}
         onClose={() => setShowIntro(false)}
       />
 

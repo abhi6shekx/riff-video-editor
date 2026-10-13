@@ -57,7 +57,7 @@ const ACTIVITIES: ActivityItem[] = [
     text: "Pitchside Riff-Off duel active: ₹25,000 top prize",
     highlight: "LIVE CONTEST",
     time: "Now",
-    link: "/briefs",
+    link: "/challenge",
   },
 ];
 
