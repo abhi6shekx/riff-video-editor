@@ -50,11 +50,32 @@ import {
   Star,
   Pin,
   Settings,
+  Trophy,
+  Medal,
+  Swords,
+  Trash2,
+  Eye,
+  Award,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
+import {
+  fetchAllCompetitions,
+  getCustomCompetitions,
+  saveCustomCompetition,
+  deleteCompetition,
+  updateCompetitionStatus,
+  declareCompetitionWinners,
+  disqualifyEntry,
+  restoreEntry,
+  isEntryDisqualified,
+  getLeaderboardForCompetition,
+  getLocalUserEntries,
+  type Competition,
+  type LeaderboardEntry,
+} from "@/lib/services/competitions";
 import {
   getOwnerDashboardData,
   getCategoriesWithEarningRules,
@@ -159,8 +180,39 @@ function OwnerDashboardPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "controls" | "team" | "roles" | "config" | "economy" | "finance" | "audit"
+    "overview" | "controls" | "contests" | "team" | "roles" | "config" | "economy" | "finance" | "audit"
   >("overview");
+
+  // Arena & Contests Manager State
+  const [ownerCompetitions, setOwnerCompetitions] = useState<Competition[]>([]);
+  const [loadingCompetitions, setLoadingCompetitions] = useState(false);
+  const [selectedCompIdForManage, setSelectedCompIdForManage] = useState<string>("");
+  const [showCreateCompModal, setShowCreateCompModal] = useState(false);
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const [compToDeclareWinner, setCompToDeclareWinner] = useState<Competition | null>(null);
+
+  // New Competition Form State
+  const [newCompTitle, setNewCompTitle] = useState("");
+  const [newCompTagline, setNewCompTagline] = useState("");
+  const [newCompDescription, setNewCompDescription] = useState("");
+  const [newCompCategory, setNewCompCategory] = useState("Pop Culture & Memes");
+  const [newCompSponsor, setNewCompSponsor] = useState("RIFF Originals");
+  const [newCompTotalPrize, setNewCompTotalPrize] = useState(25000);
+  const [newCompPrizeFirst, setNewCompPrizeFirst] = useState(12500);
+  const [newCompPrizeSecond, setNewCompPrizeSecond] = useState(7500);
+  const [newCompPrizeThird, setNewCompPrizeThird] = useState(5000);
+  const [newCompDurationDays, setNewCompDurationDays] = useState(7);
+  const [newCompHashtag, setNewCompHashtag] = useState("");
+  const [newCompContentType, setNewCompContentType] = useState<"all" | "meme" | "reel">("all");
+  const [newCompRulesText, setNewCompRulesText] = useState(
+    "Original memes and vertical edits only\nHigh-contrast punchy captions with crisp typography\nNo copyright-infringing audio\nTop engagement scores receive direct cash prizes",
+  );
+  const [newCompCoverUrl, setNewCompCoverUrl] = useState("/memes/cricket.jpg");
+
+  // Winners Selection Form State
+  const [winner1stId, setWinner1stId] = useState("");
+  const [winner2ndId, setWinner2ndId] = useState("");
+  const [winner3rdId, setWinner3rdId] = useState("");
 
   // Team vs Creators Sub-category State
   const [teamSubCategory, setTeamSubCategory] = useState<"team" | "creators">("team");
@@ -326,6 +378,135 @@ function OwnerDashboardPage() {
       loadConfigAudit();
     }
   }, [activeTab]);
+
+  // Load Competitions for Arena Manager
+  const loadAllComps = async () => {
+    setLoadingCompetitions(true);
+    try {
+      const list = await fetchAllCompetitions();
+      setOwnerCompetitions(list);
+      if (list.length > 0 && !selectedCompIdForManage) {
+        setSelectedCompIdForManage(list[0].id);
+      }
+    } finally {
+      setLoadingCompetitions(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAllComps();
+  }, []);
+
+  const handleCreateCompetition = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newCompTitle.trim()) {
+      toast.error("Please enter a competition title");
+      return;
+    }
+    const cleanHashtag = newCompHashtag.trim().startsWith("#")
+      ? newCompHashtag.trim()
+      : `#${newCompHashtag.trim() || newCompTitle.replace(/[^a-zA-Z0-9]/g, "").slice(0, 15) + "Riff"}`;
+
+    const deadline = new Date(Date.now() + Number(newCompDurationDays || 7) * 86400000).toISOString();
+    const rules = newCompRulesText
+      .split("\n")
+      .map((r) => r.trim())
+      .filter(Boolean);
+
+    const totalPrize = Number(newCompTotalPrize) || 20000;
+    const p1 = Number(newCompPrizeFirst) || Math.round(totalPrize * 0.5);
+    const p2 = Number(newCompPrizeSecond) || Math.round(totalPrize * 0.3);
+    const p3 = Number(newCompPrizeThird) || Math.round(totalPrize * 0.2);
+
+    const newComp: Competition = {
+      id: `comp_${Date.now()}`,
+      title: newCompTitle.trim(),
+      tagline: newCompTagline.trim() || `Compete to win ${inr(totalPrize)} total cash prize pool`,
+      description: newCompDescription.trim() || "Create viral memes and reels. Top engagement wins direct cash prizes.",
+      coverUrl: newCompCoverUrl || "/memes/cricket.jpg",
+      sponsor: newCompSponsor.trim() || "RIFF Originals",
+      category: newCompCategory,
+      totalPrize,
+      prizeFirst: p1,
+      prizeSecond: p2,
+      prizeThird: p3,
+      deadline,
+      hashtag: cleanHashtag,
+      rules: rules.length > 0 ? rules : ["Original content only", "Top engagement scores win"],
+      entryCount: 0,
+      status: "active",
+      contentType: newCompContentType,
+      createdAt: Date.now(),
+    };
+
+    saveCustomCompetition(newComp);
+    loadAllComps();
+    setSelectedCompIdForManage(newComp.id);
+    setShowCreateCompModal(false);
+    playSound("cheer");
+    fireConfetti();
+    toast.success(`Launched contest "${newComp.title}" with ${inr(newComp.totalPrize)} prize pool!`);
+
+    setNewCompTitle("");
+    setNewCompTagline("");
+    setNewCompDescription("");
+    setNewCompHashtag("");
+  };
+
+  const handleDeclareWinners = () => {
+    if (!compToDeclareWinner) return;
+    const entries = getLeaderboardForCompetition(compToDeclareWinner.id, getLocalUserEntries(), compToDeclareWinner);
+    const first = entries.find((e) => e.id === winner1stId) || entries[0];
+    const second = entries.find((e) => e.id === winner2ndId) || entries[1];
+    const third = entries.find((e) => e.id === winner3rdId) || entries[2];
+
+    declareCompetitionWinners(compToDeclareWinner.id, {
+      firstId: first?.id,
+      firstName: first?.creatorName,
+      firstHandle: first?.creatorHandle,
+      secondId: second?.id,
+      secondName: second?.creatorName,
+      secondHandle: second?.creatorHandle,
+      thirdId: third?.id,
+      thirdName: third?.creatorName,
+      thirdHandle: third?.creatorHandle,
+    });
+
+    loadAllComps();
+    setShowWinnerModal(false);
+    playSound("cheer");
+    fireConfetti();
+    toast.success(
+      `Winners declared for ${compToDeclareWinner.title}! 🥇 @${first?.creatorHandle || "1st"} won ${inr(compToDeclareWinner.prizeFirst)}`,
+    );
+  };
+
+  const handleDisqualifyEntry = (entryId: string, creatorHandle: string) => {
+    disqualifyEntry(entryId, "Disqualified by platform owner");
+    loadAllComps();
+    playSound("pop");
+    toast.info(`Disqualified entry from @${creatorHandle}. Removed from public leaderboard.`);
+  };
+
+  const handleRestoreEntry = (entryId: string, creatorHandle: string) => {
+    restoreEntry(entryId);
+    loadAllComps();
+    toast.success(`Restored entry from @${creatorHandle} to public leaderboard.`);
+  };
+
+  const handleDeleteCompetition = (compId: string, compTitle: string) => {
+    if (confirm(`Are you sure you want to delete "${compTitle}"?`)) {
+      deleteCompetition(compId);
+      loadAllComps();
+      toast.info(`Deleted competition "${compTitle}".`);
+    }
+  };
+
+  const handleStatusChange = (compId: string, newStatus: "active" | "judging" | "completed") => {
+    updateCompetitionStatus(compId, newStatus);
+    loadAllComps();
+    toast.success(`Contest status updated to ${newStatus.toUpperCase()}!`);
+  };
 
   const handleConfigDraftChange = (key: string, val: string) => {
     setDraftConfigs((prev) => ({
@@ -890,6 +1071,7 @@ function OwnerDashboardPage() {
           {[
             { id: "overview", label: "Overview & Health", icon: Activity },
             { id: "controls", label: "Platform Controls", icon: Sliders },
+            { id: "contests", label: `Arena & Contests (${ownerCompetitions.length})`, icon: Trophy },
             { id: "config", label: `System Config (${storeSystemConfigs.length})`, icon: Settings },
             { id: "team", label: `Team (${teamMembers.length})`, icon: Users },
             { id: "roles", label: "Roles & Perms", icon: ShieldCheck },
@@ -1471,6 +1653,813 @@ function OwnerDashboardPage() {
                 </div>
               </form>
             </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* ARENA & COMPETITIONS MANAGER TAB */}
+        {/* ========================================================= */}
+        {activeTab === "contests" && (
+          <div className="space-y-6">
+            {/* KPI STAT CARDS */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
+                  <span>Active Competitions</span>
+                  <Trophy className="size-4 text-amber-400" />
+                </div>
+                <div className="text-2xl font-black text-fg">
+                  {ownerCompetitions.filter((c) => c.status === "active").length}
+                </div>
+                <div className="text-[11px] text-muted flex items-center gap-1 pt-1">
+                  Total: {ownerCompetitions.length} contests created
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
+                  <span>Live Cash Prize Pool</span>
+                  <DollarSign className="size-4 text-emerald-400" />
+                </div>
+                <div className="text-2xl font-black text-emerald-400">
+                  {inr(
+                    ownerCompetitions
+                      .filter((c) => c.status === "active")
+                      .reduce((sum, c) => sum + Number(c.totalPrize || 0), 0) || 45000,
+                  )}
+                </div>
+                <div className="text-[11px] text-emerald-400 flex items-center gap-1 pt-1">
+                  Direct UPI / Escrow backed
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
+                  <span>Submissions Monitored</span>
+                  <Layers className="size-4 text-sky-400" />
+                </div>
+                <div className="text-2xl font-black text-fg">
+                  {ownerCompetitions.reduce((sum, c) => sum + Number(c.entryCount || 0), 0) +
+                    getLocalUserEntries().length}
+                </div>
+                <div className="text-[11px] text-sky-400 flex items-center gap-1 pt-1">
+                  Real-time anti-spam active
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-surface p-4 space-y-1">
+                <div className="flex items-center justify-between text-muted text-xs">
+                  <span>1v1 Meme Battles</span>
+                  <Swords className="size-4 text-amber-400" />
+                </div>
+                <div className="text-2xl font-black text-fg">3 Live</div>
+                <div className="text-[11px] text-amber-400 flex items-center gap-1 pt-1">
+                  Crowd voting enabled
+                </div>
+              </div>
+            </div>
+
+            {/* ACTION STRIP */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface border border-border p-4 rounded-2xl">
+              <div>
+                <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+                  <Trophy className="size-4 text-amber-400" />
+                  <span>Arena Contests & Prize Pools</span>
+                </h3>
+                <p className="text-xs text-muted mt-0.5">
+                  Launch sponsored challenges, adjust prize pools, declare 1st/2nd/3rd podium winners, and moderate entries.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/challenge"
+                  target="_blank"
+                  className="flex items-center gap-1 text-xs text-muted hover:text-fg bg-raised border border-border px-3 py-2 rounded-xl transition"
+                >
+                  <Eye className="size-3.5 text-sky-400" />
+                  <span>Public Arena ↗</span>
+                </Link>
+
+                <Button
+                  onClick={() => setShowCreateCompModal(true)}
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs h-9 px-4 rounded-xl flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
+                >
+                  <Plus className="size-3.5" />
+                  <span>+ Launch New Contest</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* COMPETITIONS GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ownerCompetitions.map((comp) => {
+                const isSelected = selectedCompIdForManage === comp.id;
+                const isCompleted = comp.status === "completed";
+                const isJudging = comp.status === "judging";
+
+                return (
+                  <div
+                    key={comp.id}
+                    className={`rounded-2xl border transition overflow-hidden bg-surface flex flex-col justify-between ${
+                      isSelected ? "border-amber-400 ring-1 ring-amber-400/50" : "border-border hover:border-border/80"
+                    }`}
+                  >
+                    <div>
+                      {/* Banner header */}
+                      <div className="relative h-28 w-full bg-raised overflow-hidden">
+                        <img
+                          src={comp.coverUrl || "/memes/cricket.jpg"}
+                          alt={comp.title}
+                          className="w-full h-full object-cover opacity-60"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+
+                        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              isCompleted
+                                ? "bg-purple-500/30 text-purple-300 border border-purple-500/40"
+                                : isJudging
+                                ? "bg-amber-500/30 text-amber-300 border border-amber-500/40"
+                                : "bg-emerald-500/30 text-emerald-300 border border-emerald-500/40"
+                            }`}
+                          >
+                            {comp.status}
+                          </span>
+                          <span className="rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[10px] text-white/90 border border-white/10">
+                            {comp.contentType.toUpperCase()}
+                          </span>
+                        </div>
+
+                        <div className="absolute top-2.5 right-2.5">
+                          <span className="rounded-xl bg-amber-500/90 text-black px-2.5 py-1 text-xs font-black shadow-md">
+                            {inr(comp.totalPrize)}
+                          </span>
+                        </div>
+
+                        <div className="absolute bottom-2 left-2.5 right-2.5">
+                          <div className="text-[11px] font-semibold text-muted truncate">
+                            {comp.sponsor || "RIFF Originals"} · {comp.category}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content Body */}
+                      <div className="p-4 space-y-3">
+                        <div>
+                          <h4 className="font-bold text-sm text-fg line-clamp-1">{comp.title}</h4>
+                          <p className="text-xs text-muted line-clamp-2 mt-0.5">{comp.description}</p>
+                        </div>
+
+                        {/* Prize Pool Breakdown */}
+                        <div className="grid grid-cols-3 gap-1.5 bg-raised/60 border border-border/60 rounded-xl p-2 text-center text-[10px]">
+                          <div>
+                            <div className="text-amber-400 font-bold">🥇 1st</div>
+                            <div className="text-fg font-extrabold">{inr(comp.prizeFirst)}</div>
+                          </div>
+                          <div>
+                            <div className="text-slate-300 font-bold">🥈 2nd</div>
+                            <div className="text-fg font-extrabold">{inr(comp.prizeSecond)}</div>
+                          </div>
+                          <div>
+                            <div className="text-amber-600 font-bold">🥉 3rd</div>
+                            <div className="text-fg font-extrabold">{inr(comp.prizeThird)}</div>
+                          </div>
+                        </div>
+
+                        {/* Winners Display if completed */}
+                        {comp.winnerDeclared && comp.winners && (
+                          <div className="bg-purple-950/30 border border-purple-500/30 rounded-xl p-2.5 space-y-1">
+                            <div className="text-[10px] uppercase tracking-wider font-bold text-purple-300 flex items-center gap-1">
+                              <Crown className="size-3 text-amber-400" />
+                              <span>Official Winners Declared</span>
+                            </div>
+                            <div className="text-xs text-fg flex items-center justify-between font-medium">
+                              <span>🥇 @{comp.winners.firstHandle || "winner_1"}</span>
+                              <span className="text-emerald-400 font-bold">{inr(comp.prizeFirst)}</span>
+                            </div>
+                            {comp.winners.secondHandle && (
+                              <div className="text-xs text-muted flex items-center justify-between">
+                                <span>🥈 @{comp.winners.secondHandle}</span>
+                                <span className="font-bold">{inr(comp.prizeSecond)}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Metadata */}
+                        <div className="flex items-center justify-between text-[11px] text-muted pt-1">
+                          <span className="font-mono text-sky-400">{comp.hashtag}</span>
+                          <span>{comp.entryCount || 0} entries</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="p-3 bg-raised/40 border-t border-border flex items-center justify-between gap-1.5 flex-wrap">
+                      {/* Status toggle buttons */}
+                      <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-0.5 text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(comp.id, "active")}
+                          className={`px-2 py-1 rounded font-bold transition ${
+                            comp.status === "active" ? "bg-emerald-500 text-black" : "text-muted hover:text-fg"
+                          }`}
+                        >
+                          Active
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(comp.id, "judging")}
+                          className={`px-2 py-1 rounded font-bold transition ${
+                            comp.status === "judging" ? "bg-amber-500 text-black" : "text-muted hover:text-fg"
+                          }`}
+                        >
+                          Review
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(comp.id, "completed")}
+                          className={`px-2 py-1 rounded font-bold transition ${
+                            comp.status === "completed" ? "bg-purple-500 text-white" : "text-muted hover:text-fg"
+                          }`}
+                        >
+                          Done
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setCompToDeclareWinner(comp);
+                            const entries = getLeaderboardForCompetition(comp.id, getLocalUserEntries(), comp);
+                            if (entries[0]) setWinner1stId(entries[0].id);
+                            if (entries[1]) setWinner2ndId(entries[1].id);
+                            if (entries[2]) setWinner3rdId(entries[2].id);
+                            setShowWinnerModal(true);
+                          }}
+                          className="h-7 text-[10px] px-2 text-amber-300 border-amber-400/40 hover:bg-amber-400/10"
+                        >
+                          <Crown className="size-3 mr-1 text-amber-400" />
+                          Winners
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant={isSelected ? "default" : "subtle"}
+                          onClick={() => setSelectedCompIdForManage(comp.id)}
+                          className={`h-7 text-[10px] px-2.5 ${isSelected ? "bg-amber-500 text-black font-bold" : ""}`}
+                        >
+                          Entries
+                        </Button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCompetition(comp.id, comp.title)}
+                          className="p-1.5 text-muted hover:text-rose-400 transition"
+                          title="Delete Contest"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* SUBMISSIONS & MODERATION INSPECTOR */}
+            {selectedCompIdForManage && (
+              <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+                  <div>
+                    <h3 className="font-bold text-sm text-fg flex items-center gap-2">
+                      <Layers className="size-4 text-sky-400" />
+                      <span>Submissions & Leaderboard Moderation</span>
+                    </h3>
+                    <p className="text-xs text-muted mt-0.5">
+                      Inspecting entries for:{" "}
+                      <strong className="text-fg">
+                        {ownerCompetitions.find((c) => c.id === selectedCompIdForManage)?.title || "Selected Contest"}
+                      </strong>
+                    </p>
+                  </div>
+
+                  {/* Selector to switch contest */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted">Contest:</span>
+                    <select
+                      value={selectedCompIdForManage}
+                      onChange={(e) => setSelectedCompIdForManage(e.target.value)}
+                      className="bg-raised border border-border text-xs rounded-xl px-3 py-1.5 text-fg outline-none"
+                    >
+                      {ownerCompetitions.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title} ({inr(c.totalPrize)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Submissions Table */}
+                {(() => {
+                  const targetComp = ownerCompetitions.find((c) => c.id === selectedCompIdForManage);
+                  const entries = getLeaderboardForCompetition(
+                    selectedCompIdForManage,
+                    getLocalUserEntries(),
+                    targetComp,
+                  );
+
+                  if (entries.length === 0) {
+                    return (
+                      <div className="py-12 text-center text-muted text-xs">
+                        No submissions received yet for this contest.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-border text-muted font-bold">
+                            <th className="py-2.5 px-3">Rank</th>
+                            <th className="py-2.5 px-3">Creator</th>
+                            <th className="py-2.5 px-3">Entry & Media</th>
+                            <th className="py-2.5 px-3">Score & Upvotes</th>
+                            <th className="py-2.5 px-3">Est. Prize</th>
+                            <th className="py-2.5 px-3 text-right">Moderation Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/60">
+                          {entries.map((entry) => {
+                            const isDisqualified = isEntryDisqualified(entry.id);
+
+                            return (
+                              <tr
+                                key={entry.id}
+                                className={`transition hover:bg-raised/40 ${
+                                  isDisqualified ? "opacity-40 bg-rose-950/10" : ""
+                                }`}
+                              >
+                                <td className="py-3 px-3">
+                                  {entry.rank === 1 ? (
+                                    <span className="size-6 rounded-full bg-amber-400 text-black font-black text-xs flex items-center justify-center">
+                                      1
+                                    </span>
+                                  ) : entry.rank === 2 ? (
+                                    <span className="size-6 rounded-full bg-slate-300 text-black font-black text-xs flex items-center justify-center">
+                                      2
+                                    </span>
+                                  ) : entry.rank === 3 ? (
+                                    <span className="size-6 rounded-full bg-amber-600 text-white font-black text-xs flex items-center justify-center">
+                                      3
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted font-bold pl-2">#{entry.rank}</span>
+                                  )}
+                                </td>
+
+                                <td className="py-3 px-3">
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src={entry.creatorAvatar || "/memes/cricket.jpg"}
+                                      alt={entry.creatorName}
+                                      className="size-7 rounded-full object-cover border border-border"
+                                    />
+                                    <div>
+                                      <div className="font-bold text-fg flex items-center gap-1">
+                                        <span>{entry.creatorName}</span>
+                                        {entry.isCurrentUser && (
+                                          <span className="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.2 rounded font-bold">
+                                            YOU
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-[10px] text-muted">@{entry.creatorHandle}</div>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="py-3 px-3 max-w-xs">
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src={entry.mediaUrl || "/memes/cricket.jpg"}
+                                      alt="Thumbnail"
+                                      className="size-10 rounded-lg object-cover border border-border shrink-0"
+                                    />
+                                    <div className="truncate">
+                                      <div className="font-medium text-fg truncate">{entry.title}</div>
+                                      <span className="text-[10px] text-muted uppercase tracking-wider">
+                                        {entry.contentType}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="py-3 px-3">
+                                  <div className="font-bold text-fg">{entry.score.toLocaleString()} pts</div>
+                                  <div className="text-[10px] text-muted flex items-center gap-1.5">
+                                    <span>👍 {entry.upvotes.toLocaleString()}</span>
+                                    <span>👁️ {entry.views.toLocaleString()}</span>
+                                  </div>
+                                </td>
+
+                                <td className="py-3 px-3 font-extrabold text-emerald-400">
+                                  {entry.estimatedPrize > 0 ? inr(entry.estimatedPrize) : "—"}
+                                </td>
+
+                                <td className="py-3 px-3 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    {isDisqualified ? (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleRestoreEntry(entry.id, entry.creatorHandle)}
+                                        className="h-7 text-[10px] text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10"
+                                      >
+                                        Restore Entry
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleDisqualifyEntry(entry.id, entry.creatorHandle)}
+                                        className="h-7 text-[10px] text-rose-400 border-rose-500/40 hover:bg-rose-500/10"
+                                      >
+                                        Disqualify
+                                      </Button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* CREATE COMPETITION MODAL */}
+            {showCreateCompModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="size-5 text-amber-400" />
+                      <h2 className="text-base font-black text-fg">Launch New Arena Competition</h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateCompModal(false)}
+                      className="p-1 rounded-xl text-muted hover:text-fg transition"
+                    >
+                      <X className="size-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateCompetition} className="space-y-4">
+                    {/* Basic details */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-fg">Contest Title *</label>
+                      <Input
+                        placeholder="e.g. Desi College Exam Memes Clash #1"
+                        value={newCompTitle}
+                        onChange={(e) => setNewCompTitle(e.target.value)}
+                        required
+                        className="bg-raised border-border text-xs text-fg h-9"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-fg">Category</label>
+                        <select
+                          value={newCompCategory}
+                          onChange={(e) => setNewCompCategory(e.target.value)}
+                          className="w-full bg-raised border border-border rounded-xl px-3 h-9 text-xs text-fg outline-none"
+                        >
+                          <option value="Pop Culture & Memes">Pop Culture & Memes</option>
+                          <option value="Reels & Video Edits">Reels & Video Edits</option>
+                          <option value="Tech & Work Life">Tech & Work Life</option>
+                          <option value="Gaming & Esports">Gaming & Esports</option>
+                          <option value="Cricket & Sports">Cricket & Sports</option>
+                          <option value="Campus & Student Humor">Campus & Student Humor</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-fg">Content Type Allowed</label>
+                        <select
+                          value={newCompContentType}
+                          onChange={(e) => setNewCompContentType(e.target.value as any)}
+                          className="w-full bg-raised border border-border rounded-xl px-3 h-9 text-xs text-fg outline-none"
+                        >
+                          <option value="all">All Formats (Memes & Reels)</option>
+                          <option value="reel">Vertical Reels Only (9:16)</option>
+                          <option value="meme">Static Memes Only</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-fg">Brand / Sponsor Name</label>
+                        <Input
+                          placeholder="e.g. RIFF Originals / Nova Tech"
+                          value={newCompSponsor}
+                          onChange={(e) => setNewCompSponsor(e.target.value)}
+                          className="bg-raised border-border text-xs text-fg h-9"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-fg">Hashtag</label>
+                        <Input
+                          placeholder="e.g. #ExamNightmareRiff"
+                          value={newCompHashtag}
+                          onChange={(e) => setNewCompHashtag(e.target.value)}
+                          className="bg-raised border-border text-xs text-fg h-9"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-fg">Tagline / Catchphrase</label>
+                      <Input
+                        placeholder="e.g. Drop your most relatable engineering exam memes to win"
+                        value={newCompTagline}
+                        onChange={(e) => setNewCompTagline(e.target.value)}
+                        className="bg-raised border-border text-xs text-fg h-9"
+                      />
+                    </div>
+
+                    {/* Prize pool configuration */}
+                    <div className="bg-raised/60 border border-border rounded-2xl p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-extrabold text-amber-400 flex items-center gap-1.5">
+                          <DollarSign className="size-3.5" />
+                          <span>Cash Prize Distribution (INR)</span>
+                        </span>
+                        <div className="text-xs font-black text-emerald-400">
+                          Total: {inr(newCompTotalPrize)}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-muted font-bold">Total Pool (₹)</label>
+                          <Input
+                            type="number"
+                            value={newCompTotalPrize}
+                            onChange={(e) => {
+                              const total = Number(e.target.value);
+                              setNewCompTotalPrize(total);
+                              setNewCompPrizeFirst(Math.round(total * 0.5));
+                              setNewCompPrizeSecond(Math.round(total * 0.3));
+                              setNewCompPrizeThird(Math.round(total * 0.2));
+                            }}
+                            className="bg-surface border-border text-xs text-fg h-8"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-amber-400 font-bold">🥇 1st Prize (50%)</label>
+                          <Input
+                            type="number"
+                            value={newCompPrizeFirst}
+                            onChange={(e) => setNewCompPrizeFirst(Number(e.target.value))}
+                            className="bg-surface border-border text-xs text-fg h-8"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-slate-300 font-bold">🥈 2nd Prize (30%)</label>
+                          <Input
+                            type="number"
+                            value={newCompPrizeSecond}
+                            onChange={(e) => setNewCompPrizeSecond(Number(e.target.value))}
+                            className="bg-surface border-border text-xs text-fg h-8"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-amber-600 font-bold">🥉 3rd Prize (20%)</label>
+                          <Input
+                            type="number"
+                            value={newCompPrizeThird}
+                            onChange={(e) => setNewCompPrizeThird(Number(e.target.value))}
+                            className="bg-surface border-border text-xs text-fg h-8"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Deadline duration */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-fg">Contest Duration</label>
+                      <div className="flex items-center gap-2">
+                        {[3, 5, 7, 14, 30].map((days) => (
+                          <button
+                            key={days}
+                            type="button"
+                            onClick={() => setNewCompDurationDays(days)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                              newCompDurationDays === days
+                                ? "bg-amber-500 text-black border-amber-400 font-black"
+                                : "bg-raised text-muted border-border hover:text-fg"
+                            }`}
+                          >
+                            +{days} Days
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Cover graphic selector */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-fg">Cover Art</label>
+                      <div className="grid grid-cols-6 gap-2">
+                        {[
+                          { url: "/memes/cricket.jpg", label: "Cricket" },
+                          { url: "/memes/club.jpg", label: "Club" },
+                          { url: "/memes/desk.jpg", label: "Desk" },
+                          { url: "/memes/food.jpg", label: "Food" },
+                          { url: "/memes/sneaker.jpg", label: "Sneaker" },
+                          { url: "/memes/cat.jpg", label: "Cat" },
+                        ].map((item) => (
+                          <button
+                            key={item.url}
+                            type="button"
+                            onClick={() => setNewCompCoverUrl(item.url)}
+                            className={`relative rounded-xl overflow-hidden aspect-video border transition ${
+                              newCompCoverUrl === item.url
+                                ? "border-amber-400 ring-2 ring-amber-400/50"
+                                : "border-border opacity-60 hover:opacity-100"
+                            }`}
+                          >
+                            <img src={item.url} alt={item.label} className="w-full h-full object-cover" />
+                            <div className="absolute inset-x-0 bottom-0 bg-black/70 text-[9px] text-center text-white py-0.5 font-bold">
+                              {item.label}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Rules Text */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-fg">Contest Rules (one per line)</label>
+                      <Textarea
+                        rows={3}
+                        value={newCompRulesText}
+                        onChange={(e) => setNewCompRulesText(e.target.value)}
+                        className="bg-raised border-border text-xs text-fg resize-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                      <Button
+                        type="button"
+                        variant="subtle"
+                        onClick={() => setShowCreateCompModal(false)}
+                        className="text-xs"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs px-5 shadow-lg shadow-amber-500/20"
+                      >
+                        Publish Contest to Arena 🚀
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* DECLARE WINNERS MODAL */}
+            {showWinnerModal && compToDeclareWinner && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-surface border border-border rounded-3xl w-full max-w-lg shadow-2xl p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <div className="flex items-center gap-2">
+                      <Crown className="size-5 text-amber-400" />
+                      <h2 className="text-base font-black text-fg">Declare Contest Winners</h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowWinnerModal(false)}
+                      className="p-1 rounded-xl text-muted hover:text-fg transition"
+                    >
+                      <X className="size-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="bg-raised/60 border border-border rounded-2xl p-3.5 space-y-1">
+                      <div className="text-xs font-bold text-fg">{compToDeclareWinner.title}</div>
+                      <div className="text-[11px] text-muted">
+                        Total Prize Pool:{" "}
+                        <strong className="text-emerald-400 font-extrabold">
+                          {inr(compToDeclareWinner.totalPrize)}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Winner Selectors */}
+                    {(() => {
+                      const entries = getLeaderboardForCompetition(
+                        compToDeclareWinner.id,
+                        getLocalUserEntries(),
+                        compToDeclareWinner,
+                      );
+
+                      return (
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-amber-400 flex items-center justify-between">
+                              <span>🥇 1st Place Champion ({inr(compToDeclareWinner.prizeFirst)})</span>
+                            </label>
+                            <select
+                              value={winner1stId}
+                              onChange={(e) => setWinner1stId(e.target.value)}
+                              className="w-full bg-raised border border-border rounded-xl px-3 h-9 text-xs text-fg outline-none"
+                            >
+                              {entries.map((e) => (
+                                <option key={e.id} value={e.id}>
+                                  #{e.rank} @{e.creatorHandle} — {e.title.slice(0, 35)} ({e.score} pts)
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                              <span>🥈 2nd Place Runner-Up ({inr(compToDeclareWinner.prizeSecond)})</span>
+                            </label>
+                            <select
+                              value={winner2ndId}
+                              onChange={(e) => setWinner2ndId(e.target.value)}
+                              className="w-full bg-raised border border-border rounded-xl px-3 h-9 text-xs text-fg outline-none"
+                            >
+                              {entries.map((e) => (
+                                <option key={e.id} value={e.id}>
+                                  #{e.rank} @{e.creatorHandle} — {e.title.slice(0, 35)} ({e.score} pts)
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-amber-600 flex items-center justify-between">
+                              <span>🥉 3rd Place ({inr(compToDeclareWinner.prizeThird)})</span>
+                            </label>
+                            <select
+                              value={winner3rdId}
+                              onChange={(e) => setWinner3rdId(e.target.value)}
+                              className="w-full bg-raised border border-border rounded-xl px-3 h-9 text-xs text-fg outline-none"
+                            >
+                              {entries.map((e) => (
+                                <option key={e.id} value={e.id}>
+                                  #{e.rank} @{e.creatorHandle} — {e.title.slice(0, 35)} ({e.score} pts)
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                      <Button
+                        type="button"
+                        variant="subtle"
+                        onClick={() => setShowWinnerModal(false)}
+                        className="text-xs"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleDeclareWinners}
+                        className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs px-5 shadow-lg shadow-amber-500/20"
+                      >
+                        Announce & Distribute Prizes 🏆
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

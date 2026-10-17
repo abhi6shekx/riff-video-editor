@@ -20,6 +20,20 @@ export interface Competition {
   entryCount: number;
   status: "active" | "judging" | "completed";
   contentType: "meme" | "reel" | "all";
+  createdAt?: number;
+  winnerDeclared?: boolean;
+  winners?: {
+    firstId?: string;
+    firstName?: string;
+    firstHandle?: string;
+    secondId?: string;
+    secondName?: string;
+    secondHandle?: string;
+    thirdId?: string;
+    thirdName?: string;
+    thirdHandle?: string;
+    announcedAt?: number;
+  };
 }
 
 export interface LeaderboardEntry {
@@ -459,51 +473,270 @@ export const BATTLE_MATCHUPS: BattleMatchup[] = [
 ];
 
 /**
- * Fetch all available competitions (DB campaigns + Flagship Featured)
+ * Storage keys for persistent Arena data
+ */
+export const STORAGE_CUSTOM_COMPETITIONS_KEY = "riff_custom_competitions_v1";
+export const STORAGE_ENTRIES_KEY = "riff_competition_entries_v1";
+export const STORAGE_UPVOTES_KEY = "riff_competition_upvotes_v1";
+export const STORAGE_DISQUALIFIED_KEY = "riff_disqualified_entries_v1";
+
+/**
+ * Retrieve custom competitions created by platform owner / staff
+ */
+export function getCustomCompetitions(): Competition[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_CUSTOM_COMPETITIONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save or update a custom competition
+ */
+export function saveCustomCompetition(competition: Competition) {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = getCustomCompetitions();
+    const index = existing.findIndex((c) => c.id === competition.id);
+    let updated: Competition[];
+    if (index >= 0) {
+      updated = [...existing];
+      updated[index] = competition;
+    } else {
+      updated = [competition, ...existing];
+    }
+    localStorage.setItem(STORAGE_CUSTOM_COMPETITIONS_KEY, JSON.stringify(updated));
+  } catch {}
+}
+
+/**
+ * Delete a competition (both custom and overrides)
+ */
+export function deleteCompetition(competitionId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = getCustomCompetitions();
+    const filtered = existing.filter((c) => c.id !== competitionId);
+    localStorage.setItem(STORAGE_CUSTOM_COMPETITIONS_KEY, JSON.stringify(filtered));
+  } catch {}
+}
+
+/**
+ * Update the status of any competition (active, judging, completed)
+ */
+export function updateCompetitionStatus(
+  competitionId: string,
+  status: "active" | "judging" | "completed",
+) {
+  if (typeof window === "undefined") return;
+  try {
+    const custom = getCustomCompetitions();
+    const match = custom.find((c) => c.id === competitionId);
+    if (match) {
+      match.status = status;
+      saveCustomCompetition(match);
+      return;
+    }
+
+    // If it is one of the built-in featured ones, save an override in custom storage
+    const featured = FEATURED_COMPETITIONS.find((c) => c.id === competitionId);
+    if (featured) {
+      const override: Competition = {
+        ...featured,
+        status,
+      };
+      saveCustomCompetition(override);
+    }
+  } catch {}
+}
+
+/**
+ * Declare winners for a competition
+ */
+export function declareCompetitionWinners(
+  competitionId: string,
+  winners: {
+    firstId?: string;
+    firstName?: string;
+    firstHandle?: string;
+    secondId?: string;
+    secondName?: string;
+    secondHandle?: string;
+    thirdId?: string;
+    thirdName?: string;
+    thirdHandle?: string;
+  },
+) {
+  if (typeof window === "undefined") return;
+  try {
+    const custom = getCustomCompetitions();
+    const match = custom.find((c) => c.id === competitionId);
+    if (match) {
+      match.status = "completed";
+      match.winnerDeclared = true;
+      match.winners = {
+        ...winners,
+        announcedAt: Date.now(),
+      };
+      saveCustomCompetition(match);
+      return;
+    }
+
+    const featured = FEATURED_COMPETITIONS.find((c) => c.id === competitionId);
+    if (featured) {
+      const override: Competition = {
+        ...featured,
+        status: "completed",
+        winnerDeclared: true,
+        winners: {
+          ...winners,
+          announcedAt: Date.now(),
+        },
+      };
+      saveCustomCompetition(override);
+    }
+  } catch {}
+}
+
+/**
+ * Disqualified entries tracking
+ */
+export function getDisqualifiedEntries(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_DISQUALIFIED_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function disqualifyEntry(entryId: string, reason: string = "Violates guidelines") {
+  if (typeof window === "undefined") return;
+  try {
+    const map = getDisqualifiedEntries();
+    map[entryId] = reason;
+    localStorage.setItem(STORAGE_DISQUALIFIED_KEY, JSON.stringify(map));
+  } catch {}
+}
+
+export function restoreEntry(entryId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const map = getDisqualifiedEntries();
+    delete map[entryId];
+    localStorage.setItem(STORAGE_DISQUALIFIED_KEY, JSON.stringify(map));
+  } catch {}
+}
+
+export function isEntryDisqualified(entryId: string): boolean {
+  if (typeof window === "undefined") return false;
+  const map = getDisqualifiedEntries();
+  return Boolean(map[entryId]);
+}
+
+/**
+ * Fetch all available competitions (Custom Owner created + DB campaigns + Flagship Featured)
  */
 export async function fetchAllCompetitions(): Promise<Competition[]> {
+  const custom = getCustomCompetitions();
+  const customMap = new Map<string, Competition>(custom.map((c) => [c.id, c]));
+
   try {
     const campaigns = await fetchCampaigns();
     const competitionCampaigns: Competition[] = campaigns
       .filter((c) => c.campaign_type === "competition" || (c.prize_first && c.prize_first > 0))
-      .map((c) => ({
-        id: c.id,
-        title: c.title,
-        tagline: c.objective || c.description.slice(0, 80),
-        description: c.description,
-        coverUrl: c.cover_url || "/memes/cricket.jpg",
-        sponsor: c.brand?.company_name || "Official Brand Sponsor",
-        category: "Brand Ranked Competition",
-        totalPrize: Number(c.total_budget || 20000),
-        prizeFirst: Number(c.prize_first || Math.round(Number(c.total_budget) * 0.5)),
-        prizeSecond: Number(c.prize_second || Math.round(Number(c.total_budget) * 0.3)),
-        prizeThird: Number(c.prize_third || Math.round(Number(c.total_budget) * 0.2)),
-        deadline: c.deadline || new Date(Date.now() + 86400000 * 7).toISOString(),
-        hashtag: `#${c.title.replace(/[^a-zA-Z0-9]/g, "").slice(0, 15)}Riff`,
-        rules: c.guidelines_do?.length ? c.guidelines_do : ["Original content only", "Top engagement scores win"],
-        entryCount: c.slots_taken || 18,
-        status: c.status === "closed" ? "completed" : "active",
-        contentType: c.content_type === "reel" ? "reel" : "all",
-      }));
+      .map((c) => {
+        // If owner has an override saved, prioritize it
+        if (customMap.has(c.id)) {
+          return customMap.get(c.id)!;
+        }
+        return {
+          id: c.id,
+          title: c.title,
+          tagline: c.objective || c.description.slice(0, 80),
+          description: c.description,
+          coverUrl: c.cover_url || "/memes/cricket.jpg",
+          sponsor: c.brand?.company_name || "Official Brand Sponsor",
+          category: "Brand Ranked Competition",
+          totalPrize: Number(c.total_budget || 20000),
+          prizeFirst: Number(c.prize_first || Math.round(Number(c.total_budget) * 0.5)),
+          prizeSecond: Number(c.prize_second || Math.round(Number(c.total_budget) * 0.3)),
+          prizeThird: Number(c.prize_third || Math.round(Number(c.total_budget) * 0.2)),
+          deadline: c.deadline || new Date(Date.now() + 86400000 * 7).toISOString(),
+          hashtag: `#${c.title.replace(/[^a-zA-Z0-9]/g, "").slice(0, 15)}Riff`,
+          rules: c.guidelines_do?.length ? c.guidelines_do : ["Original content only", "Top engagement scores win"],
+          entryCount: c.slots_taken || 18,
+          status: c.status === "closed" ? "completed" : "active",
+          contentType: c.content_type === "reel" ? "reel" : "all",
+        };
+      });
 
-    // Return union of DB competitions + featured competitions (deduped by ID)
-    const existingIds = new Set(competitionCampaigns.map((c) => c.id));
-    const merged = [
-      ...competitionCampaigns,
-      ...FEATURED_COMPETITIONS.filter((c) => !existingIds.has(c.id)),
-    ];
-    return merged;
+    // Merge: custom owner comps first, then DB comps, then featured defaults (with overrides applied)
+    const featuredWithOverrides = FEATURED_COMPETITIONS.map((fc) => {
+      return customMap.has(fc.id) ? customMap.get(fc.id)! : fc;
+    });
+
+    const seenIds = new Set<string>();
+    const result: Competition[] = [];
+
+    // Custom owner competitions
+    for (const c of custom) {
+      if (!seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        result.push(c);
+      }
+    }
+
+    // Campaign competitions
+    for (const c of competitionCampaigns) {
+      if (!seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        result.push(c);
+      }
+    }
+
+    // Featured defaults
+    for (const c of featuredWithOverrides) {
+      if (!seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        result.push(c);
+      }
+    }
+
+    return result;
   } catch {
-    return FEATURED_COMPETITIONS;
+    const featuredWithOverrides = FEATURED_COMPETITIONS.map((fc) => {
+      return customMap.has(fc.id) ? customMap.get(fc.id)! : fc;
+    });
+
+    const seenIds = new Set<string>();
+    const result: Competition[] = [];
+
+    for (const c of custom) {
+      if (!seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        result.push(c);
+      }
+    }
+
+    for (const c of featuredWithOverrides) {
+      if (!seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        result.push(c);
+      }
+    }
+
+    return result;
   }
 }
 
 /**
  * Local storage key for persistent user contest submissions & upvotes
  */
-const STORAGE_ENTRIES_KEY = "riff_competition_entries_v1";
-const STORAGE_UPVOTES_KEY = "riff_competition_upvotes_v1";
-
 export function getLocalUserEntries(): LeaderboardEntry[] {
   if (typeof window === "undefined") return [];
   try {
@@ -551,26 +784,38 @@ export function toggleLocalUpvote(entryId: string): boolean {
 }
 
 /**
- * Fetch leaderboard for a given competition, factoring in real user submissions
+ * Fetch leaderboard for a given competition, factoring in real user submissions,
+ * removing disqualified entries, and applying specific prize pools.
  */
 export function getLeaderboardForCompetition(
   competitionId: string,
   userEntries: LeaderboardEntry[] = [],
+  competition?: Competition | null,
 ): LeaderboardEntry[] {
   const baseEntries = INITIAL_LEADERBOARD_ENTRIES[competitionId] || INITIAL_LEADERBOARD_ENTRIES.comp_bollywood || [];
   const relevantUserEntries = userEntries.filter((e) => e.competitionId === competitionId);
+  const disqualifiedMap = getDisqualifiedEntries();
 
-  // Combine and sort by score descending
-  const combined = [...relevantUserEntries, ...baseEntries];
+  // Combine and remove disqualified
+  const combined = [...relevantUserEntries, ...baseEntries].filter(
+    (entry) => !disqualifiedMap[entry.id],
+  );
+
+  // Sort by score descending
   const sorted = combined.sort((a, b) => b.score - a.score);
+
+  // Prizes from competition or fallback
+  const p1 = competition?.prizeFirst ?? 10000;
+  const p2 = competition?.prizeSecond ?? 6000;
+  const p3 = competition?.prizeThird ?? 4000;
 
   // Re-rank 1 to N
   return sorted.map((entry, index) => {
     const rank = index + 1;
     let estimatedPrize = 0;
-    if (rank === 1) estimatedPrize = 10000;
-    else if (rank === 2) estimatedPrize = 6000;
-    else if (rank === 3) estimatedPrize = 4000;
+    if (rank === 1) estimatedPrize = p1;
+    else if (rank === 2) estimatedPrize = p2;
+    else if (rank === 3) estimatedPrize = p3;
 
     return {
       ...entry,
